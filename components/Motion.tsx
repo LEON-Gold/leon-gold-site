@@ -24,6 +24,10 @@ export default function Motion() {
         // clearProps: a leftover transform on the bar would trap the fixed menu panel inside it
         .from(".bar", { y: -30, opacity: 0, duration: 1, clearProps: "transform,opacity" }, 0.9);
 
+      // the molten-gold clip loads and plays only while it is on screen
+      const io = new IntersectionObserver((es) => es.forEach((e) => { const v = e.target as HTMLVideoElement; if (e.isIntersecting) v.play().catch(() => {}); else v.pause(); }), { rootMargin: "200px" });
+      document.querySelectorAll("video[data-lazy]").forEach((v) => io.observe(v));
+
       // the lamp follows the pointer
       const hero = document.querySelector<HTMLElement>(".hero");
       const lamp = (e: PointerEvent) => { const r = hero!.getBoundingClientRect(); hero!.style.setProperty("--mx", e.clientX - r.left + "px"); hero!.style.setProperty("--my", e.clientY - r.top + "px"); };

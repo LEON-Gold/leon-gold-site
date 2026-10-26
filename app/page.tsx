@@ -119,7 +119,7 @@ export default function Home() {
 
         <section id="wholesale" className="sec-paper wholesale" aria-labelledby="ws-h">
           <figure className="ws-media" data-rise>
-            <video autoPlay muted loop playsInline preload="metadata" poster={MELT.poster.slice(1)} width={1280} height={720} aria-hidden="true">
+            <video muted loop playsInline preload="none" data-lazy poster={MELT.poster.slice(1)} width={1280} height={720} aria-hidden="true">
               <source src={MELT.src.slice(1)} type="video/webm" />
             </video>
             <figcaption>طلای مذاب هنگام سرد شدن بلوری می‌شود.</figcaption>
