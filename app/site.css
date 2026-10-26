@@ -1,0 +1,142 @@
+/* Sections of the dark room. Five type steps: the name, section headings, row size, text, small. */
+:root {
+  --s-small: 14px;
+  --s-text: 17px;
+  --s-row: clamp(22px, 2vw, 28px);
+  --s-head: clamp(40px, 4.4vw, 64px);
+  --s-name: clamp(110px, 16vw, 260px);
+}
+h1, h2, h3 { font-family: var(--display); font-weight: 700; margin: 0; letter-spacing: 0; line-height: 1.15; }
+h2 { font-size: var(--s-head); }
+h3 { font-size: var(--s-row); }
+p { margin: 0; }
+section { padding-inline: var(--m); }
+small, .small { font-size: var(--s-small); }
+
+/* hero: the pendant above, the name across the band below, then the plain sentence and the action */
+.hero { position: relative; min-height: 100svh; display: grid; grid-template-rows: 52svh auto; padding: 0; }
+.hero-nav { position: absolute; top: 20px; inset-inline: var(--m); display: flex; gap: 28px; z-index: 2; font-size: var(--s-small); }
+.hero-pic { overflow: hidden; position: relative; }
+.hero-pic img { position: absolute; inset: 0; height: 100%; width: 100%; object-fit: contain; }
+.hero-band { padding-inline: var(--m); display: grid; align-content: end; gap: 28px; padding-bottom: 28px; }
+.hero-name { font-size: var(--s-name); line-height: 1.3; color: var(--accent); white-space: nowrap; transform-origin: 50% 100%; text-align: center; }
+.hero-row { display: flex; justify-content: space-between; align-items: center; gap: 24px; }
+.hero-row p { font-size: var(--s-row); font-family: var(--text); max-width: 30em; }
+
+/* price board and the calculator (the live thing) */
+.price { padding-block: 160px 120px; display: grid; gap: 48px; }
+.price-head { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; align-items: end; }
+.price-head p { max-width: 32em; }
+.board { display: grid; grid-template-columns: 1.15fr 1fr; gap: clamp(32px, 5vw, 80px); align-items: start; }
+.board-row { display: flex; justify-content: space-between; gap: 16px; font-size: var(--s-row); line-height: 1.9; }
+.board-row small { color: var(--muted); }
+.board-wait, .board-when { color: var(--muted); font-size: var(--s-small); margin-top: 16px; }
+.calc { background: var(--surface); padding: clamp(24px, 3vw, 40px); display: grid; gap: 20px; }
+.calc-in { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.calc label { display: grid; gap: 6px; font-size: var(--s-small); color: var(--muted); }
+.calc input { font: 500 var(--s-row)/1 var(--text); color: var(--ink); background: var(--bg); border: 1px solid #2a4237; padding: 14px 16px; width: 100%; box-sizing: border-box; min-height: 56px; }
+.calc input:focus { border-color: var(--accent); outline: none; }
+.calc-total { font-size: var(--s-head); color: var(--accent); line-height: 1.1; }
+.calc-total small { color: var(--muted); }
+.calc-parts { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 24px; margin: 0; font-size: var(--s-small); }
+.calc-parts div { display: flex; justify-content: space-between; gap: 8px; }
+.calc-parts dt { color: var(--muted); } .calc-parts dd { margin: 0; }
+.calc-note { font-size: var(--s-small); color: var(--muted); }
+
+/* the lion in gold: lit pieces at uneven heights in the dark */
+.exhibits { padding-block: 120px 160px; }
+.ex-stage { display: grid; gap: 64px; }
+.ex-intro { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; align-items: end; }
+.ex-track { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(6, 1fr); gap: 56px 40px; align-items: start; }
+.ex-card { display: grid; gap: 16px; grid-column: span 2; }
+.ex-card:nth-child(-n+2) { grid-column: span 3; }
+.ex-card:nth-child(2), .ex-card:nth-child(4) { margin-top: 96px; }
+.ex-pic { aspect-ratio: 1; display: grid; place-items: center; overflow: hidden; }
+.ex-pic img { width: 100%; height: 100%; object-fit: contain; }
+.ex-text { display: grid; gap: 8px; }
+.ex-text span { display: block; color: var(--muted); font-size: var(--s-small); margin-top: 4px; }
+
+/* the collection, one size for every row */
+.collection { padding-block: 120px; display: grid; gap: 40px; }
+.lineup { list-style: none; margin: 0; padding: 0; }
+.lineup li { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 16px; font-size: var(--s-row); line-height: 2; }
+.lineup li span:nth-child(n+2) { color: var(--muted); }
+.lineup li span:last-child { text-align: left; }
+
+/* one verb at a time, read in order across the row */
+.steps { padding-block: 120px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 40px; background: var(--field); }
+.step { display: grid; gap: 16px; align-content: start; }
+.step h2 { color: var(--accent); }
+
+/* about: an inset panel with the goldsmith's box in an arch */
+.about { padding-block: 160px; }
+.about-panel { background: var(--field); position: relative; overflow: hidden; display: grid; grid-template-columns: 1fr 1fr; padding: 56px 56px 0; gap: 40px; }
+.about-panel h2 { align-self: start; max-width: 8em; }
+.about-text { grid-column: 2; grid-row: 1 / span 2; display: grid; gap: 40px; align-content: start; max-width: 420px; padding-bottom: 56px; }
+.about-text > div { display: grid; gap: 10px; }
+.about-text .btn { justify-self: start; }
+.about-pic { grid-column: 1; align-self: end; width: min(38vw, 520px); aspect-ratio: 3 / 4; margin-bottom: -12%; clip-path: inset(0 round 999px 999px 0 0); }
+.about-pic img { width: 100%; height: 100%; object-fit: cover; filter: brightness(0.85) contrast(1.05); }
+
+/* wholesale: the last picture, text beside */
+.wholesale { padding-block: 120px; display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: center; }
+.ws-pic { margin: 0; display: grid; gap: 10px; }
+.ws-pic video { width: 100%; height: auto; display: block; }
+.ws-pic figcaption { font-size: var(--s-small); color: var(--muted); }
+.ws-text { display: grid; gap: 20px; max-width: 30em; }
+.ws-text .btn { justify-self: start; }
+
+/* order */
+.order-sec { padding-block: 160px 120px; display: grid; grid-template-columns: 1fr 1fr; gap: 40px 64px; align-items: start; }
+.order-head { display: grid; gap: 16px; }
+.order { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.order label { display: grid; gap: 6px; font-size: var(--s-small); color: var(--muted); }
+.order .wide { grid-column: 1 / -1; }
+.order input, .order select, .order textarea { font: 400 var(--s-text)/1.5 var(--text); color: var(--ink); background: var(--surface); border: 1px solid #2a4237; padding: 12px 14px; min-height: 52px; box-sizing: border-box; width: 100%; }
+.order input:focus, .order select:focus, .order textarea:focus { border-color: var(--accent); outline: none; }
+.order .btn { grid-column: 1 / -1; justify-self: start; }
+.order-err { grid-column: 1 / -1; color: #ffb4a6; font-size: var(--s-small); }
+.order-phone { grid-column: 1 / -1; font-size: var(--s-head); text-decoration: none; color: var(--ink); line-height: 1; transition: color 0.25s var(--ease); justify-self: start; }
+.order-phone:hover { color: var(--accent); }
+
+/* footer: columns above, the name below */
+.foot { background: var(--accent); color: var(--accent-ink); display: grid; gap: 64px; padding: 56px var(--m) 20px; }
+.foot-cols { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; }
+.foot-cols div { display: grid; gap: 4px; align-content: start; }
+.foot-cols span, .foot-cols a { color: #2a3a30; }
+.foot-name { font-family: var(--display); font-weight: 700; font-size: var(--s-name); line-height: 1.05; text-align: center; white-space: nowrap; }
+.foot-legal { font-size: var(--s-small); color: #2a3a30; }
+
+@media (max-width: 899px) {
+  .hero { grid-template-rows: 50svh auto; }
+  .hero-nav { gap: 16px; flex-wrap: wrap; }
+  .hero-name { font-size: 25vw; text-align: start; }
+  .hero-row { flex-direction: column; align-items: flex-start; gap: 16px; }
+  .hero-row p { font-size: 18px; }
+  .price, .collection, .exhibits, .steps, .wholesale { padding-block: 96px; }
+  .price-head, .board, .order-sec, .wholesale { grid-template-columns: 1fr; }
+  .ex-intro { grid-template-columns: 1fr; }
+  .ex-track { grid-template-columns: 1fr; gap: 48px; }
+  .ex-card, .ex-card:nth-child(-n+2) { grid-column: auto; }
+  .ex-card:nth-child(2), .ex-card:nth-child(4) { margin-top: 0; }
+  .steps { grid-template-columns: 1fr 1fr; gap: 40px 24px; }
+  .about { padding-block: 96px; padding-inline: 10px; }
+  .about-panel { grid-template-columns: 1fr; padding: 32px 22px 0; }
+  .about-panel h2 { max-width: none; }
+  .about-text { grid-column: 1; grid-row: auto; padding-bottom: 0; }
+  .about-pic { grid-column: 1; width: 86vw; max-width: 100%; justify-self: center; margin-bottom: -25%; }
+  .ws-text .btn { width: 100%; }
+  .ws-pic { order: 2; }
+  .order { grid-template-columns: 1fr; }
+  .calc-parts { grid-template-columns: 1fr; }
+  .foot-cols { grid-template-columns: 1fr 1fr; gap: 32px 16px; }
+  .foot-name { font-size: 27vw; }
+}
+@media (max-width: 640px) {
+  .lineup li { grid-template-columns: 1fr auto; line-height: 1.5; padding-block: 9px; gap: 2px 12px; }
+  .lineup li span:nth-child(n+2) { font-size: var(--s-small); }
+  .lineup li span:nth-child(2) { grid-column: 1; grid-row: 2; }
+  .lineup li span:nth-child(3) { grid-column: 2; grid-row: 2; text-align: left; }
+  .lineup li span:nth-child(4) { grid-column: 2; grid-row: 1; align-self: center; }
+  .steps { grid-template-columns: 1fr; }
+}
