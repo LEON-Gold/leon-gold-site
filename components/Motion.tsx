@@ -12,7 +12,7 @@ export default function Motion() {
     const mm = gsap.matchMedia();
     mm.add("(prefers-reduced-motion: no-preference)", () => {
       const tl = gsap.timeline({ defaults: { ease: "expo.out" } });
-      tl.from(".hero-rose.r1", { scale: 0.7, opacity: 0, duration: 2.4 }, 0)
+      tl.from(".hero-rose.r1", { scale: 0.86, duration: 3.2 }, 0)
         .from(".hero-rose.r2", { scale: 0.4, opacity: 0, duration: 2 }, 0.15)
         .from(".hero-jewel", { y: -40, opacity: 0, scale: 0.85, duration: 1.6 }, 0.3)
         .from(".hero-latin", { y: 24, opacity: 0, duration: 1.2 }, 0.55)
@@ -23,6 +23,11 @@ export default function Motion() {
         .from(".ticker", { y: 58, duration: 1.1 }, 1.2)
         // clearProps: a leftover transform on the bar would trap the fixed menu panel inside it
         .from(".bar", { y: -30, opacity: 0, duration: 1, clearProps: "transform,opacity" }, 0.9);
+
+      // the lamp follows the pointer
+      const hero = document.querySelector<HTMLElement>(".hero");
+      const lamp = (e: PointerEvent) => { const r = hero!.getBoundingClientRect(); hero!.style.setProperty("--mx", e.clientX - r.left + "px"); hero!.style.setProperty("--my", e.clientY - r.top + "px"); };
+      hero?.addEventListener("pointermove", lamp);
 
       // the hero sinks a little as it leaves
       gsap.to(".hero-in", { y: 120, opacity: 0.2, ease: "none", scrollTrigger: { trigger: ".hero", start: "top top", end: "bottom top", scrub: true } });

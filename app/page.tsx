@@ -3,10 +3,12 @@ import Header from "@/components/Header";
 import { PricePanel, Ticker } from "@/components/Price";
 import OrderForm from "@/components/OrderForm";
 import Motion from "@/components/Motion";
-import { ROSETTE, medallion } from "@/lib/guilloche";
+import { ROSETTE, ROSETTE_DRAW, medallion } from "@/lib/guilloche";
+import Jewel from "@/components/Jewel";
+import Hallmark from "@/components/Hallmark";
 import { COLLECTION, EXHIBITS, HERO, MELT, SHOP, STEPS, WORKBOX } from "@/lib/content";
 
-const Rosette = ({ className }: { className: string }) => <div className={className} aria-hidden dangerouslySetInnerHTML={{ __html: ROSETTE }} />;
+const Rosette = ({ className, draw }: { className: string; draw?: boolean }) => <div className={className} aria-hidden dangerouslySetInnerHTML={{ __html: draw ? ROSETTE_DRAW : ROSETTE }} />;
 const YEARS = 1405 - 1367;
 const fa = (n: number) => n.toLocaleString("fa-IR");
 
@@ -18,7 +20,8 @@ export default function Home() {
       <main id="top">
         {/* the vault: rosettes turning behind the jewel, the name struck in gold leaf */}
         <section className="hero" aria-labelledby="hero-h">
-          <Rosette className="hero-rose r1" />
+          <Rosette className="hero-rose r1" draw />
+          <div className="hero-light" aria-hidden />
           <Rosette className="hero-rose r2" />
           <i className="corner c1" aria-hidden /><i className="corner c2" aria-hidden /><i className="corner c3" aria-hidden /><i className="corner c4" aria-hidden />
           <div className="hero-in">
@@ -32,6 +35,7 @@ export default function Home() {
               <a className="btn btn-line" href="#price">قیمت امروز</a>
             </div>
           </div>
+          <Hallmark className="hero-mark" />
           <Ticker />
         </section>
 
@@ -51,7 +55,10 @@ export default function Home() {
           <ul className="cards" data-rise>
             {COLLECTION.map((c, i) => (
               <li className="card" key={c.name}>
-                <div className="card-med" aria-hidden dangerouslySetInnerHTML={{ __html: medallion(i) }} />
+                <div className="card-art">
+                  <div className="card-med" aria-hidden dangerouslySetInnerHTML={{ __html: medallion(i) }} />
+                  <Jewel kind={c.art} id={String(i)} />
+                </div>
                 <h3>{c.name}</h3>
                 <p>{c.kind}</p>
                 <dl className="num">
@@ -108,6 +115,7 @@ export default function Home() {
           </div>
           <div className="legacy-text" data-rise>
             <h2 id="leg-h" className="leaf">از {SHOP.since}، در تهران</h2>
+            <Hallmark className="legacy-mark" />
             <div className="legacy-stats">
               <div><b className="num">{fa(YEARS)}</b><span>سال در بازار طلا</span></div>
               <div><b className="num">۷۵۰</b><span>عیار هر کار</span></div>

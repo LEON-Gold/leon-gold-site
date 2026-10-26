@@ -38,12 +38,12 @@ export const MELT = { src: "/museum/the-crystallization-phenomenon-when-liquid-g
 
 // SAMPLE collection: categories and typical ranges, to be replaced from the CRM panel
 export const COLLECTION = [
-  { name: "انگشتر", kind: "زنانه و مردانه", weight: "۲ تا ۸ گرم", ajrat: "اجرت از ۷٪" },
-  { name: "گردنبند و آویز", kind: "زنجیر، آویز، اسم", weight: "۳ تا ۱۵ گرم", ajrat: "اجرت از ۸٪" },
-  { name: "دستبند", kind: "زنجیری و النگو", weight: "۴ تا ۲۰ گرم", ajrat: "اجرت از ۷٪" },
-  { name: "گوشواره", kind: "میخی، حلقه، آویز", weight: "۱ تا ۶ گرم", ajrat: "اجرت از ۹٪" },
-  { name: "سرویس", kind: "گردنبند، دستبند و گوشواره", weight: "۱۰ تا ۴۰ گرم", ajrat: "اجرت از ۸٪" },
-  { name: "سکه و شمش", kind: "بهار آزادی، گرمی، شمش", weight: "از ۱ گرم", ajrat: "بدون اجرت ساخت" },
+  { name: "انگشتر", art: "ring", kind: "زنانه و مردانه", weight: "۲ تا ۸ گرم", ajrat: "اجرت از ۷٪" },
+  { name: "گردنبند و آویز", art: "necklace", kind: "زنجیر، آویز، اسم", weight: "۳ تا ۱۵ گرم", ajrat: "اجرت از ۸٪" },
+  { name: "دستبند", art: "bracelet", kind: "زنجیری و النگو", weight: "۴ تا ۲۰ گرم", ajrat: "اجرت از ۷٪" },
+  { name: "گوشواره", art: "earring", kind: "میخی، حلقه، آویز", weight: "۱ تا ۶ گرم", ajrat: "اجرت از ۹٪" },
+  { name: "سرویس", art: "set", kind: "گردنبند، دستبند و گوشواره", weight: "۱۰ تا ۴۰ گرم", ajrat: "اجرت از ۸٪" },
+  { name: "سکه و شمش", art: "coin", kind: "بهار آزادی، گرمی، شمش", weight: "از ۱ گرم", ajrat: "بدون اجرت ساخت" },
 ];
 
 export const STEPS = [

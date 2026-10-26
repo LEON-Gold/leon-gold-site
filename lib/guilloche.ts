@@ -41,6 +41,12 @@ const INK = "#9c7433";
 // the big rosette, drawn inline so it can turn
 export const ROSETTE = svg(400, 400, ring(400, 150, 22, 24, 8, 72, 12, 520) + ring(400, 95, 16, 18, 5, 54, 10, 400) + ring(400, 48, 10, 12, 3, 36, 8, 260), GOLD, 0.5, 0.55);
 
+// the hero's rosette engraves itself on arrival: every line has a unit length and its own delay, inner rings first
+export const ROSETTE_DRAW = ROSETTE.replace(/<polyline /g, (() => {
+  let k = 0;
+  return () => `<polyline pathLength='1' style='animation-delay:${(0.15 + (29 - k++) * 0.06).toFixed(2)}s' `;
+})());
+
 // CSS variables for backgrounds: on emerald (gold lines) and on paper (darker gold lines)
 export const GL_VARS: Record<string, string> = {
   "--gl-rosette": url(svg(400, 400, ring(400, 150, 22, 24, 8, 72, 12, 520) + ring(400, 95, 16, 18, 5, 54, 10, 400) + ring(400, 48, 10, 12, 3, 36, 8, 260), GOLD, 0.38, 0.55)),
