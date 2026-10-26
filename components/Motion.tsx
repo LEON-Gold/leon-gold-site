@@ -21,7 +21,8 @@ export default function Motion() {
         .from(".hero-cta .btn", { y: 16, opacity: 0, duration: 0.9, stagger: 0.08 }, 1.15)
         .from(".hero .corner", { opacity: 0, scale: 0.6, duration: 1, stagger: 0.06 }, 1.1)
         .from(".ticker", { y: 58, duration: 1.1 }, 1.2)
-        .from(".bar", { y: -30, opacity: 0, duration: 1 }, 0.9);
+        // clearProps: a leftover transform on the bar would trap the fixed menu panel inside it
+        .from(".bar", { y: -30, opacity: 0, duration: 1, clearProps: "transform,opacity" }, 0.9);
 
       // the hero sinks a little as it leaves
       gsap.to(".hero-in", { y: 120, opacity: 0.2, ease: "none", scrollTrigger: { trigger: ".hero", start: "top top", end: "bottom top", scrub: true } });
