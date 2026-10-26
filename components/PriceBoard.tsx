@@ -76,7 +76,7 @@ export default function PriceBoard() {
         ) : (
           <p className="board-wait">{failed ? "قیمت اتحادیه الان در دسترس نیست؛ چند دقیقه‌ی دیگر دوباره نگاه کن." : "در حال گرفتن قیمت اتحادیه…"}</p>
         )}
-        {feed && <p className="board-when">به تومان، به جز انس که به دلار است. اتحادیه‌ی طلا و جواهر تهران · {feed.day} ساعت {faDigits(feed.time || "")}</p>}
+        {feed && <p className="board-when">به تومان، به جز انس که به دلار است. اتحادیه‌ی طلا و جواهر تهران، {feed.day} ساعت {faDigits(feed.time || "")}</p>}
       </div>
 
       <form className="calc" onSubmit={(e) => e.preventDefault()} aria-labelledby="calc-title">
