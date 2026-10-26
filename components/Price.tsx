@@ -93,6 +93,8 @@ export function PricePanel() {
         <p className="pp-note">به تومان، به جز انس که به دلار است. منبع: تابلوی اتحادیه‌ی طلا و جواهر تهران، هر دو دقیقه تازه می‌شود.</p>
       </div>
 
+      <PriceChart />
+
       <form className="calc" onSubmit={(e) => e.preventDefault()} aria-labelledby="calc-h">
         <div className="calc-head">
           <h3 id="calc-h" className="leaf">قیمت یک کار را حساب کن</h3>
@@ -115,6 +117,71 @@ export function PricePanel() {
           <div><dt>مالیات بر اجرت و سود (۱۰٪)</dt><dd>{est.ok ? toman(est.tax) : "—"}</dd></div>
         </dl>
       </form>
+    </div>
+  );
+}
+
+// Thirty trading days of the 18k gram's closing price from tgju (CORS-open), drawn as one gold line.
+type Day = { close: number; jdate: string };
+export function PriceChart() {
+  const [days, setDays] = useState<Day[] | null>(null);
+  const [hover, setHover] = useState<number | null>(null);
+  useEffect(() => {
+    fetch("https://api.tgju.org/v1/market/indicator/summary-table-data/geram18?length=30&start=0", { cache: "no-store" })
+      .then((r) => r.json())
+      .then((j: { data: string[][] }) => {
+        const d = j.data.map((x) => ({ close: Number(String(x[3]).replace(/\D/g, "")), jdate: x[7] })).filter((x) => x.close > 1e6).reverse();
+        if (d.length > 5) setDays(d);
+      })
+      .catch(() => {});
+  }, []);
+  if (!days) return null;
+
+  const W = 1000, H = 260, pad = 8;
+  const vals = days.map((d) => d.close), lo = Math.min(...vals), hi = Math.max(...vals), span = hi - lo || 1;
+  const x = (i: number) => pad + (i / (days.length - 1)) * (W - pad * 2);
+  const y = (v: number) => pad + (1 - (v - lo) / span) * (H - pad * 2);
+  const line = days.map((d, i) => `${i ? "L" : "M"}${x(i).toFixed(1)} ${y(d.close).toFixed(1)}`).join(" ");
+  const first = vals[0], last = vals[vals.length - 1], ch = ((last - first) / first) * 100;
+  const h = hover ?? days.length - 1;
+  const md = (j: string) => faDigits(j.slice(5).replace("/", "/"));
+
+  const onMove = (e: React.PointerEvent<SVGSVGElement>) => {
+    const r = e.currentTarget.getBoundingClientRect();
+    const k = Math.round(((e.clientX - r.left) / r.width) * (days.length - 1));
+    setHover(Math.max(0, Math.min(days.length - 1, k)));
+  };
+
+  return (
+    <div className="chart paper">
+      <div className="chart-head">
+        <div>
+          <h3>گرم ۱۸ عیار، {fa(days.length)} روز کاری اخیر</h3>
+          <p>قیمت پایانی هر روز، به تومان. منبع: tgju</p>
+        </div>
+        <div className="chart-now">
+          <b className="num">{toman(days[h].close)}</b>
+          <span>{faDigits(days[h].jdate)}</span>
+          <em className={ch >= 0 ? "up" : "down"}>{ch >= 0 ? "▲" : "▼"} {fa(Math.abs(ch), 1)}٪ در این بازه</em>
+        </div>
+      </div>
+      <div className="chart-plot">
+      <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" className="chart-svg" onPointerMove={onMove} onPointerLeave={() => setHover(null)} role="img" aria-label={`نمودار قیمت گرم طلای ۱۸ عیار در ${fa(days.length)} روز اخیر`}>
+        <defs>
+          <linearGradient id="chg" x1="0" x2="1"><stop offset="0" stopColor="#9c7433" /><stop offset=".5" stopColor="#d8b46a" /><stop offset="1" stopColor="#8a6420" /></linearGradient>
+          <linearGradient id="chf" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#c59a50" stopOpacity=".22" /><stop offset="1" stopColor="#c59a50" stopOpacity="0" /></linearGradient>
+        </defs>
+        {[0.25, 0.5, 0.75].map((t) => <line key={t} x1="0" x2={W} y1={pad + t * (H - pad * 2)} y2={pad + t * (H - pad * 2)} className="chart-grid" />)}
+        <path d={`${line} L${x(days.length - 1)} ${H} L${x(0)} ${H}Z`} fill="url(#chf)" />
+        <path d={line} fill="none" stroke="url(#chg)" strokeWidth="2.4" vectorEffect="non-scaling-stroke" className="chart-line" pathLength={1} />
+        <line x1={x(h)} x2={x(h)} y1="0" y2={H} className="chart-cursor" />
+      </svg>
+      <div className="chart-dot" style={{ left: `${(x(h) / W) * 100}%`, top: `${(y(days[h].close) / H) * 100}%` }} />
+      </div>
+      <div className="chart-axis num">
+        <span>{md(days[0].jdate)}</span><span>{md(days[Math.floor(days.length / 2)].jdate)}</span><span>{md(days[days.length - 1].jdate)}</span>
+      </div>
+      <div className="chart-range num"><span>بیشترین {toman(hi)}</span><span>کمترین {toman(lo)}</span></div>
     </div>
   );
 }
