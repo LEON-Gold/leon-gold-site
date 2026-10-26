@@ -12,6 +12,9 @@ export const SHOP = {
   hours: "شنبه تا پنجشنبه، ۱۰ تا ۱۹", // SAMPLE
 };
 
+// The ledger app: on the GitHub preview it is the app one level above the site; on real hosting it is /daftar/.
+export const LEDGER = process.env.PREVIEW_BASE ? process.env.PREVIEW_BASE.replace(/\/site\/?$/, "/") : "/daftar/";
+
 // The lion in gold: museum pieces shown as the craft's history, never as Leon Gold's own work.
 export type Exhibit = { src: string; w: number; h: number; name: string; note: string; place: string; credit: string; page: string };
 export const EXHIBITS: Exhibit[] = [

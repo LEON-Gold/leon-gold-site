@@ -214,7 +214,7 @@ section { position: relative; padding: clamp(88px, 11vw, 150px) var(--m); }
 .foot-links a { color: var(--gold-lt); text-decoration: none; }
 .foot-links a:hover { text-decoration: underline; text-underline-offset: 5px; }
 .foot-credit { font-size: 13px; color: #8f9a8c; max-width: 70em; line-height: 1.9; overflow-wrap: anywhere; }
-.foot-credit a { unicode-bidi: isolate; }
+.foot-credit a { unicode-bidi: isolate; display: inline-block; }
 .foot-credit a { color: #a9b2a5; text-decoration: none; }
 
 /* ---------- tablet and phone ---------- */

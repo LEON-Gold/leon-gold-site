@@ -7,7 +7,7 @@ import { ROSETTE, ROSETTE_DRAW, medallion } from "@/lib/guilloche";
 import Jewel from "@/components/Jewel";
 import Hallmark from "@/components/Hallmark";
 import Exhibits from "@/components/Exhibits";
-import { COLLECTION, EXHIBITS, HERO, MELT, SHOP, STEPS, WORKBOX } from "@/lib/content";
+import { COLLECTION, EXHIBITS, HERO, LEDGER, MELT, SHOP, STEPS, WORKBOX } from "@/lib/content";
 
 const Rosette = ({ className, draw }: { className: string; draw?: boolean }) => <div className={className} aria-hidden dangerouslySetInnerHTML={{ __html: draw ? ROSETTE_DRAW : ROSETTE }} />;
 const YEARS = 1405 - 1367;
@@ -158,12 +158,12 @@ export default function Home() {
         <p className="foot-fa">طلا و جواهرات · تهران · از {SHOP.since}</p>
         <nav className="foot-links" aria-label="پیوندها">
           <a href="#price">قیمت امروز</a><a href="#collection">مجموعه</a><a href="#wholesale">همکاران</a><a href="#order">تماس</a>
-          <a href="daftar/">دفتر لئون</a><a href="panel/">پنل مدیریت</a>
+          <a href={LEDGER}>دفتر لئون</a>
         </nav>
         <p className="foot-credit">
           آثار تاریخی از مجموعه‌های آزاد موزه‌ها:{" "}
           {[HERO, ...EXHIBITS, WORKBOX, MELT].map((x, i) => (
-            <span key={x.src}>{i ? "، " : ""}<a href={x.page} dir="ltr">{x.credit}</a></span>
+            <span key={x.src}>{i ? " · " : ""}<a href={x.page} dir="ltr">{x.credit}</a></span>
           ))}
         </p>
       </footer>
