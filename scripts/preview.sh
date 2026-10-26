@@ -4,7 +4,7 @@
 set -e
 BASE=/leon-gold-app/site
 cd "$(dirname "$0")/.."
-rm -rf out
+rm -rf out .next
 # Git Bash would rewrite a leading-slash env value into a Windows path
 MSYS2_ENV_CONV_EXCL=PREVIEW_BASE PREVIEW_BASE=$BASE npx next build
 grep -rlE '/(museum|fonts)/|/leaf\.png' out --include='*.html' --include='*.css' --include='*.js' --include='*.txt' | while read f; do

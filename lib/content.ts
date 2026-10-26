@@ -15,12 +15,12 @@ export const SHOP = {
 // The lion in gold: museum pieces shown as the craft's history, never as Leon Gold's own work.
 export type Exhibit = { src: string; w: number; h: number; name: string; note: string; place: string; credit: string; page: string };
 export const EXHIBITS: Exhibit[] = [
-  { src: "/museum/dark/lion-head-armlet-terminals-iran-achaemenid-period.jpg", w: 879, h: 1670, name: "سرِ شیر بر بازوبند", note: "دو سرِ شیر که دو سرِ یک بازوبند طلا را می‌بستند؛ ایران، دوره‌ی هخامنشی.", place: "موزه‌ی هنر سینسیناتی",
-    credit: "Daderot, CC0, Wikimedia Commons", page: "https://commons.wikimedia.org/wiki/File:Lion-head_armlet_terminals,_Iran,_Achaemenid_period,_5th_or_4th_century_BC,_gold_-_Cincinnati_Art_Museum_-_DSC03945.JPG" },
   { src: "/museum/dark/plaque-with-horned-lion-griffins.jpg", w: 1387, h: 1787, name: "شیردال‌های شاخ‌دار", note: "پلاک طلا با دو شیرِ بالدار، سده‌ی ششم تا چهارم پیش از میلاد.", place: "موزه‌ی متروپولیتن",
     credit: "The Met, Open Access (CC0)", page: "https://www.metmuseum.org/art/collection/search/324290" },
   { src: "/museum/dark/ars-summum-tesoro-oxus-brazalete.jpg", w: 1147, h: 1248, name: "دستبند گنجینه‌ی جیحون", note: "دستبند طلای هخامنشی با دو سرِ جانورِ افسانه‌ای رو در رو.", place: "گنجینه‌ی جیحون",
     credit: "Manuel de Corselas, public domain, Wikimedia Commons", page: "https://commons.wikimedia.org/wiki/File:Ars_Summum_Tesoro_Oxus_brazalete.JPG" },
+  { src: "/museum/dark/lion-head-armlet-terminals-iran-achaemenid-period.jpg", w: 879, h: 1670, name: "سرِ شیر بر بازوبند", note: "دو سرِ شیر که دو سرِ یک بازوبند طلا را می‌بستند؛ ایران، دوره‌ی هخامنشی.", place: "موزه‌ی هنر سینسیناتی",
+    credit: "Daderot, CC0, Wikimedia Commons", page: "https://commons.wikimedia.org/wiki/File:Lion-head_armlet_terminals,_Iran,_Achaemenid_period,_5th_or_4th_century_BC,_gold_-_Cincinnati_Art_Museum_-_DSC03945.JPG" },
   { src: "/museum/dark/seljuk-islamic-gold-earrings-28702857995.jpg", w: 1198, h: 588, name: "گوشواره‌های سلجوقی", note: "جفت گوشواره‌ی طلا با دانه‌های ریز، هزار سال پیش.", place: "موزه‌ی پرگامون، برلین",
     credit: "Gary Todd, CC0, Wikimedia Commons", page: "https://commons.wikimedia.org/wiki/File:Seljuk_Islamic_Gold_Earrings_(28702857995).jpg" },
   { src: "/museum/dark/5-pahlavi-iranian-golden-coin.jpg", w: 1869, h: 1067, name: "پنج پهلوی، ۱۳۰۵", note: "سکه‌ی طلا با نشان شیر و خورشید؛ همان شیری که هنوز روی طلای ایران است.", place: "بانک ملی ایران",

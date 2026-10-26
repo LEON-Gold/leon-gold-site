@@ -21,7 +21,7 @@ export default function OrderForm() {
   };
 
   return (
-    <form className="order" onSubmit={send} noValidate>
+    <form className="order-form" onSubmit={send} noValidate>
       <label><span>نام</span><input value={name} onChange={(e) => setName(e.target.value)} autoComplete="name" required /></label>
       <label><span>شماره‌ی تماس</span><input value={phone} onChange={(e) => setPhone(e.target.value)} inputMode="tel" autoComplete="tel" dir="ltr" required /></label>
       <label><span>چه کاری؟</span>
@@ -32,7 +32,7 @@ export default function OrderForm() {
       </label>
       <label className="wide"><span>توضیح (وزن تقریبی، اندازه، بودجه)</span><textarea value={note} onChange={(e) => setNote(e.target.value)} rows={3} /></label>
       {err && <p className="order-err" role="alert">{err}</p>}
-      <button className="btn" type="submit">ثبت سفارش</button>
+      <button className="btn btn-gold" type="submit">فرستادن سفارش</button>
     </form>
   );
 }
