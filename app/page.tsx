@@ -6,6 +6,7 @@ import Motion from "@/components/Motion";
 import { ROSETTE, ROSETTE_DRAW, medallion } from "@/lib/guilloche";
 import Jewel from "@/components/Jewel";
 import Hallmark from "@/components/Hallmark";
+import Exhibits from "@/components/Exhibits";
 import { COLLECTION, EXHIBITS, HERO, MELT, SHOP, STEPS, WORKBOX } from "@/lib/content";
 
 const Rosette = ({ className, draw }: { className: string; draw?: boolean }) => <div className={className} aria-hidden dangerouslySetInnerHTML={{ __html: draw ? ROSETTE_DRAW : ROSETTE }} />;
@@ -77,19 +78,7 @@ export default function Home() {
             <h2 id="her-h" className="leaf">شیر، در طلای ایران</h2>
             <p>لئون یعنی شیر. زرگرهای این سرزمین بیست و پنج قرن است شیر را در طلا می‌سازند؛ این‌ها چند تا از کارهایشان است که امروز در موزه‌ها مانده.</p>
           </div>
-          <ol className="exhibits" data-rise>
-            {EXHIBITS.map((x, i) => (
-              <li className={"ex ex" + i} key={x.src}>
-                <figure>
-                  <div className="ex-frame">
-                    <i className="corner c1" aria-hidden /><i className="corner c3" aria-hidden />
-                    <Image src={x.src} width={x.w} height={x.h} alt={x.name + "، " + x.place} sizes="(min-width: 900px) 33vw, 80vw" />
-                  </div>
-                  <figcaption><b>{x.name}</b><span>{x.note}</span><em>{x.place}</em></figcaption>
-                </figure>
-              </li>
-            ))}
-          </ol>
+          <Exhibits items={EXHIBITS} />
         </section>
 
         <section className="sec-paper steps" aria-labelledby="steps-h">
