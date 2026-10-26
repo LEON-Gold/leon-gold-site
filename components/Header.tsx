@@ -15,7 +15,11 @@ export default function Header() {
   const [solid, setSolid] = useState(false);
   const [open, setOpen] = useState(false);
   useEffect(() => {
-    const on = () => setSolid(window.scrollY > 40);
+    const on = () => {
+      setSolid(window.scrollY > 40);
+      const max = document.documentElement.scrollHeight - innerHeight;
+      document.querySelector<HTMLElement>(".bar")?.style.setProperty("--p", String(max > 0 ? scrollY / max : 0));
+    };
     on();
     window.addEventListener("scroll", on, { passive: true });
     return () => window.removeEventListener("scroll", on);

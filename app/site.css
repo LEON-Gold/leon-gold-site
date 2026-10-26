@@ -278,7 +278,7 @@ section { position: relative; padding: clamp(88px, 11vw, 150px) var(--m); }
 /* a lamp that follows the pointer across the vault */
 .hero-light { position: absolute; inset: 0; pointer-events: none; z-index: 0;
   background: radial-gradient(520px circle at var(--mx, 50%) var(--my, 42%), rgba(246,231,180,.13), transparent 62%); transition: background-position .2s; }
-.hero-mark { position: absolute; z-index: 1; width: 128px; inset-inline-start: var(--m); bottom: 92px; color: var(--gold); opacity: .75; animation: turn 120s linear infinite; }
+.hero-mark { position: absolute; z-index: 1; width: 148px; inset-inline-start: var(--m); bottom: 92px; color: var(--gold); opacity: .75; animation: turn 120s linear infinite; }
 .legacy-text { position: relative; }
 .legacy-mark { position: absolute; inset-inline-end: 0; top: -36px; width: 132px; color: var(--gold); opacity: .8; animation: turn 140s linear infinite reverse; }
 
@@ -298,3 +298,27 @@ section { position: relative; padding: clamp(88px, 11vw, 150px) var(--m); }
   .legacy-mark { width: 92px; top: -12px; }
   .card-art { width: 104px; height: 104px; }
 }
+
+/* ============ round 2: legibility, a scroll cue, the gilt photograph, progress, shine ============ */
+/* a pool of darkness behind the names so the engraving never fights the letters */
+.hero-in::before { content: ""; position: absolute; inset: 8% 12% 14%; z-index: -1; pointer-events: none;
+  background: radial-gradient(closest-side, rgba(4,20,13,.78), rgba(4,20,13,.45) 55%, transparent); filter: blur(8px); }
+.hero-tag { color: #d9b56a; }
+
+
+
+
+/* the goldsmith's box, toned to gold like an old print */
+.legacy-pic::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(197,154,80,.0), rgba(6,20,14,.55)); mix-blend-mode: multiply; pointer-events: none; }
+.legacy-pic img { filter: grayscale(1) sepia(.55) saturate(1.4) contrast(1.12) brightness(.82); }
+.legacy-pic::before { content: ""; position: absolute; inset: 0; z-index: 1; background: #c59a50; mix-blend-mode: color; opacity: .35; pointer-events: none; }
+
+/* scroll progress, a gold thread under the bar */
+.bar::after { content: ""; position: absolute; inset: auto 0 -1px; height: 2px; background: var(--leaf); transform-origin: right; transform: scaleX(var(--p, 0)); opacity: 0; transition: opacity .3s; }
+.bar.solid::after { opacity: 1; }
+
+/* light runs across the gold buttons on hover */
+.btn-gold { overflow: hidden; }
+.btn-gold::after { content: ""; position: absolute; inset: 0; background: linear-gradient(100deg, transparent 30%, rgba(255,255,255,.65) 50%, transparent 70%); translate: -120% 0; transition: translate .9s var(--ease); }
+.btn-gold:hover::after { translate: 120% 0; }
+@media (max-width: 860px) { .hero-in::before { inset: 4% 0 10%; } }
