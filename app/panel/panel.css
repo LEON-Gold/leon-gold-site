@@ -1,16 +1,16 @@
 /* ============ CRM panel: the ledger's vault bar over ivory paper, one gold accent per screen ============ */
-.pn, .pn-login, .pn-boot { min-height: 100dvh; background: var(--gl-paperband) top / 100% 64px repeat-x, var(--bg); }
+.pn, .pn-boot { min-height: 100dvh; background: var(--gl-paperband) top / 100% 64px repeat-x, var(--bg); }
 .pn { --pad: clamp(16px, 3vw, 32px); color: var(--ink); padding-bottom: calc(84px + env(safe-area-inset-bottom)); font-size: 15px; line-height: 1.65; }
 .pn button { font: inherit; cursor: pointer; }
 .pn button:not(.btn) { color: inherit; }
 .pn .btn-ink { background: var(--emerald); color: var(--gold-lt); border-color: var(--emerald); }
 .pn .btn-ink:hover { background: var(--green-2); }
-.pn input, .pn select, .pn textarea, .pn-login input { font: 16px/1.4 var(--text); color: var(--ink); width: 100%; box-sizing: border-box; min-height: 44px; padding: 9px 12px;
+.pn input, .pn select, .pn textarea { font: 16px/1.4 var(--text); color: var(--ink); width: 100%; box-sizing: border-box; min-height: 44px; padding: 9px 12px;
   background: #f6f1e4; border: 1px solid rgba(156,116,51,.28); border-radius: 10px; transition: border-color .15s, box-shadow .15s; }
 .pn textarea { resize: vertical; min-height: 64px; }
-.pn input:focus, .pn select:focus, .pn textarea:focus, .pn-login input:focus { outline: none; border-color: var(--gold); box-shadow: 0 0 0 3px rgba(197,154,80,.22); }
-.pn .btn, .pn-login .btn { min-height: 44px; padding: 0 20px; font-size: 15px; }
-.pn .btn:disabled, .pn-login .btn:disabled { opacity: .55; cursor: default; transform: none; }
+.pn input:focus, .pn select:focus, .pn textarea:focus { outline: none; border-color: var(--gold); box-shadow: 0 0 0 3px rgba(197,154,80,.22); }
+.pn .btn { min-height: 44px; padding: 0 20px; font-size: 15px; }
+.pn .btn:disabled { opacity: .55; cursor: default; transform: none; }
 .btn-wa { background: #f1f7f2; color: #136b3e; border-color: rgba(19,107,62,.25); }
 .btn-wa:hover { background: #e3f1e6; }
 
@@ -183,15 +183,6 @@
 
 .pn-toast { position: fixed; z-index: 70; left: 50%; bottom: calc(96px + env(safe-area-inset-bottom)); translate: -50% 0; padding: 10px 18px; border-radius: 999px; background: var(--vault); color: var(--gold-lt); font-size: 14px; box-shadow: 0 10px 30px -10px rgba(0,0,0,.6); animation: pnUp .2s var(--ease) both; }
 
-/* ---------- login ---------- */
-.pn-login { display: grid; place-items: center; padding: 24px 16px; background: radial-gradient(110% 80% at 85% 0%, #1d5e45 0%, transparent 55%), var(--gl-rosette) center / 560px no-repeat, linear-gradient(180deg, var(--green-2), var(--vault)); }
-.pn-login-card { color: var(--ink); width: min(400px, 100%); padding: 40px 28px 30px; display: grid; gap: 14px; text-align: center; }
-.pn-login-card h1 { font: 700 44px/1.2 var(--display); }
-.pn-login-sub { margin-top: -8px; color: var(--gold-ink); font-weight: 600; }
-.pn-login-note { font-size: 13.5px; color: var(--muted); }
-.pn-login-card label { display: grid; gap: 4px; text-align: start; }
-.pn-login-card label span { font-size: 13px; color: var(--muted); }
-.pn-login-card .pn-err { color: #a3412a; font-size: 14px; }
 
 /* ---------- phone ---------- */
 @media (max-width: 760px) {
@@ -223,7 +214,7 @@
 /* ============ one ground, as on the home page and the museum ============ */
 /* The panel stands on the site's still vault (body::before in site.css): no ground of its own, words outside a card
    in gold and cream, every card the site's ivory paper with its gold hairline and two corner ornaments. */
-.pn, .pn-login, .pn-boot { background: transparent; }
+.pn, .pn-boot { background: transparent; }
 .pn { color: var(--cream); }
 .pn::before { content: ""; position: fixed; z-index: -1; pointer-events: none; width: min(900px, 160vw); aspect-ratio: 1; top: 38%; left: 50%; translate: -50% -50%;
   background: var(--gl-rosette) center / contain no-repeat; opacity: .22; }
@@ -278,14 +269,6 @@
 .pn-sheet-bg { background: rgba(6,20,14,.62); -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px); }
 .pn-toast { border: 1px solid rgba(232,207,142,.45); }
 
-/* the door */
-.pn-login { position: relative; background: var(--gl-rosette) center / min(620px, 150vw) no-repeat; }
-.pn-login-card { padding: 44px 28px 32px; border-radius: 18px; box-shadow: var(--lift), inset 0 0 0 4px #fffefa, inset 0 0 0 5px rgba(197,154,80,.24), 0 30px 60px -30px rgba(0,0,0,.8); }
-.pn-login-card::before, .pn-login-card::after { display: none; } /* it has the four real corners */
-.pn-login-seal { width: 56px; height: 56px; justify-self: center; margin-bottom: -6px; }
-.pn-login-back { position: absolute; top: calc(18px + env(safe-area-inset-top)); right: 16px; color: var(--gold-lt); text-decoration: none; font-size: 15px; padding: 10px 4px; }
-.pn-login-fine { font-size: 13px; color: #cbbf9e; text-align: center; max-width: 28em; }
-.pn-login { align-content: center; gap: 18px; }
 
 @media (max-width: 760px) {
   .pn-bar { height: 56px; gap: 8px; }

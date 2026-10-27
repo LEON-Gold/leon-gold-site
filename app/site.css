@@ -452,3 +452,66 @@ body::before { content: ""; position: fixed; inset: 0; z-index: -1; pointer-even
 .her-more { position: relative; display: flex; align-items: center; justify-content: space-between; gap: 18px 32px; flex-wrap: wrap; margin-top: clamp(36px, 5vw, 56px); padding-top: 28px; border-top: 1px solid rgba(197,154,80,.3); }
 .her-more p { color: #d6ccb0; font-size: 17px; max-width: 34em; }
 @media (max-width: 860px) { .her-more .btn { width: 100%; } }
+
+/* ============ the door: the sign-in of «پنل مدیریت» and «حساب من» (components/Door.tsx) ============ */
+/* The site's bar, then a vault door on the one ground: a guilloché dial turning very slowly behind a gold-rimmed
+   medallion with the leaf seal, the name in gold leaf, and the ivory card that holds the page's own fields. */
+.door-bar { gap: 18px; }
+.door-bar-t { font: 400 20px/1.2 var(--display); color: #d6ccb0; padding-inline-start: 18px; border-inline-start: 1px solid rgba(197,154,80,.4); white-space: nowrap; }
+.door-back { margin-inline-start: auto; min-height: 40px; padding: 0 18px; font-size: 14px; white-space: nowrap; }
+.door-in { position: relative; min-height: 100svh; box-sizing: border-box; display: grid; justify-items: center; align-content: center; gap: 0;
+  padding: calc(60px + clamp(20px, 5vh, 48px)) 16px calc(clamp(20px, 4vh, 40px) + env(safe-area-inset-bottom)); overflow: hidden; color: var(--cream); }
+.door-dial { --d: min(760px, 170vw); position: absolute; width: var(--d); aspect-ratio: 1; left: 50%; top: calc(60px + clamp(20px, 5vh, 48px) + 46px); translate: -50% -50%; pointer-events: none; border-radius: 50%;
+  background: repeating-radial-gradient(circle, transparent 0 21px, rgba(232,207,142,.07) 21px 22px), radial-gradient(circle, rgba(232,207,142,.12), transparent 62%);
+  box-shadow: inset 0 0 0 1px rgba(197,154,80,.35), inset 0 0 0 9px rgba(6,20,14,.35), inset 0 0 0 10px rgba(197,154,80,.18);
+  -webkit-mask: radial-gradient(circle, #000 55%, transparent 71%); mask: radial-gradient(circle, #000 55%, transparent 71%); }
+.door-dial i { position: absolute; inset: 9%; background: var(--gl-rosette) center / contain no-repeat; opacity: .6; animation: doorTurn 160s linear infinite; }
+@keyframes doorTurn { to { rotate: 360deg; } }
+.door-seal { position: relative; display: grid; place-items: center; width: 92px; height: 92px; border-radius: 50%;
+  background: radial-gradient(circle at 50% 35%, #1b6249, #0a2c20 70%, var(--vault)); border: 1px solid var(--gold);
+  box-shadow: inset 0 0 0 5px rgba(6,20,14,.75), inset 0 0 0 6px rgba(232,207,142,.38), 0 0 0 6px rgba(6,20,14,.5), 0 0 0 7px rgba(197,154,80,.28), 0 0 60px -6px rgba(232,207,142,.35); }
+.door-seal img { height: 56px; width: auto; filter: drop-shadow(0 0 10px rgba(232,207,142,.45)); }
+.door-latin { position: relative; margin-top: 22px; font: 500 12px/1 var(--latin); letter-spacing: .32em; color: var(--gold-lt); padding-inline-start: .32em; text-shadow: 0 0 12px rgba(6,20,14,.9), 0 1px 2px rgba(6,20,14,.9); }
+.door-title { position: relative; margin: 6px 0 22px; font: 700 clamp(44px, 12vw, 66px)/1.3 var(--display); text-align: center; }
+.door-title .leaf { padding: 0 .06em .08em; }
+.door-card { position: relative; width: min(420px, 100%); box-sizing: border-box; padding: 34px 26px 24px; text-align: center; color: var(--ink);
+  box-shadow: var(--lift), inset 0 0 0 4px #fffefa, inset 0 0 0 5px rgba(197,154,80,.24), 0 40px 70px -34px rgba(0,0,0,.9); }
+.door-card > .corner { width: 28px; height: 28px; }
+.door-card > .corner.c1, .door-card > .corner.c4 { right: 10px; } .door-card > .corner.c2, .door-card > .corner.c3 { left: 10px; }
+.door-card > .corner.c1, .door-card > .corner.c2 { top: 10px; } .door-card > .corner.c3, .door-card > .corner.c4 { bottom: 10px; }
+.door-fine { position: relative; margin-top: 18px; font-size: 13px; color: #cbbf9e; text-align: center; max-width: 30em; line-height: 1.8; }
+
+/* the fields of both doors: one style */
+.door-form { display: grid; gap: 14px; text-align: right; }
+.door-note { font-size: 14px; line-height: 1.8; color: var(--muted); text-align: center; text-wrap: pretty; }
+.door-card label { display: grid; gap: 8px; font-size: 14px; color: var(--muted); font-weight: 500; text-align: right; }
+.door-card input { width: 100%; box-sizing: border-box; min-height: 54px; padding: 0 16px; border-radius: 14px; border: 1px solid rgba(156,116,51,.35); background: #f6f0e1;
+  font: 600 18px/1 var(--text); color: var(--ink); text-align: center; letter-spacing: .03em; box-shadow: inset 0 1px 2px rgba(18,36,27,.08); transition: border-color .15s, box-shadow .15s; }
+.door-card input:focus { outline: none; border-color: var(--gold); box-shadow: 0 0 0 3px rgba(197,154,80,.28); }
+.door-card input::placeholder { color: #b3a88d; font-weight: 400; }
+.door-card .btn-gold { width: 100%; min-height: 54px; font-size: 16px; }
+.door-card .btn:disabled { opacity: .55; cursor: default; transform: none; }
+.door-card .pn-err, .door-card .hs-err { color: #8b2e22; font-size: 14px; line-height: 1.7; text-align: center; }
+
+/* the door opens in turn: dial, seal, name, card */
+@media (prefers-reduced-motion: no-preference) {
+  .door-dial { animation: doorFade 1.6s var(--ease) both; }
+  .door-seal, .door-latin, .door-title, .door-card, .door-fine { animation: doorRise .9s var(--ease) both; }
+  .door-seal { animation-delay: .1s; } .door-latin { animation-delay: .22s; } .door-title { animation-delay: .3s; } .door-card { animation-delay: .42s; } .door-fine { animation-delay: .6s; }
+}
+@media (prefers-reduced-motion: reduce) { .door-dial i, .door-title .leaf { animation: none; } }
+@keyframes doorFade { from { opacity: 0; scale: .92; } }
+@keyframes doorRise { from { opacity: 0; translate: 0 18px; } }
+
+@media (max-width: 860px) {
+  .door-bar { gap: 12px; }
+  .door-bar-t { font-size: 17px; padding-inline-start: 12px; }
+  .door-back { min-height: 36px; padding: 0 14px; font-size: 13px; }
+  .door-in { padding-top: calc(60px + 22px); }
+  .door-dial { top: calc(60px + 22px + 40px); }
+  .door-seal { width: 80px; height: 80px; } .door-seal img { height: 48px; }
+  .door-latin { margin-top: 16px; font-size: 11px; }
+  .door-title { margin-bottom: 16px; }
+  .door-card { padding: 36px 20px 22px; }
+}
+@media (max-width: 360px) { .door-bar-t { display: none; } }

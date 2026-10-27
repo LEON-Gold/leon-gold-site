@@ -2,16 +2,8 @@
    dr = the reader owes Leon (deep garnet), cr = Leon owes the reader (emerald), z = settled (gold). */
 :root { --dr: #8b2e22; --cr: #0d5a3e; --hs-w: 720px; }
 
-/* ---------- the door ---------- */
-.hs-gate { position: relative; min-height: 100svh; display: grid; place-items: center; align-content: center; gap: 18px; padding: 72px 16px calc(32px + env(safe-area-inset-bottom));
-  background: radial-gradient(110% 70% at 80% 0%, #1d5e45 0%, transparent 55%), linear-gradient(180deg, var(--green-2), var(--vault)); color: var(--cream); overflow: hidden; }
-.hs-gate-rose { position: absolute; width: min(760px, 150vw); aspect-ratio: 1; top: 50%; left: 50%; translate: -50% -50%; background: var(--gl-rosette) center / contain no-repeat; opacity: .55; pointer-events: none; }
-.hs-back { position: absolute; top: calc(18px + env(safe-area-inset-top)); right: 16px; color: var(--gold-lt); text-decoration: none; font-size: 15px; padding: 10px 4px; }
-.hs-card { position: relative; width: min(440px, 100%); padding: 44px 28px 30px; text-align: center; color: var(--ink); }
-.hs-kicker { font-size: 13px; letter-spacing: 0; color: var(--gold-ink); font-weight: 600; }
-.hs-title { font-family: var(--display); font-size: 46px; line-height: 1.35; color: var(--emerald); margin: 2px 0 18px; }
+/* ---------- the door (its frame is components/Door.tsx, styled in site.css) ---------- */
 .hs-lede { color: var(--muted); font-size: 15px; line-height: 1.8; margin: 14px 0 22px; text-wrap: pretty; min-height: 3.6em; }
-.hs-fine { position: relative; font-size: 13px; color: #cbbf9e; text-align: center; max-width: 28em; }
 .hs-wait { color: var(--muted); padding: 18px 0; }
 
 .hs-seg { display: flex; gap: 4px; padding: 4px; border-radius: 999px; background: #efe7d2; box-shadow: inset 0 1px 2px rgba(18,36,27,.12); }
@@ -154,13 +146,10 @@
 /* ============ one ground, as on the home page and the museum ============ */
 /* Door and inside stand on the site's still vault (body::before in site.css). Words outside a card are gold and cream;
    the slip, the orders and the statement are the site's ivory paper. */
-.hs-gate, .hs-app { background: transparent; }
+.hs-app { background: transparent; }
 .hs-app { color: var(--cream); }
 .hs-app::before { content: ""; position: fixed; z-index: -1; pointer-events: none; width: min(900px, 160vw); aspect-ratio: 1; top: 40%; left: 50%; translate: -50% -50%;
   background: var(--gl-rosette) center / contain no-repeat; opacity: .2; }
-.hs-gate-rose { opacity: .4; }
-.hs-card { box-shadow: var(--lift), inset 0 0 0 4px #fffefa, inset 0 0 0 5px rgba(197,154,80,.24), 0 30px 60px -30px rgba(0,0,0,.8); }
-.hs-seal { display: block; width: 56px; height: 56px; margin: 0 auto 6px; }
 
 /* the bar: the site's band, the seal, the name in gold leaf, the page's name after a hairline */
 .hs-bar { background: var(--gl-band) center / 100% 100% no-repeat, linear-gradient(180deg, rgba(15,64,48,.94), rgba(6,20,14,.94)); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);

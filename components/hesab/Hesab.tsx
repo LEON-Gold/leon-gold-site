@@ -3,6 +3,7 @@
 // their orders (customers), the work given to them (suppliers) and the statement, newest first.
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { SHOP } from "@/lib/content";
+import Door from "@/components/Door";
 import {
   ApiError, SAMPLE, dayNum, faDigits, getToken, gram, jdate, jtime, latin, logout, me, redeem, rial, side, startSms, today, toman, verifySms,
   type Account, type Entry, type Me,
@@ -60,14 +61,7 @@ export default function Hesab() {
 
   if (phase === "in" && data) return <Panel data={data} role={role} onOut={out} onReload={data.demo ? undefined : load} />;
   return (
-    <main className="hs-gate">
-      <div className="hs-gate-rose" aria-hidden />
-      <a className="hs-back" href="../">← لئون گلد</a>
-      <section className="hs-card paper" aria-labelledby="hs-h">
-        <Corners />
-        <img className="hs-seal" src="/leaf.png" alt="" width={56} height={56} />
-        <p className="hs-kicker">لئون گلد</p>
-        <h1 id="hs-h" className="hs-title">حساب من</h1>
+    <Door name="حساب من" latin="LEON GOLD · MY ACCOUNT" fine="فقط حساب خودتان را می‌بینید و در این صفحه چیزی تغییر نمی‌کند.">
         <div className="hs-seg" role="radiogroup" aria-label="شما">
           {(["customer", "supplier"] as Role[]).map(r => (
             <button key={r} type="button" role="radio" aria-checked={role === r} onClick={() => setRole(r)}>{r === "customer" ? "مشتری هستم" : "تأمین‌کننده هستم"}</button>
@@ -80,9 +74,7 @@ export default function Hesab() {
           : smsOff ? <SmsOff role={role} />
           : <SignIn role={role} phase={phase} setPhase={setPhase} err={err} setErr={setErr} onSmsOff={() => setSmsOff(true)} onIn={load} />}
         <button type="button" className="hs-demo" onClick={demo}>دیدن نمونه‌ی پنل</button>
-      </section>
-      <p className="hs-fine">فقط حساب خودتان را می‌بینید و در این صفحه چیزی تغییر نمی‌کند.</p>
-    </main>
+    </Door>
   );
 }
 

@@ -7,6 +7,7 @@ import Today from "./Today";
 import Clients from "./Clients";
 import ClientPage from "./ClientPage";
 import Leads from "./Leads";
+import Door from "@/components/Door";
 
 export type Route = { page: "today" | "clients" | "client" | "leads"; id?: string };
 const parse = (h: string): Route => {
@@ -127,19 +128,14 @@ function Login({ onIn }: { onIn: () => void }) {
     setBusy(false);
   };
   return (
-    <div className="pn-login">
-      <a className="pn-login-back" href="../">← لئون گلد</a>
-      <form className="pn-card pn-login-card" onSubmit={send} noValidate>
-        <i className="corner c1" /><i className="corner c2" /><i className="corner c3" /><i className="corner c4" />
-        <img className="pn-login-seal" src="/leaf.png" alt="" width={56} height={56} />
-        <h1><span className="leaf">لئون گلد</span></h1>
-        <p className="pn-login-sub">پنل مشتریان</p>
-        <p className="pn-login-note">با همان نام کاربری و رمزی وارد شو که «دفتر لئون» را با آن همگام کرده‌ای.</p>
+    <Door name="پنل مدیریت" latin="LEON GOLD · ADMIN" fine="فقط برای مدیر لئون گلد؛ این صفحه در جست‌وجو دیده نمی‌شود.">
+      <form className="door-form" onSubmit={send} noValidate>
+        <p className="door-note">با همان نام کاربری و رمزی وارد شو که «دفتر لئون» را با آن همگام کرده‌ای.</p>
         <label><span>نام کاربری</span><input value={u} onChange={(e) => setU(e.target.value)} autoComplete="username" autoCapitalize="none" dir="ltr" /></label>
         <label><span>رمز</span><input value={p} onChange={(e) => setP(e.target.value)} type="password" autoComplete="current-password" dir="ltr" /></label>
         {err && <p className="pn-err" role="alert">{err}</p>}
         <button className="btn btn-gold" disabled={busy}>{busy ? "در حال ورود…" : "ورود"}</button>
       </form>
-    </div>
+    </Door>
   );
 }

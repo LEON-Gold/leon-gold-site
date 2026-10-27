@@ -35,13 +35,22 @@ def holes(rgb, a):
     g = cv2.cvtColor(np.median(ground, axis=0).reshape(1, 1, 3).astype(np.uint8), cv2.COLOR_RGB2LAB).astype(np.float32)[0, 0]
     chroma = np.hypot(lab[..., 1] - 128, lab[..., 2] - 128)
     obj = a > 0.5
-    if np.median(chroma[obj]) > 22:
+    mode = os.environ.get("HOLEMODE", "")
+    if mode == "cool":
+        # a piece on a white card in a bag, under cool light: the card and the glare are blue-white, gold is not.
+        # Chain links pick up the blue too, but they are thin and the opening below spares them.
+        like = (lab[..., 2] < 116) & (lab[..., 0] > 140) & obj
+        if os.environ.get("SLOTS"):
+            # the card's slots the hooks go through: dark, cool, a little purple
+            like |= (lab[..., 0] < 140) & (lab[..., 2] < 122) & (lab[..., 1] > 130) & obj
+    elif np.median(chroma[obj]) > 22:
         # yellow or rose gold: the ground left inside is any colourless, not-dark patch (shadowed paper too)
         like = (chroma < 14) & (lab[..., 0] > g[0] * 0.55) & obj
     else:
         # white gold, silver, pearls: only the ground's own tone, so the metal itself is never opened
         like = (np.linalg.norm(lab - g, axis=2) < 9) & obj
-    like = cv2.morphologyEx(like.astype(np.uint8), cv2.MORPH_OPEN, np.ones((5, 5), np.uint8))
+    k = int(os.environ.get("OPEN", "5"))
+    like = cv2.morphologyEx(like.astype(np.uint8), cv2.MORPH_OPEN, np.ones((k, k), np.uint8))
     n, lbl, stats, _ = cv2.connectedComponentsWithStats(like, 8)
     area = (a > 0.5).sum()
     cut = np.zeros(a.shape, np.float32)
@@ -153,6 +162,10 @@ def main():
     session = new_session(MODEL)
     for n, f in enumerate(files, 1):
         img = ImageOps.exif_transpose(Image.open(f)).convert("RGB")
+        if os.environ.get("PRE"):
+            # PRE=x,y,w,h: the piece's own patch of a busy photo (a card in a bag on a table), so the model sees only it
+            x, y, w, h = [int(v) for v in os.environ["PRE"].split(",")]
+            img = img.crop((x, y, x + w, y + h))
         img.thumbnail((2400, 2400), Image.LANCZOS)
         a = cutout(img, session)
         rgb = np.asarray(img).astype(np.float32)
