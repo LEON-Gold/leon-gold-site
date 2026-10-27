@@ -23,7 +23,7 @@ export const metadata = { alternates: { canonical: "./" } };
 export default function Home() {
   return (
     <>
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(STORE_LD) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(STORE_LD).replace(/</g, "\\u003c") }} />
       <Header ledger={LEDGER} />
       <Motion />
       <main id="top">
