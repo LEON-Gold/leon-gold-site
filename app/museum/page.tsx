@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import Image from "next/image";
-import Link from "next/link";
 import Karat from "@/components/Karat";
 import Timeline from "@/components/Timeline";
 import HandDraw from "@/components/HandDraw";
@@ -37,12 +36,12 @@ export default function Museum() {
     <>
       <MuseumMotion />
       <header className="bar solid mu-bar">
-        <Link className="bar-brand" href="/" aria-label="لئون گلد، صفحه‌ی اصلی">
+        <a className="bar-brand" href="../" aria-label="لئون گلد، صفحه‌ی اصلی">
           <img src="/leaf.png" alt="" width={18} height={34} />
           <span className="leaf">لئون گلد</span>
-        </Link>
+        </a>
         <span className="mu-bar-t">موزه‌ی طلا</span>
-        <Link className="btn btn-line mu-bar-back" href="/">بازگشت به فروشگاه</Link>
+        <a className="btn btn-line mu-bar-back" href="../">بازگشت به فروشگاه</a>
       </header>
 
       <main>
@@ -242,8 +241,8 @@ export default function Museum() {
           <h2 id="mu-end-h" className="leaf" data-rise>از موزه، به ویترین</h2>
           <p data-rise>هر کار لئون گلد همان ۷۵۰ است که در تالار دوم دیدید، با وزن روی برچسب و قیمت به نرخ همان ساعت اتحادیه.</p>
           <div className="mu-end-cta" data-rise>
-            <Link className="btn btn-gold" href="/#collection">دیدن مجموعه</Link>
-            <Link className="btn btn-line" href="/#price">قیمت امروز</Link>
+            <a className="btn btn-gold" href="../#collection">دیدن مجموعه</a>
+            <a className="btn btn-line" href="../#price">قیمت امروز</a>
           </div>
         </section>
 
@@ -262,7 +261,7 @@ export default function Museum() {
         <p className="foot-fa">موزه‌ی طلا · تهران</p>
         <nav className="foot-links" aria-label="پیوندها">
           {HALLS.map(([h, t]) => <a key={h} href={h}>{t}</a>)}
-          <Link href="/">فروشگاه</Link>
+          <a href="../">فروشگاه</a>
         </nav>
         <p className="foot-credit">
           آثار تاریخی از مجموعه‌های آزاد موزه‌ها؛ هیچ‌کدام کار لئون گلد نیست:{" "}

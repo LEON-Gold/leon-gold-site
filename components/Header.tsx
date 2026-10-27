@@ -39,7 +39,7 @@ export default function Header({ ledger }: { ledger: string }) {
   return (
     <header className={"bar" + (solid ? " solid" : "") + (open ? " open" : "")}>
       <a className="bar-brand" href="#top" aria-label="لئون گلد، بالای صفحه" onClick={close}>
-        <img src="leaf.png" alt="" width={18} height={34} />
+        <img src="/leaf.png" alt="" width={18} height={34} />
         <span className="leaf">لئون گلد</span>
       </a>
       <nav className="bar-links" aria-label="بخش‌های سایت">
@@ -67,12 +67,12 @@ export default function Header({ ledger }: { ledger: string }) {
           </nav>
           {/* the customers' and suppliers' own account, then the shop's ledger */}
           <a className="sheet-ledger sheet-hesab" href="hesab/" style={{ "--i": LINKS.length } as React.CSSProperties}>
-            <img src="leaf.png" alt="" width={16} height={30} />
+            <img src="/leaf.png" alt="" width={16} height={30} />
             <span className="sheet-t"><b className="leaf">حساب من</b><small>مانده و سفارش‌های مشتریان و تأمین‌کنندگان</small></span>
             <span className="sheet-go" aria-hidden>‹</span>
           </a>
           <a className="sheet-ledger" href={ledger} style={{ "--i": LINKS.length + 1 } as React.CSSProperties}>
-            <img src="leaf.png" alt="" width={16} height={30} />
+            <img src="/leaf.png" alt="" width={16} height={30} />
             <span className="sheet-t"><b className="leaf">دفتر لئون</b><small>دفتر حساب و انبار مغازه</small></span>
             <span className="sheet-go" aria-hidden>‹</span>
           </a>

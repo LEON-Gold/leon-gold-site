@@ -30,8 +30,8 @@ export default function Home() {
           <div className="hero-in">
             {/* the jewel, struck with a little depth: stacked copies behind it read as gold thickness when it turns */}
             <div className="hero-jewel"><div className="jw">
-              {DEPTH.map((z) => <img key={z} className="jw-back" src="leaf.png" alt="" width={265} height={490} style={{ "--z": z } as React.CSSProperties} />)}
-              <img className="jw-face" src="leaf.png" alt="" width={265} height={490} />
+              {DEPTH.map((z) => <img key={z} className="jw-back" src="/leaf.png" alt="" width={265} height={490} style={{ "--z": z } as React.CSSProperties} />)}
+              <img className="jw-face" src="/leaf.png" alt="" width={265} height={490} />
             </div></div>
             <p className="hero-latin leaf leaf-sweep" lang="en" dir="ltr">LEON GOLD</p>
             <h1 id="hero-h" className="hero-name leaf leaf-sweep">لئون گلد</h1>
@@ -137,8 +137,8 @@ export default function Home() {
 
         <section id="wholesale" className="sec-paper wholesale" aria-labelledby="ws-h">
           <figure className="ws-media" data-rise>
-            <video muted loop playsInline preload="none" data-lazy poster={MELT.poster.slice(1)} width={1280} height={720} aria-hidden="true">
-              <source src={MELT.src.slice(1)} type="video/webm" />
+            <video muted loop playsInline preload="none" data-lazy poster={MELT.poster} width={1280} height={720} aria-hidden="true">
+              <source src={MELT.src} type="video/webm" />
             </video>
             <figcaption>طلای مذاب هنگام سرد شدن بلوری می‌شود.</figcaption>
           </figure>
@@ -171,7 +171,7 @@ export default function Home() {
 
       <footer className="foot">
         <Rosette className="foot-rose" />
-        <img className="foot-jewel" src="leaf.png" alt="" width={265} height={490} />
+        <img className="foot-jewel" src="/leaf.png" alt="" width={265} height={490} />
         <p className="foot-latin leaf" lang="en" dir="ltr">LEON GOLD</p>
         <p className="foot-fa">طلا و جواهرات · تهران</p>
         <nav className="foot-links" aria-label="پیوندها">

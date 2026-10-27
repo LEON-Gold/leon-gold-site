@@ -63,7 +63,11 @@ export default function Motion() {
       document.querySelectorAll<HTMLElement>(".her-rose, .order-rose, .foot-rose").forEach((r) => {
         gsap.fromTo(r, { y: -60 }, { y: 60, ease: "none", scrollTrigger: { trigger: r.parentElement, start: "top bottom", end: "bottom top", scrub: 1 } });
       });
-      return () => { gsap.ticker.remove(tick); lenis.destroy(); };
+      // fonts and photos arriving late move everything down; measure again so no part waits forever unrevealed
+      const refresh = () => ScrollTrigger.refresh();
+      addEventListener("load", refresh);
+      document.fonts?.ready.then(refresh);
+      return () => { removeEventListener("load", refresh); gsap.ticker.remove(tick); lenis.destroy(); };
     });
 
     // plaques and exhibit frames tip toward a mouse pointer

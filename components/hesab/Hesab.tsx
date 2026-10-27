@@ -2,7 +2,6 @@
 // «حساب من»: sign-in (SMS code or the owner's one-time link), then the party's assay slip (gold and rial balance),
 // their orders (customers), the work given to them (suppliers) and the statement, newest first.
 import { useCallback, useEffect, useMemo, useState } from "react";
-import Link from "next/link";
 import { SHOP } from "@/lib/content";
 import {
   ApiError, SAMPLE, dayNum, faDigits, getToken, gram, jdate, jtime, latin, logout, me, redeem, rial, side, startSms, today, toman, verifySms,
@@ -63,7 +62,7 @@ export default function Hesab() {
   return (
     <main className="hs-gate">
       <div className="hs-gate-rose" aria-hidden />
-      <Link className="hs-back" href="/">← لئون گلد</Link>
+      <a className="hs-back" href="../">← لئون گلد</a>
       <section className="hs-card paper" aria-labelledby="hs-h">
         <Corners />
         <p className="hs-kicker">لئون گلد</p>
@@ -160,7 +159,7 @@ function Panel({ data, role, onOut, onReload }: { data: Me; role: Role; onOut: (
   return (
     <div className="hs-app">
       <header className="hs-bar">
-        <Link className="hs-brand" href="/"><img src="/leaf.png" alt="" width={28} height={28} /><span className="leaf">لئون گلد</span></Link>
+        <a className="hs-brand" href="../"><img src="/leaf.png" alt="" width={28} height={28} /><span className="leaf">لئون گلد</span></a>
         <span className="hs-bar-t">حساب من</span>
         <button type="button" className="hs-out" onClick={onOut}>{data.demo ? "بستن نمونه" : "خروج"}</button>
       </header>
