@@ -241,8 +241,10 @@
 .pn-page > .pn-empty { color: #cfc4a3; }
 
 /* chips and search on the vault: gold hairlines, the chosen one in gold leaf */
-.pn-tools .pn-chips button, .pn-status button { background: rgba(6,20,14,.35); border-color: rgba(232,207,142,.35); color: #e6dcbf; }
-.pn-tools .pn-chips button[aria-selected="true"], .pn-status button[aria-selected="true"] { background: var(--leaf); background-size: 180% 100%; color: #0a1f15; border-color: #f3dfa4; }
+.pn-page .pn-chips button { background: rgba(6,20,14,.35); border-color: rgba(232,207,142,.35); color: #e6dcbf; }
+.pn-page .pn-chips button[aria-selected="true"] { background: var(--leaf); background-size: 180% 100%; color: #0a1f15; border-color: #f3dfa4; }
+/* chips inside a card (the follow-up quick picks) keep the ivory chip and its ink */
+.pn-card .pn-chips button { background: #fffdf6; border-color: rgba(156,116,51,.3); color: var(--ink); }
 .pn .pn-search input { background: rgba(6,20,14,.45); border-color: rgba(232,207,142,.35); color: var(--cream); }
 .pn .pn-search input::placeholder { color: #a99f80; }
 .pn .pn-search input:focus { border-color: var(--gold-lt); box-shadow: 0 0 0 3px rgba(232,207,142,.18); }

@@ -33,8 +33,6 @@
 .nb-tiles { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1px; margin: 0; background: rgba(156,116,51,.18); border-radius: 12px; overflow: hidden; }
 .nb-tiles.four { grid-template-columns: repeat(3, 1fr); }
 .nb-tiles.quad { grid-template-columns: repeat(4, 1fr); }
-/* chips sit on the vault, where the panel's text is cream: their own ink on the ivory chip */
-.pn-chips button:not([aria-selected="true"]) { color: var(--ink) !important; }
 .nb-tile { background: #fffcf3; padding: 12px 14px; min-width: 0; }
 .nb-tile dt { display: flex; align-items: center; gap: 6px; font-size: 12.5px; color: var(--muted); }
 .nb-tile dt i { width: 8px; height: 8px; border-radius: 2px; flex: none; }
