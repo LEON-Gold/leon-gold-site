@@ -44,6 +44,7 @@ export default function Header({ ledger }: { ledger: string }) {
       </a>
       <nav className="bar-links" aria-label="بخش‌های سایت">
         {LINKS.map(([h, t]) => <a key={h} href={h}>{t}</a>)}
+        <a className="bar-ledger" href="hesab/">حساب من</a>
         <a className="bar-ledger" href={ledger}>دفتر لئون</a>
       </nav>
       <a className="btn btn-gold bar-cta" href="#order">ثبت سفارش</a>
@@ -64,7 +65,13 @@ export default function Header({ ledger }: { ledger: string }) {
               </a>
             ))}
           </nav>
-          <a className="sheet-ledger" href={ledger} style={{ "--i": LINKS.length } as React.CSSProperties}>
+          {/* the customers' and suppliers' own account, then the shop's ledger */}
+          <a className="sheet-ledger sheet-hesab" href="hesab/" style={{ "--i": LINKS.length } as React.CSSProperties}>
+            <img src="leaf.png" alt="" width={16} height={30} />
+            <span className="sheet-t"><b className="leaf">حساب من</b><small>مانده و سفارش‌های مشتریان و تأمین‌کنندگان</small></span>
+            <span className="sheet-go" aria-hidden>‹</span>
+          </a>
+          <a className="sheet-ledger" href={ledger} style={{ "--i": LINKS.length + 1 } as React.CSSProperties}>
             <img src="leaf.png" alt="" width={16} height={30} />
             <span className="sheet-t"><b className="leaf">دفتر لئون</b><small>دفتر حساب و انبار مغازه</small></span>
             <span className="sheet-go" aria-hidden>‹</span>
