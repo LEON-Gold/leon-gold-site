@@ -4,13 +4,14 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { SHOP } from "@/lib/content";
 import Door from "@/components/Door";
+import Invite from "@/components/hesab/Invite";
 import {
   ApiError, SAMPLE, dayNum, faDigits, getToken, gram, jdate, jtime, latin, logout, me, redeem, rial, side, startSms, today, toman, verifySms,
   type Account, type Entry, type Me,
 } from "@/lib/hesab";
 
 type Role = "customer" | "supplier";
-type Phase = "boot" | "phone" | "code" | "in";
+type Phase = "boot" | "phone" | "code" | "in" | "owner";
 const ERR: Record<string, string> = {
   bad_phone: "شماره‌ی موبایل درست نیست. مثل ۰۹۱۲۱۲۳۴۵۶۷ بنویسید.",
   too_many: "چند بار پشت سر هم امتحان شد. چند دقیقه‌ی دیگر دوباره بزنید.",
@@ -48,6 +49,7 @@ export default function Hesab() {
     if (k) history.replaceState(null, "", location.pathname);
     (async () => {
       if (h === "#demo") { setData(SAMPLE); setPhase("in"); return; }
+      if (h === "#owner") { setPhase("owner"); return; }
       if (k) {
         try { await redeem(k); }
         catch (e) { setErr(e instanceof ApiError && e.code === "expired" ? "این لینک ورود قبلاً استفاده شده یا وقتش گذشته. لینک تازه را از لئون گلد بخواهید." : errText(e)); setPhase("phone"); return; }
@@ -59,6 +61,7 @@ export default function Hesab() {
   const out = async () => { if (!data?.demo) await logout(); if (location.hash) history.replaceState(null, "", location.pathname); setData(null); setErr(""); setPhase("phone"); };
   const demo = () => { history.replaceState(null, "", "#demo"); setData(SAMPLE); setPhase("in"); };
 
+  if (phase === "owner") return <Invite />;
   if (phase === "in" && data) return <Panel data={data} role={role} onOut={out} onReload={data.demo ? undefined : load} />;
   return (
     <Door name="حساب من" latin="LEON GOLD · MY ACCOUNT" fine="فقط حساب خودتان را می‌بینید و در این صفحه چیزی تغییر نمی‌کند.">
@@ -74,6 +77,7 @@ export default function Hesab() {
           : smsOff ? <SmsOff role={role} />
           : <SignIn role={role} phase={phase} setPhase={setPhase} err={err} setErr={setErr} onSmsOff={() => setSmsOff(true)} onIn={load} />}
         <button type="button" className="hs-demo" onClick={demo}>دیدن نمونه‌ی پنل</button>
+        <a className="hs-demo hs-owner" href="#owner" onClick={e => { e.preventDefault(); history.replaceState(null, "", "#owner"); setPhase("owner"); }}>مدیر لئون گلد: ساخت لینک ورود</a>
     </Door>
   );
 }

@@ -194,3 +194,20 @@
 .hs-link { padding-block: 12px; }
 .hs-foot .hs-link { padding: 0; }
 .hs-brand { padding-block: 6px; margin-block: -6px; }
+
+/* ---------- the owner's side (hesab/#owner, components/hesab/Invite.tsx) ---------- */
+.hs-owner { display: block; margin: 0 auto; font-size: 13px; text-decoration-style: dotted; }
+.iv-search span { color: #d6ccb0; }
+.iv-search input { font-size: 17px; letter-spacing: 0; text-align: right; }
+.iv-err { color: #f0a58f; }
+.iv-row { gap: 10px; }
+.iv-kind { flex: none; font-size: 12.5px; color: var(--gold-ink); font-weight: 600; }
+.iv-made { display: grid; gap: 10px; }
+.iv-link { width: 100%; box-sizing: border-box; min-height: 44px; padding: 0 12px; border-radius: 10px; border: 1px solid rgba(156,116,51,.35); background: #f6f0e1;
+  font: 500 13px/1 ui-monospace, monospace; color: var(--ink); text-overflow: ellipsis; }
+.iv-acts { display: flex; flex-wrap: wrap; gap: 8px; }
+.iv-acts .btn { min-height: 44px; padding: 0 18px; font-size: 14px; flex: 1 1 auto; justify-content: center; }
+.iv-copy { background: var(--emerald) !important; color: var(--gold-lt) !important; border-color: var(--emerald) !important; flex: 0 1 auto !important; }
+.iv-note { color: var(--cr); }
+.iv-revoke { justify-self: start; font-size: 13px; color: var(--muted); padding-block: 8px; }
+a.hs-out { display: inline-flex; align-items: center; text-decoration: none; }
