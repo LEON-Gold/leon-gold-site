@@ -422,3 +422,23 @@ button.ex-frame { width: 100%; cursor: zoom-in; font: inherit; color: inherit; }
   .case-text p { font-size: 17px; }
 }
 
+/* ============ round 5: one ground ============ */
+/* The whole page sits on one vault, held still behind it (like Apple's pages): no section has a ground of its own,
+   so nothing marks where one ends and the next begins. Cards keep their ivory paper. */
+body { background: transparent; color: var(--cream); }
+body::before { content: ""; position: fixed; inset: 0; z-index: -1; pointer-events: none;
+  background: radial-gradient(70% 55% at 50% 40%, rgba(232,207,142,.10), transparent 70%), radial-gradient(120% 90% at 88% -10%, #1d5e45 0%, transparent 58%), linear-gradient(180deg, #0f4030, #06140e 78%); }
+.hero, .sec-paper, .sec-vault, .foot { background: transparent; }
+.sec-vault { overflow: visible; overflow-x: clip; }
+.sec-paper { z-index: 1; } /* above a neighbour's rosette that now runs past its section */
+.foot { border-top: 0; }
+.paper, .card { color: var(--ink); }
+.sec-head h2, .step-row h3, .ws-text h2 { color: var(--gold-lt); }
+.sec-head p, .ws-text p { color: #d6ccb0; }
+.step-row p { color: #cfc4a3; }
+.ws-media figcaption { color: #a99f80; }
+.btn-text { color: var(--gold-lt); }
+.btn-ink { background: transparent; color: var(--gold-lt); border-color: rgba(232,207,142,.55); }
+.btn-ink:hover { background: rgba(232,207,142,.08); border-color: var(--gold-lt); }
+.step-n { border-color: var(--vault); }
+.step-row::before { opacity: .35; }
