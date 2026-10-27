@@ -29,6 +29,7 @@ export default function MuseumMotion() {
       gsap.from(".mu-hero-pic", { scale: 0.92, opacity: 0, duration: 1.8, ease: "expo.out", delay: 0.3 });
       document.querySelectorAll<HTMLElement>("[data-rise]").forEach((sec) => {
         const parts = sec.matches("ul, ol, dl") ? sec.children : sec.querySelectorAll(":scope > *");
+        if (!parts.length) return;
         gsap.from(parts, { y: 36, opacity: 0, duration: 1.1, ease: "power3.out", stagger: 0.08, scrollTrigger: { trigger: sec, start: "top 88%", once: true } });
       });
       document.querySelectorAll<HTMLElement>(".mu-rose").forEach((r) => {
