@@ -1,15 +1,14 @@
-// Page content. Items marked SAMPLE are placeholders until the owner sends the real details.
+// Page content. The shop has no landline: the owner's mobile is the phone and the WhatsApp number. No street address or founding year on the site, by the owner's choice.
 
 export const SHOP = {
   name: "لئون گلد",
-  since: "۱۳۶۷",
   city: "تهران",
-  phone: "۰۲۱ ۰۰۰۰ ۰۰۰۰", // SAMPLE
-  phoneHref: "tel:+982100000000", // SAMPLE
-  whatsapp: "https://wa.me/989000000000", // SAMPLE
-  instagram: "https://instagram.com/", // SAMPLE
-  address: "تهران، بازار طلا", // SAMPLE
-  hours: "شنبه تا پنجشنبه، ۱۰ تا ۱۹", // SAMPLE
+  phone: "۰۹۱۲ ۹۳۷ ۴۵۵۲",
+  phoneHref: "tel:+989129374552",
+  whatsapp: "https://wa.me/989129374552",
+  instagram: "https://instagram.com/___leongold___",
+  instagramId: "___leongold___",
+  hours: "شنبه تا چهارشنبه، ۱۱ تا ۱۸",
 };
 
 // The ledger app: on the GitHub preview it is the app one level above the site; on real hosting it is /daftar/.

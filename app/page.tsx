@@ -10,7 +10,6 @@ import Exhibits from "@/components/Exhibits";
 import { COLLECTION, EXHIBITS, HERO, LEDGER, MELT, SHOP, STEPS, WORKBOX } from "@/lib/content";
 
 const Rosette = ({ className, draw }: { className: string; draw?: boolean }) => <div className={className} aria-hidden dangerouslySetInnerHTML={{ __html: draw ? ROSETTE_DRAW : ROSETTE }} />;
-const YEARS = 1405 - 1367;
 const fa = (n: number) => n.toLocaleString("fa-IR");
 
 export default function Home() {
@@ -101,10 +100,9 @@ export default function Home() {
             <Image src={WORKBOX.src} width={WORKBOX.w} height={WORKBOX.h} alt={WORKBOX.alt} sizes="(min-width: 900px) 40vw, 90vw" />
           </div>
           <div className="legacy-text" data-rise>
-            <h2 id="leg-h" className="leaf">از {SHOP.since}، در تهران</h2>
+            <h2 id="leg-h" className="leaf">لئون گلد، در تهران</h2>
             <Hallmark className="legacy-mark" />
             <div className="legacy-stats">
-              <div><b className="num">{fa(YEARS)}</b><span>سال در بازار طلا</span></div>
               <div><b className="num">۷۵۰</b><span>عیار هر کار</span></div>
               <div><b className="num">۲</b><span>حساب گرمی و ریالی</span></div>
             </div>
@@ -142,9 +140,9 @@ export default function Home() {
           </div>
           <div className="order-info" data-rise>
             <div><small>تلفن</small><a className="num" href={SHOP.phoneHref} dir="ltr">{SHOP.phone}</a></div>
-            <div><small>نشانی</small><span>{SHOP.address}</span></div>
+            <div><small>شهر</small><span>{SHOP.city}</span></div>
             <div><small>ساعت کاری</small><span>{SHOP.hours}</span></div>
-            <div><small>شبکه‌ها</small><span><a href={SHOP.instagram}>اینستاگرام</a> · <a href={SHOP.whatsapp}>واتس‌اپ</a></span></div>
+            <div><small>شبکه‌ها</small><span><a href={SHOP.instagram} dir="ltr">@{SHOP.instagramId}</a> · <a href={SHOP.whatsapp}>واتس‌اپ</a></span></div>
           </div>
         </section>
       </main>
@@ -153,7 +151,7 @@ export default function Home() {
         <Rosette className="foot-rose" />
         <img className="foot-jewel" src="leaf.png" alt="" width={265} height={490} />
         <p className="foot-latin leaf" lang="en" dir="ltr">LEON GOLD</p>
-        <p className="foot-fa">طلا و جواهرات · تهران · از {SHOP.since}</p>
+        <p className="foot-fa">طلا و جواهرات · تهران</p>
         <nav className="foot-links" aria-label="پیوندها">
           <a href="#price">قیمت امروز</a><a href="#collection">مجموعه</a><a href="#wholesale">همکاران</a><a href="#order">تماس</a>
           <a href={LEDGER}>دفتر لئون</a>

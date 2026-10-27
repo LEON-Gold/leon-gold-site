@@ -17,7 +17,7 @@ export default function Hallmark({ className = "" }: { className?: string }) {
       </g>
       {/* the page is right-to-left; a left-to-right legend would otherwise run off the start of its path */}
       <text direction="ltr" fill="currentColor" fontFamily="Cinzel, serif" fontSize="12" letterSpacing="2" dy="4">
-        <textPath href={"#" + rim} textLength="470" lengthAdjust="spacing">LEON GOLD · TEHRAN · ASSAY 750 · SINCE 1988 ·</textPath>
+        <textPath href={"#" + rim} textLength="470" lengthAdjust="spacing">LEON GOLD · TEHRAN · ASSAY 750 · FINE JEWELRY ·</textPath>
       </text>
       <text x="100" y="112" textAnchor="middle" fill="currentColor" fontFamily="Vazirmatn, sans-serif" fontWeight="800" fontSize="40">۷۵۰</text>
       <text x="100" y="134" textAnchor="middle" fill="currentColor" fontFamily="Vazirmatn, sans-serif" fontSize="12">عیار</text>
