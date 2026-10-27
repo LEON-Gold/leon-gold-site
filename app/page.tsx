@@ -11,6 +11,7 @@ import { COLLECTION, EXHIBITS, HERO, LEDGER, MELT, SHOP, STEPS, WORKBOX } from "
 
 const Rosette = ({ className, draw }: { className: string; draw?: boolean }) => <div className={className} aria-hidden dangerouslySetInnerHTML={{ __html: draw ? ROSETTE_DRAW : ROSETTE }} />;
 const fa = (n: number) => n.toLocaleString("fa-IR");
+const DEPTH = [9, 8, 7, 6, 5, 4, 3, 2, 1];
 
 export default function Home() {
   return (
@@ -25,7 +26,11 @@ export default function Home() {
           <Rosette className="hero-rose r2" />
           <i className="corner c1" aria-hidden /><i className="corner c2" aria-hidden /><i className="corner c3" aria-hidden /><i className="corner c4" aria-hidden />
           <div className="hero-in">
-            <div className="hero-jewel"><img src="leaf.png" alt="" width={265} height={490} /></div>
+            {/* the jewel, struck with a little depth: stacked copies behind it read as gold thickness when it turns */}
+            <div className="hero-jewel"><div className="jw">
+              {DEPTH.map((z) => <img key={z} className="jw-back" src="leaf.png" alt="" width={265} height={490} style={{ "--z": z } as React.CSSProperties} />)}
+              <img className="jw-face" src="leaf.png" alt="" width={265} height={490} />
+            </div></div>
             <p className="hero-latin leaf leaf-sweep" lang="en" dir="ltr">LEON GOLD</p>
             <h1 id="hero-h" className="hero-name leaf leaf-sweep">لئون گلد</h1>
             <div className="hero-cta">
@@ -33,6 +38,7 @@ export default function Home() {
               <a className="btn btn-line" href="#price">قیمت امروز</a>
             </div>
           </div>
+          <p className="hero-cue" aria-hidden>پایین بکشید<i>↓</i></p>
           <Hallmark className="hero-mark" />
           <Ticker />
         </section>

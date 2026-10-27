@@ -1,6 +1,7 @@
 "use client";
-// The motion layer. One orchestrated moment, the vault opening: the rosettes grow in, the jewel descends, the
-// names rise under their leaf sweep, the actions arrive. After that, every section's parts rise in turn as they
+// The motion layer. The vault opens on the jewel alone, large and centred. Scrolling turns it once about its
+// upright axis while it settles into place, then the names and the actions rise. The hero holds still (pinned)
+// for that turn. After that, every section's parts rise in turn as they
 // enter, the rosettes drift against the scroll, and the plaques tip toward the pointer.
 import { useEffect } from "react";
 import { gsap } from "gsap";
@@ -14,11 +15,8 @@ export default function Motion() {
       const tl = gsap.timeline({ defaults: { ease: "expo.out" } });
       tl.from(".hero-rose.r1", { scale: 0.86, duration: 3.2 }, 0)
         .from(".hero-rose.r2", { scale: 0.4, opacity: 0, duration: 2 }, 0.15)
-        .from(".hero-jewel", { y: -40, opacity: 0, scale: 0.85, duration: 1.6 }, 0.3)
-        .from(".hero-latin", { y: 24, opacity: 0, duration: 1.2 }, 0.55)
-        .from(".hero-name", { y: 40, opacity: 0, duration: 1.4 }, 0.65)
-        .from(".hero-tag, .hero-sub", { y: 18, opacity: 0, duration: 1, stagger: 0.1 }, 0.95)
-        .from(".hero-cta .btn", { y: 16, opacity: 0, duration: 0.9, stagger: 0.08 }, 1.15)
+        .from(".jw", { opacity: 0, duration: 1.6 }, 0.3)
+        .from(".hero-cue", { opacity: 0, duration: 1 }, 1.4)
         .from(".hero .corner", { opacity: 0, scale: 0.6, duration: 1, stagger: 0.06 }, 1.1)
         .from(".ticker", { y: 58, duration: 1.1 }, 1.2)
         // clearProps: a leftover transform on the bar would trap the fixed menu panel inside it
@@ -33,8 +31,18 @@ export default function Motion() {
       const lamp = (e: PointerEvent) => { const r = hero!.getBoundingClientRect(); hero!.style.setProperty("--mx", e.clientX - r.left + "px"); hero!.style.setProperty("--my", e.clientY - r.top + "px"); };
       hero?.addEventListener("pointermove", lamp);
 
-      // the hero sinks a little as it leaves
-      gsap.to(".hero-in", { y: 120, opacity: 0.2, ease: "none", scrollTrigger: { trigger: ".hero", start: "top top", end: "bottom top", scrub: true } });
+      // the jewel turns on the scroll: large in the middle of the screen, one full turn while it shrinks into its
+      // place above the name, then the names and actions rise
+      const jewel = document.querySelector<HTMLElement>(".hero-jewel")!;
+      const toMiddle = () => { const h = jewel.closest(".hero")!.getBoundingClientRect(), j = jewel.getBoundingClientRect(); return h.top + h.height * 0.45 - (j.top + j.height / 2 - Number(gsap.getProperty(jewel, "y"))); };
+      const words = [".hero-latin", ".hero-name", ".hero-cta .btn"];
+      gsap.set(words, { opacity: 0, y: 30 });
+      gsap.timeline({ defaults: { ease: "none" }, scrollTrigger: { trigger: ".hero", start: "top top", end: "+=140%", pin: true, scrub: 0.6, invalidateOnRefresh: true } })
+        .to(".hero-cue", { opacity: 0, duration: 0.08 }, 0)
+        .fromTo(jewel, { y: toMiddle, scale: 1.9 }, { y: 0, scale: 1, duration: 0.6, ease: "power1.inOut" }, 0)
+        .fromTo(".jw", { rotationY: 0 }, { rotationY: 360, duration: 0.6, ease: "power1.inOut" }, 0)
+        .to(words, { opacity: 1, y: 0, duration: 0.2, stagger: 0.07, ease: "power2.out" }, 0.55)
+        .to({}, { duration: 0.1 });
 
       document.querySelectorAll<HTMLElement>("[data-rise]").forEach((sec) => {
         const parts = sec.matches("ul, ol") ? sec.children : sec.querySelectorAll(":scope > *");
