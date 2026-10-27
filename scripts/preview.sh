@@ -10,7 +10,7 @@ MSYS2_ENV_CONV_EXCL=PREVIEW_BASE PREVIEW_BASE=$BASE npx next build
 grep -rlE '/(museum|fonts|products|gl)/|/leaf\.png' out --include='*.html' --include='*.css' --include='*.js' --include='*.txt' | while read f; do
   sed -i -E "s#([\"'(])/(museum|fonts|products|gl)/#\1$BASE/\2/#g; s#([\"'(])/leaf\.png#\1$BASE/leaf.png#g" "$f"
 done
-rm -rf out/t.html out/t2.html out/t3.html out/t4.html out/t-pr.html  # local screenshot helpers
+rm -rf out/t.html out/t2.html out/t3.html out/t4.html out/t-pr.html out/t-vt.html  # local screenshot helpers
 SITE=../leon-gold-app/site
 rm -rf "$SITE" && cp -r out "$SITE"
 echo "copied to $SITE"

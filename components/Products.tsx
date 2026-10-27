@@ -3,16 +3,14 @@
 // A card opens into the same full-screen case as the exhibits, with every shot of the piece and an order on WhatsApp.
 import Image from "next/image";
 import { useCallback, useRef, useState } from "react";
-import { estimate, type Product } from "@/lib/products";
+import { ask, estimate, gram, kindOf, type Product } from "@/lib/products";
 import { fa, toman, usePrice } from "@/lib/price";
-import { SHOP } from "@/lib/content";
 import "@/app/products.css";
 
-const gram = (w: number) => fa(w, 2) + " گرم";
-const ask = (p: Product) => SHOP.whatsapp + "?text=" + encodeURIComponent(`سلام، دربارهٔ «${p.name}»${p.weight ? ` (${gram(p.weight)})` : ""} از سایت لئون گلد می‌پرسم.`);
-const kindOf = (p: Product) => p.kind + (p.collection ? "، مجموعه‌ی " + p.collection : "");
+// each piece's own page, relative to the home page (works under the preview's base path and on the real domain)
+const pageOf = (p: Product) => "vitrin/" + p.slug + "/";
 
-function Price({ p }: { p: Product }) {
+export function Price({ p }: { p: Product }) {
   const { feed } = usePrice();
   if (p.sold) return <span className="pr-price sold">فروخته شد</span>;
   const v = estimate(p, feed?.gp || 0);
@@ -40,7 +38,7 @@ export default function Products({ items }: { items: Product[] }) {
             </button>
             <div className="pr-text">
               <small className="pr-kind">{kindOf(it)}</small>
-              <h3>{it.name}</h3>
+              <h3><a href={pageOf(it)}>{it.name}</a></h3>
               <p>{it.line}</p>
               <div className="pr-row">
                 {it.weight ? <span className="pr-w num">{gram(it.weight)}</span> : null}
@@ -78,6 +76,7 @@ export default function Products({ items }: { items: Product[] }) {
               </dl>
               <Price p={p} />
               {!p.sold && <a className="btn btn-gold pr-ask" href={ask(p)}>سفارش در واتس‌اپ</a>}
+              <a className="pr-page" href={pageOf(p)}>صفحه‌ی این کار ←</a>
             </div>
             <button className="case-x" type="button" onClick={close} aria-label="بستن">×</button>
           </div>

@@ -1,7 +1,9 @@
 // The shop's own pieces, each from the owner's photo and label. Photos go through scripts/studio.py into
 // public/products/<slug>/; the words follow .claude/skills/leon-product-studio. Weight and ajrat are the label's, never guessed.
 
-export type Shot = { src: string; w: number; h: number };
+import { SHOP } from "./content"; // relative: next.config.ts reads this file for the sitemap
+
+export type Shot ={ src: string; w: number; h: number };
 export type Product = {
   slug: string;
   name: string;              // what the piece is called in the shop, e.g. «انگشتر زنانه‌ی برگ»
@@ -25,6 +27,13 @@ export function estimate(p: Product, gp: number) {
   return gold + aj + pf + (aj + pf) * 0.1;
 }
 
+// shared by the cards, the case and each piece's own page (vitrin/<slug>/); plain functions, so server pages can call them too
+const faNum = (n: number, d = 0) => n.toLocaleString("fa-IR", { maximumFractionDigits: d });
+export const gram = (w: number) => faNum(w, 2) + " گرم";
+export const kindOf = (p: Product) => p.kind + (p.collection ? "، مجموعه‌ی " + p.collection : "");
+export const ask = (p: Product) => SHOP.whatsapp + "?text=" + encodeURIComponent(`سلام، دربارهٔ «${p.name}»${p.weight ? ` (${gram(p.weight)})` : ""} از سایت لئون گلد می‌پرسم.`);
+export const codeOf = (p: Product) => p.details.find(([k]) => k === "کد")?.[1];
+
 // Mina d'Or pieces from the owner's posters (2026-10-27), framed without the poster text. Weights and ajrat to come.
 export const PRODUCTS: Product[] = [
   // from the owner's raw photo (card in its bag on the counter, 2026-10-27), cut out in the studio
@@ -42,7 +51,7 @@ export const PRODUCTS: Product[] = [
     line: "پلاک گرد با نقش پیچ، روی حلقه‌های درشت و زنجیر ظریف.",
     story: "زنجیر ظریف با مکعب‌های کوچک و پلاک‌های بیضی شیاردار جلو می‌آید و در وسط به حلقه‌های درشت می‌رسد که پلاک گرد را نگه می‌دارند. بلند است؛ روی یقه‌ی باز یا لباس ساده‌ی یک‌رنگ خوب می‌نشیند.",
     details: [["پلاک", "گرد، با نقش پیچ"], ["زنجیر", "ظریف، با حلقه‌های درشت در وسط"]],
-    shots: [{ src: "/products/necklace-disc/2.webp", w: 1280, h: 1600 }, { src: "/products/necklace-disc/1.webp", w: 1280, h: 1600 }] },
+    shots: [{ src: "/products/necklace-disc/1.webp", w: 1280, h: 1600 }, { src: "/products/necklace-disc/2.webp", w: 1280, h: 1600 }] },
   { slug: "earring-clover", name: "گوشواره‌ی شبدر", kind: "گوشواره", collection: "مینا دُر",
     line: "گلی از چهار قلب با یک نگین، و شبدر چهاربرگ زیرش.",
     story: "از قلاب، زنجیر کوتاهی پایین می‌آید؛ اول گلی که از چهار قلب توخالی ساخته شده و وسطش نگین کوچکی نشسته، بعد شبدر چهاربرگ تخت. سبک است و برای هر روز.",

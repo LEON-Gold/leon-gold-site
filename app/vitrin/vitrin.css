@@ -1,0 +1,61 @@
+/* A showcase piece's own page (app/vitrin/[slug]): the case, opened into a page, on the vault ground */
+.vt-bar { justify-content: flex-start; }
+.vt-bar-t { font-family: var(--display); font-size: 20px; color: #d6ccb0; padding-inline-start: 18px; border-inline-start: 1px solid rgba(197,154,80,.4); line-height: 1.2; }
+.vt-bar-back { margin-inline-start: auto; min-height: 44px; padding: 0 18px; font-size: 14px; }
+
+.vt { min-height: 100dvh; padding: 96px var(--m) 72px; color: var(--cream);
+  background: radial-gradient(70% 55% at 30% 20%, #1a5a42 0%, transparent 60%), linear-gradient(180deg, var(--green-2), var(--vault) 70%); }
+.vt-crumbs { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; font-size: 14px; color: #9fb3a5; margin-bottom: 28px; }
+.vt-crumbs a { color: #d6ccb0; text-decoration: none; padding: 10px 0; }
+.vt-crumbs a:hover { color: var(--gold-lt); }
+.vt-crumbs i { font-style: normal; font-size: 8px; color: var(--gold); }
+.vt-crumbs span { color: var(--gold-lt); }
+
+.vt-piece { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: clamp(28px, 4vw, 64px); align-items: start; max-width: 1240px; margin: 0 auto; }
+.vt-shots { display: grid; gap: 18px; }
+.vt-shot { position: relative; margin: 0; border-radius: 20px; overflow: hidden; background: var(--vault); box-shadow: inset 0 0 0 1px rgba(232,207,142,.35), 0 30px 60px -30px rgba(0,0,0,.8); }
+.vt-shot img { display: block; width: 100%; height: auto; }
+
+.vt-text { position: sticky; top: 92px; display: grid; gap: 14px; padding: clamp(26px, 3vw, 40px); border-radius: 20px;
+  background: linear-gradient(180deg, rgba(15,64,48,.55), rgba(6,20,14,.55)); box-shadow: inset 0 0 0 1px rgba(197,154,80,.45); }
+.vt-kind { color: var(--gold); font-size: 14px; font-weight: 700; }
+.vt-text h1 { font-family: var(--display); font-size: clamp(38px, 4.6vw, 64px); line-height: 1.3; }
+.vt-line { font-size: 19px; color: var(--gold-lt); }
+.vt-story { font-size: 17px; color: #e2d8bd; line-height: 1.9; }
+.vt-buy { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px; margin-top: 6px; padding-top: 18px; border-top: 1px solid rgba(197,154,80,.35); }
+.vt-buy .pr-price { justify-items: start; color: #c9bf9f; font-size: 14px; }
+.vt-buy .pr-price b { color: var(--gold-lt); font-size: 28px; }
+.vt-buy .pr-price.sold { color: var(--gold-lt); font-size: 18px; }
+.vt-note { font-size: 13px; color: #9fb3a5; line-height: 1.8; }
+
+.vt-more { max-width: 1240px; margin: clamp(56px, 8vw, 96px) auto 0; }
+.vt-more h2 { font-family: var(--display); font-size: clamp(30px, 3.4vw, 44px); margin-bottom: 22px; }
+.vt-more ul { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 18px; }
+.vt-more a { display: grid; gap: 4px; text-decoration: none; color: var(--cream); }
+.vt-more img { width: 100%; height: auto; border-radius: 14px; box-shadow: inset 0 0 0 1px rgba(232,207,142,.3); margin-bottom: 8px; transition: transform .6s var(--ease); }
+.vt-more a:hover img { transform: translateY(-4px); }
+.vt-more b { font-family: var(--display); font-size: 21px; font-weight: 400; line-height: 1.4; }
+.vt-more small { color: #9fb3a5; font-size: 13px; }
+
+.vt-foot { background: var(--vault); text-align: center; padding: 28px var(--m) 36px; border-top: 1px solid rgba(197,154,80,.3); }
+.vt-foot a { color: #b9b29a; text-decoration: none; font-size: 14px; padding: 12px 0; display: inline-block; }
+
+@media (max-width: 860px) {
+  .vt { padding-top: 84px; }
+  .vt-piece { grid-template-columns: 1fr; gap: 22px; }
+  /* the shots swipe sideways, so the name and price follow the first one */
+  .vt-shots { grid-auto-flow: column; grid-auto-columns: 86%; gap: 12px; overflow-x: auto; scroll-snap-type: x mandatory; overscroll-behavior-x: contain; scrollbar-width: none; margin-inline: calc(var(--m) * -1); padding-inline: var(--m); }
+  .vt-shots::-webkit-scrollbar { display: none; }
+  .vt-shot { scroll-snap-align: center; }
+  .vt-shots:has(> :only-child) { grid-auto-columns: 100%; }
+  .vt-text { position: static; }
+  .vt-more ul { grid-template-columns: 1fr 1fr; gap: 14px; }
+  .vt-more b { font-size: 18px; }
+  .vt-bar { gap: 14px; }
+  .vt-bar-t { display: none; }
+  .vt-bar-back { padding: 0 14px; font-size: 13px; }
+}
+@media (max-width: 480px) {
+  .vt-buy .btn { width: 100%; }
+}
+@media (prefers-reduced-motion: reduce) { .vt-more img { transition: none; } }
