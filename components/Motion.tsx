@@ -4,7 +4,8 @@
 // for that turn. After that, every section's parts rise in turn as they
 // enter, the rosettes drift against the scroll, and the plaques tip toward the pointer.
 // A wheel or trackpad scroll is eased by Lenis, slower than the native step, so even a hard flick moves the page
-// (and everything tied to it) in one smooth glide. Touch keeps the phone's own momentum.
+// (and everything tied to it) in one smooth glide. Touch keeps the phone's own momentum (no Lenis there). The jewel's
+// fade-in is CSS (site.css .jw) so the largest paint does not wait for this script.
 import { useEffect } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -16,16 +17,15 @@ export default function Motion() {
     gsap.registerPlugin(ScrollTrigger);
     const mm = gsap.matchMedia();
     mm.add("(prefers-reduced-motion: no-preference)", () => {
-      const lenis = new Lenis({ lerp: 0.075, wheelMultiplier: 0.8, anchors: true, prevent: (n) => !!n.closest?.(".sheet, .case") });
-      lenis.on("scroll", ScrollTrigger.update);
-      const tick = (t: number) => lenis.raf(t * 1000);
-      gsap.ticker.add(tick);
-      gsap.ticker.lagSmoothing(0);
+      // Lenis only eases wheels and trackpads; on a touch-only phone it would run every frame for nothing
+      const lenis = matchMedia("(hover: hover) and (pointer: fine)").matches ? new Lenis({ lerp: 0.075, wheelMultiplier: 0.8, anchors: true, prevent: (n) => !!n.closest?.(".sheet, .case") }) : null;
+      lenis?.on("scroll", ScrollTrigger.update);
+      const tick = (t: number) => lenis!.raf(t * 1000);
+      if (lenis) { gsap.ticker.add(tick); gsap.ticker.lagSmoothing(0); }
 
       const tl = gsap.timeline({ defaults: { ease: "expo.out" } });
       tl.from(".hero-rose.r1", { scale: 0.86, duration: 3.2 }, 0)
         .from(".hero-rose.r2", { scale: 0.4, opacity: 0, duration: 2 }, 0.15)
-        .from(".jw", { opacity: 0, duration: 1.6 }, 0.3)
         .from(".hero-cue", { opacity: 0, duration: 1 }, 1.4)
         .from(".hero .corner", { opacity: 0, scale: 0.6, duration: 1, stagger: 0.06 }, 1.1)
         .from(".ticker", { y: 58, duration: 1.1 }, 1.2)
@@ -67,7 +67,7 @@ export default function Motion() {
       const refresh = () => ScrollTrigger.refresh();
       addEventListener("load", refresh);
       document.fonts?.ready.then(refresh);
-      return () => { removeEventListener("load", refresh); gsap.ticker.remove(tick); lenis.destroy(); };
+      return () => { removeEventListener("load", refresh); if (lenis) { gsap.ticker.remove(tick); lenis.destroy(); } };
     });
 
     // plaques and exhibit frames tip toward a mouse pointer
