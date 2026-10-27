@@ -32,3 +32,9 @@
 - Retail estimate: `gold = w*gp; ajrat = gold*aj; profit = (gold+ajrat)*pf; tax = (ajrat+profit)*10%`. Mithqal = gram × 4.3318.
 - Contact details, collection, ajrat and profit in `lib/content.ts` are SAMPLE until the owner sends real ones. Never invent reviews, customers or statistics.
 - No online payment yet: orders go to WhatsApp until the CRM exists.
+
+## «حساب من» at `/hesab` (customers and suppliers)
+
+- `components/hesab/Hesab.tsx`, `lib/hesab.ts`, `app/hesab/`. Read-only; data from the server's portal API (see `../leon-gold-server/CLAUDE.md`). Customers: balance, orders, statement. Suppliers: balance, the open order items given to them (no customer names), statement. A party that is both sees both.
+- Sign-in: SMS code (off until a Kavenegar account exists; the page then offers a WhatsApp request for a link) or the owner's one-time link `hesab/#k=…`. `hesab/#demo` shows a sample account, marked as one.
+- Balances are never converted at today's price; positive = the party owes Leon, worded for the reader («بدهی شما به لئون» / «طلب شما از لئون»).
