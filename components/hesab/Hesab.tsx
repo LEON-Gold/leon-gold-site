@@ -37,6 +37,7 @@ export default function Hesab() {
   const [data, setData] = useState<Me | null>(null);
   const [smsOff, setSmsOff] = useState(false);
   const [err, setErr] = useState("");
+  const [pick, setPick] = useState("");
 
   const load = useCallback(async () => {
     try { setData(await me()); setPhase("in"); }
@@ -49,7 +50,8 @@ export default function Hesab() {
     if (k) history.replaceState(null, "", location.pathname);
     (async () => {
       if (h === "#demo") { setData(SAMPLE); setPhase("in"); return; }
-      if (h === "#owner") { setPhase("owner"); return; }
+      // #owner, or #owner/<partyId> from the CRM panel's client page with that person already chosen
+      if (h === "#owner" || h.startsWith("#owner/")) { setPick(decodeURIComponent(h.slice(7))); setPhase("owner"); return; }
       if (k) {
         try { await redeem(k); }
         catch (e) { setErr(e instanceof ApiError && e.code === "expired" ? "این لینک ورود قبلاً استفاده شده یا وقتش گذشته. لینک تازه را از لئون گلد بخواهید." : errText(e)); setPhase("phone"); return; }
@@ -61,7 +63,7 @@ export default function Hesab() {
   const out = async () => { if (!data?.demo) await logout(); if (location.hash) history.replaceState(null, "", location.pathname); setData(null); setErr(""); setPhase("phone"); };
   const demo = () => { history.replaceState(null, "", "#demo"); setData(SAMPLE); setPhase("in"); };
 
-  if (phase === "owner") return <Invite />;
+  if (phase === "owner") return <Invite pick={pick} />;
   if (phase === "in" && data) return <Panel data={data} role={role} onOut={out} onReload={data.demo ? undefined : load} />;
   return (
     <Door name="حساب من" latin="LEON GOLD · MY ACCOUNT" fine="فقط حساب خودتان را می‌بینید و در این صفحه چیزی تغییر نمی‌کند.">

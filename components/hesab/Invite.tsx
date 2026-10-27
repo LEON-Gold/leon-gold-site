@@ -1,5 +1,5 @@
 "use client";
-// The owner's side of «حساب من» (hesab/#owner): pick a customer or supplier from the ledger and make their one-time
+// The owner's side of «حساب من» (hesab/#owner, or hesab/#owner/<partyId> with that person chosen): pick a customer or supplier from the ledger and make their one-time
 // sign-in link, then send it on WhatsApp or copy it; or sign a party out of every device. It uses the CRM panel's
 // sign-in (the same sync username and password), so an owner already in the panel is already in here.
 import { useEffect, useMemo, useState, useSyncExternalStore } from "react";
@@ -10,11 +10,11 @@ import { ApiError, faDigits, invite, latin, revoke } from "@/lib/hesab";
 const KIND: Record<string, string> = { customer: "مشتری", supplier: "تأمین‌کننده", both: "مشتری و تأمین‌کننده" };
 const norm = (s: string) => latin(s).replace(/[يى]/g, "ی").replace(/ك/g, "ک").replace(/[\s‌]+/g, " ").trim().toLowerCase();
 
-export default function Invite() {
+export default function Invite({ pick = "" }: { pick?: string }) {
   // the panel's session: signing in or out there (or here) shows at once; undefined until the browser has it
   const user = useSyncExternalStore(onSession, sessionUser, () => undefined);
   if (user === undefined) return null;
-  return user ? <Parties onOut={signOut} /> : <OwnerLogin onIn={() => {}} />;
+  return user ? <Parties onOut={signOut} pick={pick} /> : <OwnerLogin onIn={() => {}} />;
 }
 
 function OwnerLogin({ onIn }: { onIn: () => void }) {
@@ -46,10 +46,11 @@ function OwnerLogin({ onIn }: { onIn: () => void }) {
 
 type Made = { link: string; days: number };
 
-function Parties({ onOut }: { onOut: () => void }) {
+function Parties({ onOut, pick }: { onOut: () => void; pick: string }) {
   const [list, setList] = useState<Party[] | null>(null);
   const [err, setErr] = useState("");
   const [q, setQ] = useState("");
+  const [only, setOnly] = useState(pick);
 
   const fail = (x: unknown) => {
     if (x instanceof LoginNeeded || (x instanceof ApiError && x.status === 401)) return onOut();
@@ -63,8 +64,9 @@ function Parties({ onOut }: { onOut: () => void }) {
   const shown = useMemo(() => {
     const n = norm(q);
     const all = list || [];
+    if (only && !n) { const one = all.filter(p => p.id === only); if (one.length || !list) return one; }
     return n ? all.filter(p => norm([p.name, p.shop, p.phone].filter(Boolean).join(" ")).includes(n)) : all;
-  }, [list, q]);
+  }, [list, q, only]);
 
   return (
     <div className="hs-app">
@@ -79,7 +81,7 @@ function Parties({ onOut }: { onOut: () => void }) {
           <p>هر لینک فقط یک بار کار می‌کند و تا ۷ روز اعتبار دارد. لینک تازه، لینک قبلیِ همان شخص را باطل می‌کند.</p>
         </div>
         <label className="hs-field iv-search"><span>جست‌وجو در مشتریان و تأمین‌کنندگان دفتر</span>
-          <input type="search" value={q} onChange={e => setQ(e.target.value)} placeholder="نام، فروشگاه یا موبایل" enterKeyHint="search" />
+          <input type="search" value={q} onChange={e => { setQ(e.target.value); setOnly(""); }} placeholder="نام، فروشگاه یا موبایل" enterKeyHint="search" />
         </label>
         {err && <p className="hs-err iv-err" role="alert">{err}</p>}
         {!list ? (!err && <p className="hs-empty" aria-live="polite">در حال خواندن دفتر…</p>)
