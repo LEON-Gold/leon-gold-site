@@ -1,6 +1,7 @@
 // The panel's «اعداد»: the ledger's own figures per Persian day / week / month / year, read-only.
 // Follows metrics() in ../leon-gold/index.html exactly: wholesale in 750-equivalent grams, retail only from the rial
-// amounts written on invoices. Grams are never turned into rial, and nothing the ledger does not record (expenses) is shown.
+// amounts written on invoices. Grams are never turned into rial. Shop expenses (the ledger's `expenses`, expSum()) come off
+// in their own unit only: gram expenses from the wholesale gram profit, rial expenses from the retail rial profit.
 import { jParts, latin, type Store } from "./crm";
 
 export type Kind = "d" | "w" | "m" | "y";
@@ -9,7 +10,11 @@ export type Figures = {
   inv: number; retailN: number; saleR: number; profR: number; // retail, rial
   sale: number; ret: number; net: number; buy: number; retSup: number; wage: number; gain: number; loss: number; retM: number; profit: number; noCost: number; // wholesale, grams 750
   cashIn: number; cashOut: number; goldIn: number; goldOut: number; // money and gold that changed hands, as written on the documents
+  expR: number; expG: number; expN: number; byCat: Record<string, { r: number; g: number; n: number }>; netR: number; netG: number; // shop expenses and profit after them
 };
+
+// the ledger's XCAT, in its order
+export const XCAT: [string, string][] = [["rent", "اجاره"], ["wage", "حقوق و دستمزد"], ["bills", "قبض‌ها"], ["work", "اجرت کارگاه و تعمیر"], ["melt", "ذوب، ری‌گیری و انگ"], ["tools", "ابزار و تجهیزات"], ["pack", "جعبه و بسته‌بندی"], ["ship", "پیک و حمل"], ["ads", "تبلیغات"], ["safe", "بیمه و حفاظت"], ["tax", "مالیات و عوارض صنفی"], ["bank", "کارمزد بانک و کارتخوان"], ["hosp", "پذیرایی و ملزومات"], ["other", "سایر"]];
 
 const DAY = 864e5;
 const MONTHS = ["فروردین", "اردیبهشت", "خرداد", "تیر", "مرداد", "شهریور", "مهر", "آبان", "آذر", "دی", "بهمن", "اسفند"];
@@ -63,13 +68,14 @@ export function period(k: Kind, off: number): Period {
 
 type Item = { desc?: string; weight?: number; carat?: number; ajrat?: number; ajratG?: number; w750?: number; costAj?: number; pid?: string; ret?: boolean; amount?: number; gold?: number };
 type Inv = { kind?: string; doc?: string; date?: string; ts?: string; items?: Item[]; gold?: { g750?: number }[]; goldDir?: string; trade?: { cin?: number; cout?: number } | null };
+type Exp = { date?: string; ts?: string; cat?: string; r?: number; w?: number; lab?: number; g?: number };
 type Set = { dir?: string; unit?: string; amount?: number; date?: string; ts?: string; note?: string };
 
 const labOf = (c: number) => (c <= 24 ? (c * 1000) / 24 : c);
 const pureOf = (it: Item) => (it.w750 != null ? +it.w750 : (+(it.weight || 0) * labOf(+(it.carat || 750))) / 750);
 
 export function figures(st: Store, s: number, e: number): Figures {
-  const F: Figures = { inv: 0, retailN: 0, saleR: 0, profR: 0, sale: 0, ret: 0, net: 0, buy: 0, retSup: 0, wage: 0, gain: 0, loss: 0, retM: 0, profit: 0, noCost: 0, cashIn: 0, cashOut: 0, goldIn: 0, goldOut: 0 };
+  const F: Figures = { inv: 0, retailN: 0, saleR: 0, profR: 0, sale: 0, ret: 0, net: 0, buy: 0, retSup: 0, wage: 0, gain: 0, loss: 0, retM: 0, profit: 0, noCost: 0, cashIn: 0, cashOut: 0, goldIn: 0, goldOut: 0, expR: 0, expG: 0, expN: 0, byCat: {}, netR: 0, netG: 0 };
   const products = st.products as Record<string, { buyAjrat?: number }>;
   // purchase wage: kept on the item when the invoice was saved, else the product card's current one
   const costOf = (it: Item) => (it.costAj != null ? +it.costAj : it.pid && products[it.pid]?.buyAjrat != null ? +products[it.pid].buyAjrat! : null);
@@ -102,8 +108,16 @@ export function figures(st: Store, s: number, e: number): Figures {
     if (x.unit === "g") { if (inn) F.goldIn += a; else F.goldOut += a; }
     else if (inn) F.cashIn += a; else F.cashOut += a;
   }
+  for (const x of Object.values(st.expenses) as Exp[]) {
+    const d = docDay(x);
+    if (d < s || d > e) continue;
+    const r = +(x.r || 0), g = x.g != null ? +x.g : (+(x.w || 0) * labOf(+(x.lab || 750))) / 750, c = (F.byCat[XCAT.some(([k]) => k === x.cat) ? x.cat! : "other"] ||= { r: 0, g: 0, n: 0 }); // an unknown type counts as «سایر»
+    F.expN++; F.expR += r; F.expG += g; c.n++; c.r += r; c.g += g;
+  }
   F.net = F.sale - F.ret;
   F.profit = F.gain - F.loss - F.retM;
+  F.netG = F.profit - F.expG;
+  F.netR = F.profR - F.expR;
   return F;
 }
 

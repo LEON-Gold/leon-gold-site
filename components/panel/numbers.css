@@ -9,7 +9,7 @@
 .nb-none { padding: 14px 18px; color: var(--muted); }
 
 .nb-groups { display: grid; grid-template-columns: 1fr 1.5fr; gap: 16px; align-items: stretch; }
-.nb-groups > :last-child { grid-column: 1 / -1; }
+.nb-group.wide { grid-column: 1 / -1; }
 .nb-group { padding: 18px 20px; color: var(--ink); }
 .nb-group h2, .nb-title { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; font: 700 16px/1.5 var(--text); color: var(--emerald); margin-bottom: 10px; }
 .nb-group h2 i { font-style: normal; font-size: 10px; color: var(--gold); }
@@ -73,6 +73,16 @@
 .nb-table td { padding: 7px 4px; border-bottom: 1px solid #f0e8d4; font-variant-numeric: tabular-nums; }
 .nb-table td:first-child { color: var(--muted); }
 
+/* expenses by type: rial and grams in their own columns, each bar scaled within its unit */
+.nb-cost-sum { margin-bottom: 12px; }
+.nb-costs { width: 100%; border-collapse: collapse; font-size: 14px; }
+.nb-costs th { text-align: start; font-weight: 500; color: var(--muted); font-size: 12.5px; padding: 6px 4px; border-bottom: 1px solid #e4d9bd; }
+.nb-costs td { padding: 8px 4px; border-bottom: 1px solid #f0e8d4; vertical-align: middle; white-space: nowrap; }
+.nb-costs td:first-child { white-space: normal; width: 34%; }
+.nb-costs td small { display: block; font-size: 11.5px; color: var(--muted); }
+.nb-costs.no-g td:first-child { width: 45%; }
+.nb-hbar { display: inline-block; vertical-align: middle; width: min(140px, 40%); height: 8px; margin-inline-end: 8px; background: #f3ecdb; border-radius: 4px; overflow: hidden; }
+.nb-hbar i { display: block; height: 100%; background: #c07a22; border-radius: 4px; }
 .nb-foot { font-size: 13px; line-height: 1.8; color: #cfc3a1; padding: 4px 2px; }
 
 @media (max-width: 760px) {

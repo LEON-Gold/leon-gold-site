@@ -5,12 +5,14 @@
 import { useState } from "react";
 import "./numbers.css";
 import { fa, toman, type Store } from "@/lib/crm";
-import { figures, period, series, type Figures, type Kind } from "@/lib/numbers";
+import { XCAT, figures, period, series, type Figures, type Kind } from "@/lib/numbers";
 
 const KINDS: [Kind, string, string, number][] = [["d", "روز", "دیروز", 14], ["w", "هفته", "هفته‌ی قبل", 8], ["m", "ماه", "ماه قبل", 12], ["y", "سال", "سال قبل", 5]];
 const IN = "#2b7a4b", OUT = "#c07a22";
 const g3 = (v: number) => fa(v, Math.abs(v) < 10 ? 3 : 2);
 const tm = (rial: number) => (Math.abs(rial) < 10 ? "۰" : toman(Math.abs(rial)));
+// a figure that can go below zero says so in words, not only with a sign
+const stm = (v: number) => (v <= -10 ? "ضرر " : "") + tm(v), sg3 = (v: number) => (v <= -0.0005 ? "ضرر " : "") + g3(Math.abs(v));
 
 export default function Numbers({ st }: { st: Store }) {
   const [k, setK] = useState<Kind>("m");
@@ -23,7 +25,8 @@ export default function Numbers({ st }: { st: Store }) {
   const prevWordNow = sofar < Q.e ? "همین مدت از " + prevWord : prevWord;
   const rows = series(st, k, n, off);
   const pick = (i: number) => setOff(off - (n - 1 - i));
-  const empty = !F.inv && !F.cashIn && !F.cashOut && !F.goldIn && !F.goldOut;
+  const empty = !F.inv && !F.cashIn && !F.cashOut && !F.goldIn && !F.goldOut && !F.expN;
+  const anyGoldExp = rows.some((r) => r.f.expG > 0.0005);
 
   return (
     <div className="pn-page nb">
@@ -56,23 +59,32 @@ export default function Numbers({ st }: { st: Store }) {
           <dl className="nb-tiles">
             <Tile k="سود (درصد سود فاکتورها)" v={tm(F.profR)} u="تومان" />
             <Tile k="فاکتور خرده" v={fa(F.retailN)} />
+            <Tile k="هزینه‌ی ریالی مغازه" v={tm(F.expR)} u="تومان" />
+            <Tile k={F.netR >= 0 ? "سود بعد از هزینه" : "ضرر بعد از هزینه"} v={tm(F.netR)} u="تومان" />
           </dl>
         </div>
 
         <div className="pn-card nb-group">
           <h2><i>◆</i>عمده <small>گرم عیار ۷۵۰</small></h2>
-          <dl className="nb-tiles four">
+          <dl className="nb-tiles quad">
             <Tile k="فروش" v={g3(F.sale)} u="گرم" sub={change(F.sale, prev.sale, prevWordNow)} />
             <Tile k="مرجوعی مشتری" v={g3(F.ret)} u="گرم" />
             <Tile k="فروش خالص" v={g3(F.net)} u="گرم" />
             <Tile k="خرید از تأمین‌کننده" v={g3(F.buy)} u="گرم" sub={F.retSup > 0.0005 ? "مرجوعی به تأمین‌کننده " + g3(F.retSup) : ""} />
             <Tile k={F.profit >= 0 ? "سود اجرت" : "ضرر اجرت"} v={g3(Math.abs(F.profit))} u="گرم" sub="اجرت فروش منهای اجرت خرید" />
             <Tile k="اجرت دریافتی" v={g3(F.wage)} u="گرم" />
+            <Tile k="هزینه‌ی طلایی مغازه" v={g3(F.expG)} u="گرم" />
+            <Tile k={F.netG >= 0 ? "سود بعد از هزینه" : "ضرر بعد از هزینه"} v={g3(Math.abs(F.netG))} u="گرم" sub="سود اجرت منهای هزینه‌ی طلایی" />
           </dl>
           {F.noCost > 0 && <p className="nb-note">{fa(F.noCost)} قلم فروش «اجرت خرید» ندارد و در سود حساب نشده؛ در کارت کالای دفتر بنویسش.</p>}
         </div>
 
-        <div className="pn-card nb-group">
+        <div className="pn-card nb-group wide">
+          <h2><i>◆</i>هزینه‌های مغازه <small>از «هزینه‌های مغازه»ی دفتر؛ ریال و گرم جدا</small></h2>
+          <Costs F={F} />
+        </div>
+
+        <div className="pn-card nb-group wide">
           <h2><i>◆</i>دریافت و پرداخت <small>اسناد تسویه و نقدیِ فاکتورهای عمده</small></h2>
           <dl className="nb-tiles quad">
             <Tile k="پول دریافتی" v={tm(F.cashIn)} u="تومان" dot={IN} />
@@ -88,8 +100,12 @@ export default function Numbers({ st }: { st: Store }) {
         <Chart title="فروش خرده" unit="تومان" rows={rows} pick={pick} fmt={tm} series={[{ name: "فروش", color: IN, get: (f) => f.saleR }]} />
         <Chart title="طلای عمده" unit="گرم ۷۵۰" rows={rows} pick={pick} fmt={g3}
           series={[{ name: "فروش", color: IN, get: (f) => f.sale }, { name: "خرید", color: OUT, get: (f) => f.buy }]} />
-        <Chart title="سود و ضرر اجرت عمده" unit="گرم ۷۵۰" rows={rows} pick={pick} fmt={(v) => (v < 0 ? "ضرر " : "") + g3(Math.abs(v))} signed
-          series={[{ name: "سود", color: IN, neg: OUT, get: (f) => f.profit }]} />
+        <Chart title="سود خرده بعد از هزینه‌ی ریالی" unit="تومان" rows={rows} pick={pick} fmt={stm} signed
+          series={[{ name: "سود", color: IN, neg: OUT, get: (f) => f.netR }]} />
+        <Chart title="سود عمده بعد از هزینه‌ی طلایی" unit="گرم ۷۵۰" rows={rows} pick={pick} fmt={sg3} signed
+          series={[{ name: "سود", color: IN, neg: OUT, get: (f) => f.netG }]} />
+        <Chart title="هزینه‌ی ریالی مغازه" unit="تومان" rows={rows} pick={pick} fmt={tm} series={[{ name: "هزینه", color: OUT, get: (f) => f.expR }]} />
+        {anyGoldExp && <Chart title="هزینه‌ی طلایی مغازه" unit="گرم ۷۵۰" rows={rows} pick={pick} fmt={g3} series={[{ name: "هزینه", color: OUT, get: (f) => f.expG }]} />}
         <Chart title="پول دریافتی و پرداختی" unit="تومان" rows={rows} pick={pick} fmt={tm}
           series={[{ name: "دریافت", color: IN, get: (f) => f.cashIn }, { name: "پرداخت", color: OUT, get: (f) => f.cashOut }]} />
         <Chart title="طلای دریافتی و پرداختی" unit="گرم ۷۵۰" rows={rows} pick={pick} fmt={g3}
@@ -97,10 +113,40 @@ export default function Numbers({ st }: { st: Store }) {
       </div>
 
       <p className="nb-foot">
-        هزینه‌های مغازه (اجاره، حقوق، قبض‌ها) در «دفتر لئون» ثبت نمی‌شود، پس این‌جا هم نیامده و سود بالا سود خالص بعد از هزینه نیست.
+        سود بعد از هزینه مثل گزارش خود دفتر حساب می‌شود: هزینه‌ی ریالی از سود ریالی خرده کم می‌شود و هزینه‌ی طلایی (گرم ۷۵۰) از سود گرمی عمده؛ هیچ‌کدام به دیگری تبدیل نمی‌شود.
         فروش خرده از مبلغ فاکتورهای خرده است و فروش عمده از وزن ۷۵۰ اقلام؛ این دو با هم جمع نمی‌شوند.
       </p>
     </div>
+  );
+}
+
+// each category with its rial and its grams side by side, each bar scaled within its own unit
+function Costs({ F }: { F: Figures }) {
+  const cats = XCAT.filter(([k]) => F.byCat[k]).map(([k, name]) => ({ name, ...F.byCat[k] }))
+    .sort((a, b) => b.r - a.r || b.g - a.g);
+  if (!cats.length) return <p className="pn-empty">در این بازه هزینه‌ای ثبت نشده.</p>;
+  const mr = Math.max(...cats.map((c) => c.r), 1), mg = Math.max(...cats.map((c) => c.g), 0.001), hasG = F.expG > 0.0005;
+  return (
+    <>
+      <dl className="nb-tiles quad nb-cost-sum">
+        <Tile k="هزینه‌ی ریالی" v={tm(F.expR)} u="تومان" dot={OUT} />
+        <Tile k="هزینه‌ی طلایی" v={g3(F.expG)} u="گرم ۷۵۰" dot={OUT} />
+        <Tile k="سود خرده بعد از هزینه" v={stm(F.netR)} u="تومان" />
+        <Tile k="سود عمده بعد از هزینه" v={sg3(F.netG)} u="گرم" />
+      </dl>
+      <table className={"nb-costs" + (hasG ? "" : " no-g")}>
+        <thead><tr><th>نوع هزینه</th><th>ریالی (تومان)</th>{hasG && <th>طلایی (گرم ۷۵۰)</th>}</tr></thead>
+        <tbody>
+          {cats.map((c) => (
+            <tr key={c.name}>
+              <td>{c.name}<small>{fa(c.n)} مورد</small></td>
+              <td><span className="nb-hbar"><i style={{ width: (c.r / mr) * 100 + "%" }} /></span>{c.r >= 10 ? tm(c.r) : "—"}</td>
+              {hasG && <td><span className="nb-hbar"><i style={{ width: (c.g / mg) * 100 + "%" }} /></span>{c.g > 0.0005 ? g3(c.g) : "—"}</td>}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </>
   );
 }
 
