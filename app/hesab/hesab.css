@@ -39,7 +39,9 @@
 .hs-out:active { transform: scale(.97); }
 .hs-demo-band { background: #f3e4b8; color: #5a4313; text-align: center; font-size: 13px; padding: 8px 16px; border-bottom: 1px solid rgba(156,116,51,.3); }
 
-.hs-main { width: min(var(--hs-w), 100%); margin: 0 auto; padding: 28px 16px 48px; box-sizing: border-box; display: grid; gap: 28px; }
+.hs-main { width: min(var(--hs-w), 100%); margin: 0 auto; padding: 28px 16px 48px; box-sizing: border-box; display: grid; grid-template-columns: minmax(0, 1fr); gap: 28px; }
+/* one long name or word never widens the page; the account chips scroll instead */
+.hs-main :where(p, li, h2, h3, b, span, summary) { overflow-wrap: anywhere; }
 .hs-who h1 { font-family: var(--display); font-size: clamp(30px, 7vw, 40px); line-height: 1.35; color: var(--emerald); text-wrap: balance; overflow-wrap: anywhere; }
 .hs-who p { color: var(--muted); font-size: 14px; }
 .hs-kind { color: var(--gold-ink); font-weight: 600; }
@@ -61,7 +63,7 @@
 .hs-bals { position: relative; display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 .hs-bal { display: grid; gap: 6px; align-content: start; padding: 16px; border-radius: 14px; background: rgba(243,234,208,.55); box-shadow: inset 0 0 0 1px rgba(197,154,80,.28); min-width: 0; }
 .hs-bal-k { font-size: 13px; color: var(--muted); font-weight: 500; }
-.hs-bal-v { font-size: clamp(26px, 7.4vw, 36px); font-weight: 700; line-height: 1.15; color: var(--ink); white-space: nowrap; }
+.hs-bal-v { font-size: clamp(26px, 7.4vw, 36px); font-weight: 700; line-height: 1.15; color: var(--ink); overflow-wrap: anywhere; }
 .hs-bal-v small { display: block; font-size: 12px; font-weight: 500; color: var(--muted); margin-top: 4px; }
 .hs-bal-sub { font-size: 13px; color: var(--muted); }
 /* the stamp: a double ring of ink, slightly turned, as if pressed by hand */
