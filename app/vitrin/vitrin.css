@@ -6,7 +6,7 @@
 .vt { min-height: 100dvh; padding: 96px var(--m) 72px; color: var(--cream);
   background: radial-gradient(70% 55% at 30% 20%, #1a5a42 0%, transparent 60%), linear-gradient(180deg, var(--green-2), var(--vault) 70%); }
 .vt-crumbs { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; font-size: 14px; color: #9fb3a5; margin-bottom: 28px; }
-.vt-crumbs a { color: #d6ccb0; text-decoration: none; padding: 10px 0; }
+.vt-crumbs a { color: #d6ccb0; text-decoration: none; padding: 10px 6px; }
 .vt-crumbs a:hover { color: var(--gold-lt); }
 .vt-crumbs i { font-style: normal; font-size: 8px; color: var(--gold); }
 .vt-crumbs span { color: var(--gold-lt); }
@@ -59,3 +59,4 @@
   .vt-buy .btn { width: 100%; }
 }
 @media (prefers-reduced-motion: reduce) { .vt-more img { transition: none; } }
+.vt-go { display: grid; place-content: center; justify-items: center; gap: 20px; text-align: center; font-size: 17px; }
