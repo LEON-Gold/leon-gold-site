@@ -25,7 +25,7 @@
 .mu-hero-pic figcaption { position: relative; font-size: 14px; color: #a99f80; }
 .mu-rose { position: absolute; aspect-ratio: 1; pointer-events: none; animation: turn 280s linear infinite; }
 .mu-rose svg { width: 100%; height: 100%; }
-.mu-rose-hero { width: min(1100px, 170vw); left: -30%; top: 50%; translate: 0 -50%; opacity: .4; }
+.mu-rose-hero { width: min(1100px, 170vw); left: -30%; top: 50svh; translate: 0 -50%; opacity: .4; }
 
 /* hall chips: stay under the bar while reading */
 .mu-chips { position: sticky; top: 60px; z-index: 40; display: flex; gap: 8px; justify-content: center; padding: 10px var(--m); overflow-x: auto; scrollbar-width: none;
@@ -229,6 +229,8 @@ html:has(.mu-chips) { scroll-padding-top: 124px; }
   .mu-hero { grid-template-columns: 1fr; padding-top: 92px; gap: 8px; min-height: 0; }
   .mu-hero-pic { order: -1; margin-inline: -8%; }
   .mu-hero-pic img { max-width: 420px; }
+  /* a fixed anchor: centred on the stacked hero, the big rosette moved with every font swap (CLS) */
+  .mu-rose-hero { top: 620px; }
   .mu-chips { justify-content: flex-start; top: 60px; }
   .el-row, .assay-grid, .assay-row, .melt, .stock { grid-template-columns: 1fr; }
   .el { width: 168px; padding: 16px 18px; justify-self: start; }
