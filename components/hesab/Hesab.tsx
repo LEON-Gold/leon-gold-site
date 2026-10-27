@@ -65,6 +65,7 @@ export default function Hesab() {
       <a className="hs-back" href="../">← لئون گلد</a>
       <section className="hs-card paper" aria-labelledby="hs-h">
         <Corners />
+        <img className="hs-seal" src="/leaf.png" alt="" width={56} height={56} />
         <p className="hs-kicker">لئون گلد</p>
         <h1 id="hs-h" className="hs-title">حساب من</h1>
         <div className="hs-seg" role="radiogroup" aria-label="شما">

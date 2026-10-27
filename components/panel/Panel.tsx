@@ -82,7 +82,7 @@ export default function Panel() {
   return (
     <div className="pn">
       <header className="pn-bar">
-        <a className="pn-brand" href="#/today"><span className="leaf">لئون گلد</span><small>پنل مشتریان</small></a>
+        <a className="pn-brand" href="#/today"><img src="/leaf.png" alt="" width={30} height={30} /><span className="leaf">لئون گلد</span><small>پنل مشتریان</small></a>
         <nav className="pn-tabs" aria-label="بخش‌ها">
           {tabs.map(([k, t, h]) => (
             <a key={k} href={h} aria-current={here === k ? "page" : undefined}>
@@ -128,8 +128,10 @@ function Login({ onIn }: { onIn: () => void }) {
   };
   return (
     <div className="pn-login">
+      <a className="pn-login-back" href="../">← لئون گلد</a>
       <form className="pn-card pn-login-card" onSubmit={send} noValidate>
         <i className="corner c1" /><i className="corner c2" /><i className="corner c3" /><i className="corner c4" />
+        <img className="pn-login-seal" src="/leaf.png" alt="" width={56} height={56} />
         <h1><span className="leaf">لئون گلد</span></h1>
         <p className="pn-login-sub">پنل مشتریان</p>
         <p className="pn-login-note">با همان نام کاربری و رمزی وارد شو که «دفتر لئون» را با آن همگام کرده‌ای.</p>

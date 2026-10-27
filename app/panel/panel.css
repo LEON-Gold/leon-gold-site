@@ -219,3 +219,84 @@
   .pn-sheet { width: 100%; border-radius: 20px 20px 0 0; padding-bottom: calc(18px + env(safe-area-inset-bottom)); max-height: 92dvh; }
 }
 @media (prefers-reduced-motion: reduce) { .pn-sync.busy svg { animation: none; } }
+
+/* ============ one ground, as on the home page and the museum ============ */
+/* The panel stands on the site's still vault (body::before in site.css): no ground of its own, words outside a card
+   in gold and cream, every card the site's ivory paper with its gold hairline and two corner ornaments. */
+.pn, .pn-login, .pn-boot { background: transparent; }
+.pn { color: var(--cream); }
+.pn::before { content: ""; position: fixed; z-index: -1; pointer-events: none; width: min(900px, 160vw); aspect-ratio: 1; top: 38%; left: 50%; translate: -50% -50%;
+  background: var(--gl-rosette) center / contain no-repeat; opacity: .22; }
+
+/* the bar: the site's band, the leaf seal, the name in gold leaf and the page's own name after a hairline */
+.pn-bar { background: var(--gl-band) center / 100% 100% no-repeat, linear-gradient(180deg, #0f4030, #06140e);
+  box-shadow: 0 1px 0 rgba(197,154,80,.55), 0 12px 30px -18px rgba(0,0,0,.8); box-sizing: content-box; } /* no backdrop-filter: it would hold the fixed phone tabs inside the bar */
+.pn-brand { align-items: center; }
+.pn-brand img { width: 30px; height: 30px; flex: none; }
+.pn-brand span { font-size: 25px; }
+.pn-brand small { font: 400 18px/1.2 var(--display); color: #d6ccb0; padding-inline-start: 12px; border-inline-start: 1px solid rgba(197,154,80,.4); }
+.pn-out { border: 1px solid rgba(232,207,142,.45); border-radius: 999px; padding: 0 16px; height: 38px; color: var(--gold-lt) !important; }
+.pn-out:hover { background: rgba(232,207,142,.08); }
+
+/* words on the vault */
+.pn-hero h1, .pn-head h1 { color: var(--gold-lt); }
+.pn-hero h1 { background: var(--leaf); background-size: 220% 100%; -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; color: transparent; padding-bottom: .1em; }
+.pn-hero h1 em { -webkit-text-fill-color: currentColor; color: #fff3cf; }
+.pn-date { color: var(--gold); letter-spacing: 0; }
+.pn-hero-sub, .pn-head p { color: #d6ccb0; }
+.pn-head .pn-count { background: rgba(232,207,142,.14); color: var(--gold-lt); box-shadow: inset 0 0 0 1px rgba(232,207,142,.3); }
+.pn-back { color: var(--gold-lt); }
+.pn-loading, .pn-boot { color: #cfc4a3; }
+.pn-page > .pn-empty { color: #cfc4a3; }
+
+/* chips and search on the vault: gold hairlines, the chosen one in gold leaf */
+.pn-tools .pn-chips button, .pn-status button { background: rgba(6,20,14,.35); border-color: rgba(232,207,142,.35); color: #e6dcbf; }
+.pn-tools .pn-chips button[aria-selected="true"], .pn-status button[aria-selected="true"] { background: var(--leaf); background-size: 180% 100%; color: #0a1f15; border-color: #f3dfa4; }
+.pn .pn-search input { background: rgba(6,20,14,.45); border-color: rgba(232,207,142,.35); color: var(--cream); }
+.pn .pn-search input::placeholder { color: #a99f80; }
+.pn .pn-search input:focus { border-color: var(--gold-lt); box-shadow: 0 0 0 3px rgba(232,207,142,.18); }
+.pn-search svg { color: var(--gold); }
+
+/* cards are the site's paper */
+.pn-card { color: var(--ink); border-radius: 18px; background: linear-gradient(180deg, #fffefa, #fbf6ea);
+  box-shadow: var(--lift), inset 0 0 0 4px #fffefa, inset 0 0 0 5px rgba(197,154,80,.24), 0 24px 50px -30px rgba(0,0,0,.7); }
+.pn-card::before, .pn-card::after { content: ""; position: absolute; width: 22px; height: 22px; background: var(--corner) center / contain no-repeat; pointer-events: none; opacity: .9; }
+.pn-card::before { top: 7px; left: 7px; }
+.pn-card::after { bottom: 7px; right: 7px; transform: scale(-1, -1); }
+.pn-block, .pn-list { padding: 22px 24px; }
+.pn-lane { padding: 18px 16px; }
+.pn-profile { padding: 30px 28px 24px; }
+/* the lead block is a vault plaque: the green of the bar, a gold rim, a rosette under it */
+.pn-block.lead { background: var(--gl-rosette) -120px -140px / 380px no-repeat, linear-gradient(160deg, #14513b, var(--vault)); border: 1px solid rgba(197,154,80,.7);
+  box-shadow: inset 0 0 0 4px rgba(6,20,14,.6), inset 0 0 0 5px rgba(232,207,142,.22), 0 30px 50px -28px rgba(0,0,0,.95); }
+.pn-block.lead::before, .pn-block.lead::after { opacity: .75; }
+.pn-profile::before, .pn-profile::after { display: none; } /* it has its own corners */
+
+/* the sheet keeps its paper, with the same hairline and corners */
+.pn-sheet { position: relative; background: linear-gradient(180deg, #fffefa, #fbf6ea); color: var(--ink);
+  box-shadow: 0 30px 60px -20px rgba(4,23,15,.6), inset 0 0 0 4px #fffefa, inset 0 0 0 5px rgba(197,154,80,.3); }
+.pn-sheet-bg { background: rgba(6,20,14,.62); -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px); }
+.pn-toast { border: 1px solid rgba(232,207,142,.45); }
+
+/* the door */
+.pn-login { position: relative; background: var(--gl-rosette) center / min(620px, 150vw) no-repeat; }
+.pn-login-card { padding: 44px 28px 32px; border-radius: 18px; box-shadow: var(--lift), inset 0 0 0 4px #fffefa, inset 0 0 0 5px rgba(197,154,80,.24), 0 30px 60px -30px rgba(0,0,0,.8); }
+.pn-login-card::before, .pn-login-card::after { display: none; } /* it has the four real corners */
+.pn-login-seal { width: 56px; height: 56px; justify-self: center; margin-bottom: -6px; }
+.pn-login-back { position: absolute; top: calc(18px + env(safe-area-inset-top)); right: 16px; color: var(--gold-lt); text-decoration: none; font-size: 15px; padding: 10px 4px; }
+.pn-login-fine { font-size: 13px; color: #cbbf9e; text-align: center; max-width: 28em; }
+.pn-login { align-content: center; gap: 18px; }
+
+@media (max-width: 760px) {
+  .pn-bar { height: 56px; gap: 8px; }
+  .pn-brand img { width: 26px; height: 26px; }
+  .pn-brand span { font-size: 22px; }
+  .pn-brand small { font-size: 15px; padding-inline-start: 9px; }
+  .pn-out { padding: 0 12px; height: 36px; }
+  .pn-tabs { background: var(--gl-band) center / 100% 100% no-repeat, linear-gradient(180deg, rgba(15,64,48,.94), rgba(6,20,14,.96)); }
+  .pn-tabs a[aria-current="page"] { background: rgba(232,207,142,.12); box-shadow: inset 0 0 0 1px rgba(232,207,142,.3); }
+  .pn-block, .pn-list { padding: 20px 18px; }
+  .pn-profile { padding: 26px 18px 20px; }
+  .pn-sheet { box-shadow: 0 -20px 50px -20px rgba(0,0,0,.7), inset 0 4px 0 0 #fffefa, inset 0 5px 0 0 rgba(197,154,80,.35); }
+}
+@media (max-width: 370px) { .pn-brand small { display: none; } }

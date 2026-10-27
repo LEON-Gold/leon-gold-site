@@ -150,3 +150,50 @@
   .hs-bal-k, .hs-bal-sub { grid-column: 1 / 3; }
   .hs-stamp { justify-self: end; align-self: start; }
 }
+
+/* ============ one ground, as on the home page and the museum ============ */
+/* Door and inside stand on the site's still vault (body::before in site.css). Words outside a card are gold and cream;
+   the slip, the orders and the statement are the site's ivory paper. */
+.hs-gate, .hs-app { background: transparent; }
+.hs-app { color: var(--cream); }
+.hs-app::before { content: ""; position: fixed; z-index: -1; pointer-events: none; width: min(900px, 160vw); aspect-ratio: 1; top: 40%; left: 50%; translate: -50% -50%;
+  background: var(--gl-rosette) center / contain no-repeat; opacity: .2; }
+.hs-gate-rose { opacity: .4; }
+.hs-card { box-shadow: var(--lift), inset 0 0 0 4px #fffefa, inset 0 0 0 5px rgba(197,154,80,.24), 0 30px 60px -30px rgba(0,0,0,.8); }
+.hs-seal { display: block; width: 56px; height: 56px; margin: 0 auto 6px; }
+
+/* the bar: the site's band, the seal, the name in gold leaf, the page's name after a hairline */
+.hs-bar { background: var(--gl-band) center / 100% 100% no-repeat, linear-gradient(180deg, rgba(15,64,48,.94), rgba(6,20,14,.94)); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
+  box-shadow: 0 1px 0 rgba(197,154,80,.55), 0 12px 30px -18px rgba(0,0,0,.8); padding-inline: var(--m); }
+.hs-brand { font-size: 24px; }
+.hs-brand img { width: 30px; height: 30px; }
+.hs-bar-t { font: 400 18px/1.2 var(--display); color: #d6ccb0; border-color: rgba(197,154,80,.4); }
+.hs-out:hover { background: rgba(232,207,142,.08); }
+.hs-demo-band { position: relative; background: linear-gradient(90deg, rgba(197,154,80,.0), rgba(197,154,80,.16) 20%, rgba(197,154,80,.16) 80%, rgba(197,154,80,0)); color: var(--gold-lt);
+  border-bottom: 1px solid rgba(197,154,80,.35); }
+
+/* words on the vault */
+.hs-who h1 { background: var(--leaf); background-size: 220% 100%; -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; color: transparent; padding-bottom: .08em; }
+.hs-who p { color: #d6ccb0; }
+.hs-kind { color: var(--gold-lt); }
+.hs-sec > .hs-sec-head .hs-h { color: var(--gold-lt); }
+.hs-count, .hs-legend, .hs-foot { color: #cfc4a3; }
+.hs-sec-head .hs-link, .hs-sec > .hs-link, .hs-foot .hs-link, .hs-foot a { color: var(--gold-lt); text-decoration-color: rgba(232,207,142,.45); }
+.hs-foot { border-color: rgba(197,154,80,.35); }
+.hs-empty { color: #d6ccb0; border-color: rgba(232,207,142,.35); background: rgba(6,20,14,.25); }
+.hs-legend b.dr { color: #f0a58f; } .hs-legend b.cr { color: #8fd6b0; }
+
+/* the pills on the vault: a dark well with a gold hairline, the chosen one in gold leaf */
+.hs-app .hs-seg { background: rgba(6,20,14,.45); box-shadow: inset 0 0 0 1px rgba(232,207,142,.3); }
+.hs-app .hs-seg button { color: #d6ccb0; }
+.hs-app .hs-seg button[aria-checked="true"], .hs-app .hs-seg button[aria-selected="true"] { background: var(--leaf); background-size: 180% 100%; color: #0a1f15; box-shadow: 0 4px 12px -6px rgba(216,180,106,.8); }
+
+/* every card is the site's paper, with a little more shadow to stand off the vault */
+.hs-item, .hs-stmt, .hs-slip { box-shadow: var(--lift), inset 0 0 0 4px #fffefa, inset 0 0 0 5px rgba(197,154,80,.22), 0 24px 50px -30px rgba(0,0,0,.7); }
+.hs-item.is-late { box-shadow: var(--lift), inset 0 0 0 4px #fffefa, inset 0 0 0 5px rgba(139,46,34,.4), 0 24px 50px -30px rgba(0,0,0,.7); }
+.hs-item::before, .hs-stmt::before { content: ""; position: absolute; top: 7px; left: 7px; width: 22px; height: 22px; background: var(--corner) center / contain no-repeat; pointer-events: none; opacity: .9; }
+.hs-item, .hs-stmt { position: relative; }
+.hs-item-top .hs-ref { margin-inline-start: 18px; }
+
+@media (min-width: 900px) { .hs-main { width: min(780px, 100%); } }
+@media (max-width: 560px) { .hs-bar { padding-inline: 16px; } .hs-brand { font-size: 21px; } .hs-brand img { width: 26px; height: 26px; } .hs-bar-t { font-size: 15px; } }
