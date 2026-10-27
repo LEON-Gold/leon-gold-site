@@ -39,6 +39,9 @@ section { position: relative; padding: clamp(88px, 11vw, 150px) var(--m); }
 .bar-links a.bar-ledger { color: var(--gold-lt); padding: 6px 14px; border: 1px solid rgba(232,207,142,.45); border-radius: 999px; }
 .bar-links a.bar-ledger::after { display: none; }
 .bar-links a.bar-ledger:hover { background: rgba(232,207,142,.1); }
+.bar-links a, .bar-brand, .bar-cta { white-space: nowrap; flex-shrink: 0; }
+@media (max-width: 1180px) { .bar-links { gap: 14px; } .bar-links a { font-size: 14px; } .bar-links a.bar-ledger { padding: 6px 11px; } .bar-cta { padding: 0 16px; } }
+@media (max-width: 1000px) { .bar-cta { display: none; } }
 
 /* phone menu: a vault sheet in the ledger's language */
 .sheet { display: none; }
@@ -68,7 +71,7 @@ section { position: relative; padding: clamp(88px, 11vw, 150px) var(--m); }
   .sheet-ledger img { height: 30px; width: auto; flex: none; filter: drop-shadow(0 0 8px rgba(232,207,142,.45)); }
   .sheet-ledger .sheet-t b { font-size: 24px; }
   .sheet-ledger { margin-bottom: 28px; } .sheet-cta { margin-top: auto; width: 100%; }
-  .sheet-ledger.sheet-hesab { margin-bottom: 0; } .sheet-hesab + .sheet-ledger { margin-top: 10px; }
+  .sheet-ledger.sheet-hesab, .sheet-ledger.sheet-panel { margin-bottom: 0; } .sheet-hesab + .sheet-ledger, .sheet-panel + .sheet-ledger { margin-top: 10px; }
   @media (prefers-reduced-motion: reduce) { .sheet, .sheet-links a, .sheet-ledger { transition: none !important; transform: none; } }
 }
 

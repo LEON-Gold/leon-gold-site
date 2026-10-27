@@ -45,6 +45,7 @@ export default function Header({ ledger }: { ledger: string }) {
       <nav className="bar-links" aria-label="بخش‌های سایت">
         {LINKS.map(([h, t]) => <a key={h} href={h}>{t}</a>)}
         <a className="bar-ledger" href="hesab/">حساب من</a>
+        <a className="bar-ledger" href="panel/">پنل مدیریت</a>
         <a className="bar-ledger" href={ledger}>دفتر لئون</a>
       </nav>
       <a className="btn btn-gold bar-cta" href="#order">ثبت سفارش</a>
@@ -65,13 +66,18 @@ export default function Header({ ledger }: { ledger: string }) {
               </a>
             ))}
           </nav>
-          {/* the customers' and suppliers' own account, then the shop's ledger */}
+          {/* the customers' and suppliers' own account, then the shop's CRM panel and ledger (both behind the sync sign-in) */}
           <a className="sheet-ledger sheet-hesab" href="hesab/" style={{ "--i": LINKS.length } as React.CSSProperties}>
             <img src="/leaf.png" alt="" width={16} height={30} />
             <span className="sheet-t"><b className="leaf">حساب من</b><small>مانده و سفارش‌های مشتریان و تأمین‌کنندگان</small></span>
             <span className="sheet-go" aria-hidden>‹</span>
           </a>
-          <a className="sheet-ledger" href={ledger} style={{ "--i": LINKS.length + 1 } as React.CSSProperties}>
+          <a className="sheet-ledger sheet-panel" href="panel/" style={{ "--i": LINKS.length + 1 } as React.CSSProperties}>
+            <img src="/leaf.png" alt="" width={16} height={30} />
+            <span className="sheet-t"><b className="leaf">پنل مدیریت</b><small>مشتریان، مناسبت‌ها و پیگیری‌ها، با رمز فروشگاه</small></span>
+            <span className="sheet-go" aria-hidden>‹</span>
+          </a>
+          <a className="sheet-ledger" href={ledger} style={{ "--i": LINKS.length + 2 } as React.CSSProperties}>
             <img src="/leaf.png" alt="" width={16} height={30} />
             <span className="sheet-t"><b className="leaf">دفتر لئون</b><small>دفتر حساب و انبار مغازه</small></span>
             <span className="sheet-go" aria-hidden>‹</span>
