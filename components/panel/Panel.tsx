@@ -7,12 +7,13 @@ import Today from "./Today";
 import Clients from "./Clients";
 import ClientPage from "./ClientPage";
 import Leads from "./Leads";
+import Numbers from "./Numbers";
 import Door from "@/components/Door";
 
-export type Route = { page: "today" | "clients" | "client" | "leads"; id?: string };
+export type Route = { page: "today" | "clients" | "client" | "leads" | "numbers"; id?: string };
 const parse = (h: string): Route => {
   const [p, id] = h.replace(/^#\/?/, "").split("/");
-  return p === "clients" || p === "leads" ? { page: p } : p === "c" && id ? { page: "client", id: decodeURIComponent(id) } : { page: "today" };
+  return p === "clients" || p === "leads" || p === "numbers" ? { page: p } : p === "c" && id ? { page: "client", id: decodeURIComponent(id) } : { page: "today" };
 };
 const onHash = (f: () => void) => { addEventListener("hashchange", f); return () => removeEventListener("hashchange", f); };
 
@@ -77,7 +78,7 @@ export default function Panel() {
 
   const first = state === "busy" && st.rev === 0;
   const fresh = Object.values(st.leads).filter((l) => l.status === "new").length;
-  const tabs: [Route["page"], string, string][] = [["today", "امروز", "#/today"], ["clients", "مشتریان", "#/clients"], ["leads", "سفارش‌ها", "#/leads"]];
+  const tabs: [Route["page"], string, string][] = [["today", "امروز", "#/today"], ["clients", "مشتریان", "#/clients"], ["leads", "سفارش‌ها", "#/leads"], ["numbers", "اعداد", "#/numbers"]];
   const here = route.page === "client" ? "clients" : route.page;
 
   return (
@@ -102,6 +103,7 @@ export default function Panel() {
           : route.page === "today" ? <Today st={st} all={all} />
           : route.page === "clients" ? <Clients all={all} />
           : route.page === "client" ? <ClientPage c={all.find((c) => c.party.id === route.id)} st={st} act={act} />
+          : route.page === "numbers" ? <Numbers st={st} />
           : <Leads st={st} act={act} />}
       </main>
       {toast && <div className="pn-toast" role="status">{toast}</div>}
@@ -110,7 +112,7 @@ export default function Panel() {
 }
 
 function Icon({ k }: { k: string }) {
-  const d = k === "today" ? "M4 7h16M4 7v12h16V7M4 7l1-3h14l1 3M9 12h6" : k === "clients" ? "M8 11a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM2 20c0-3.3 2.7-6 6-6s6 2.7 6 6M16 5.5a3 3 0 0 1 0 5.6M18 14.5c2.4.8 4 3 4 5.5" : "M6 3h12v18l-6-4-6 4zM9 8h6M9 12h4";
+  const d = k === "numbers" ? "M4 20h16M7 16v-5M12 16V6M17 16v-8" : k === "today" ? "M4 7h16M4 7v12h16V7M4 7l1-3h14l1 3M9 12h6" : k === "clients" ? "M8 11a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM2 20c0-3.3 2.7-6 6-6s6 2.7 6 6M16 5.5a3 3 0 0 1 0 5.6M18 14.5c2.4.8 4 3 4 5.5" : "M6 3h12v18l-6-4-6 4zM9 8h6M9 12h4";
   return <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d={d} /></svg>;
 }
 

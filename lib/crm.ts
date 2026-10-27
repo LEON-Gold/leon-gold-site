@@ -13,8 +13,8 @@ export type Person = { birthday?: string; anniversary?: string; ring?: string; m
 export type LeadStatus = "new" | "talking" | "won" | "lost";
 export type Lead = { id: string; name: string; phone?: string; what?: string; note?: string; source?: string; status: LeadStatus; partyId?: string; ts: string; upd?: string };
 
-export type Store = { parties: Record<string, Party>; invoices: Record<string, Invoice>; people: Record<string, Person>; leads: Record<string, Lead>; rev: number };
-export const emptyStore = (): Store => ({ parties: {}, invoices: {}, people: {}, leads: {}, rev: 0 });
+export type Store = { parties: Record<string, Party>; invoices: Record<string, Invoice>; people: Record<string, Person>; leads: Record<string, Lead>; settlements: Record<string, unknown>; products: Record<string, unknown>; rev: number };
+export const emptyStore = (): Store => ({ parties: {}, invoices: {}, people: {}, leads: {}, settlements: {}, products: {}, rev: 0 });
 
 // ---------- session ----------
 const KEY = "leon-crm";
@@ -58,10 +58,10 @@ export async function logout() {
 
 // ---------- pull and push ----------
 type Change = { c: string; id: string; d: unknown };
-const COLS: Record<string, keyof Omit<Store, "rev">> = { parties: "parties", invoices: "invoices", crm_people: "people", crm_leads: "leads" };
+const COLS: Record<string, keyof Omit<Store, "rev">> = { parties: "parties", invoices: "invoices", crm_people: "people", crm_leads: "leads", settlements: "settlements", products: "products" };
 
 export async function pull(st: Store): Promise<Store> {
-  const next: Store = { ...st, parties: { ...st.parties }, invoices: { ...st.invoices }, people: { ...st.people }, leads: { ...st.leads } };
+  const next: Store = { ...st, parties: { ...st.parties }, invoices: { ...st.invoices }, people: { ...st.people }, leads: { ...st.leads }, settlements: { ...st.settlements }, products: { ...st.products } };
   for (let more = true; more; ) {
     const r = await api<{ rev: number; more: boolean; changes: Change[] }>("/api/pull?since=" + next.rev);
     for (const ch of r.changes) {
