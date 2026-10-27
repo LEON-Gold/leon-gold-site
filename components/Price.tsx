@@ -6,16 +6,19 @@ import { MITHQAL, fa, faDigits, parseNum, toman, usePrice, type Row } from "@/li
 // a number that rolls to its new value instead of jumping
 function Roll({ value, format }: { value: number; format: (n: number) => string }) {
   const [shown, setShown] = useState(value);
+  // the number on screen: a new value arriving mid-roll rolls on from here, not from the old start
   const from = useRef(value);
   useEffect(() => {
     const a = from.current, b = value;
-    if (a === b || window.matchMedia("(prefers-reduced-motion: reduce)").matches) { setShown(b); from.current = b; return; }
-    const t0 = performance.now(), dur = 1400;
+    if (a === b) return;
     let raf = 0;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) { from.current = b; raf = requestAnimationFrame(() => setShown(b)); return () => cancelAnimationFrame(raf); }
+    const t0 = performance.now(), dur = 1400;
     const step = (t: number) => {
       const k = Math.min(1, (t - t0) / dur), e = 1 - Math.pow(1 - k, 4);
-      setShown(a + (b - a) * e);
-      if (k < 1) raf = requestAnimationFrame(step); else from.current = b;
+      from.current = a + (b - a) * e;
+      setShown(from.current);
+      if (k < 1) raf = requestAnimationFrame(step);
     };
     raf = requestAnimationFrame(step);
     return () => cancelAnimationFrame(raf);
@@ -80,7 +83,7 @@ export function PricePanel() {
       <div className="paper pp-board">
         <div className="pp-board-head">
           <h3>تابلوی اتحادیه</h3>
-          <span className="live"><i />{feed ? stamp(feed.day, feed.time) : failed ? "در دسترس نیست" : "در حال گرفتن…"}</span>
+          <span className="live"><i />{feed ? stamp(feed.day, feed.time) + (feed.src === "tgju" ? " · tgju" : "") : failed ? "در دسترس نیست" : "در حال گرفتن…"}</span>
         </div>
         <div className="pp-rows">
           {board.length ? board.map((r) => (
@@ -88,7 +91,7 @@ export function PricePanel() {
               <span>{r.name}</span>
               <span className="num">{r.unit === "usd" ? "$" + fa(r.value) : <Roll value={r.value / 10} format={(n) => fa(Math.round(n))} />}</span>
             </div>
-          )) : <p className="pp-wait">{failed ? "قیمت اتحادیه الان در دسترس نیست؛ چند دقیقه‌ی دیگر دوباره نگاه کن." : "در حال گرفتن قیمت سکه و طلا…"}</p>}
+          )) : <p className="pp-wait">{failed || feed ? "قیمت اتحادیه الان در دسترس نیست؛ چند دقیقه‌ی دیگر دوباره نگاه کن." : "در حال گرفتن قیمت سکه و طلا…"}</p>}
         </div>
         <p className="pp-note">به تومان، به جز انس که به دلار است. منبع: تابلوی اتحادیه‌ی طلا و جواهر تهران، هر دو دقیقه تازه می‌شود.</p>
       </div>
