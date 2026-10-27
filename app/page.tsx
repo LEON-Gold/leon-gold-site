@@ -82,6 +82,10 @@ export default function Home() {
             <p>لئون یعنی شیر. زرگرهای این سرزمین بیست و پنج قرن است شیر را در طلا می‌سازند؛ این‌ها چند تا از کارهایشان است که امروز در موزه‌ها مانده.</p>
           </div>
           <Exhibits items={EXHIBITS} />
+          <div className="her-more" data-rise>
+            <p>طلا از کجا می‌آید، عیار چطور شمرده می‌شود و زرگرهای ایران سه هزار سال با آن چه کرده‌اند.</p>
+            <a className="btn btn-line" href="museum/">ورود به موزه‌ی طلا</a>
+          </div>
         </section>
 
         <section className="sec-paper steps" aria-labelledby="steps-h">

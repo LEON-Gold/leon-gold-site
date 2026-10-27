@@ -444,3 +444,8 @@ body::before { content: ""; position: fixed; inset: 0; z-index: -1; pointer-even
 .btn-ink:hover { background: rgba(232,207,142,.08); border-color: var(--gold-lt); }
 .step-n { border-color: var(--vault); }
 .step-row::before { opacity: .35; }
+
+/* the way into the museum, under the lions */
+.her-more { position: relative; display: flex; align-items: center; justify-content: space-between; gap: 18px 32px; flex-wrap: wrap; margin-top: clamp(36px, 5vw, 56px); padding-top: 28px; border-top: 1px solid rgba(197,154,80,.3); }
+.her-more p { color: #d6ccb0; font-size: 17px; max-width: 34em; }
+@media (max-width: 860px) { .her-more .btn { width: 100%; } }
