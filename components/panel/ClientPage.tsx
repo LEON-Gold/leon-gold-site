@@ -40,8 +40,8 @@ export default function ClientPage({ c, act }: { c?: Client; st: Store; act: Act
             {tel && <a className="btn btn-wa" href={waLink(party.phone, `سلام ${party.name} عزیز، از لئون گلد پیام می‌دهیم.`)} target="_blank" rel="noopener"><WaIcon />واتس‌اپ</a>}
           </div>
         </div>
-        {/* «حساب من»'s invite page; it opens on its own list (it takes no party in the address yet), so the owner picks this person there */}
-        <a className="pn-link pn-invite" href="../hesab/#owner" style={{ display: "inline-block", marginTop: 8 }}>ساخت لینک ورود به «حساب من» ←</a>
+        {/* «حساب من»'s invite page, opened with this person already chosen */}
+        <a className="pn-link pn-invite" href={"../hesab/#owner/" + encodeURIComponent(party.id)} style={{ display: "inline-block", marginTop: 8 }}>ساخت لینک ورود به «حساب من» ←</a>
         <dl className="pn-stats">
           <div className="pn-stat-lead"><dt>خرید خرده</dt><dd>{c.spent ? <>{toman(c.spent)}<small> تومان</small></> : "—"}</dd></div>
           <div><dt>وزن کل</dt><dd>{c.grams ? <>{fa(c.grams, 2)}<small> گرم</small></> : "—"}</dd></div>
