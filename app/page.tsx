@@ -16,7 +16,7 @@ const fa = (n: number) => n.toLocaleString("fa-IR");
 export default function Home() {
   return (
     <>
-      <Header />
+      <Header ledger={LEDGER} />
       <Motion />
       <main id="top">
         {/* the vault: rosettes turning behind the jewel, the name struck in gold leaf */}
