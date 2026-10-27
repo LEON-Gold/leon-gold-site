@@ -83,7 +83,8 @@ section { position: relative; padding: clamp(88px, 11vw, 150px) var(--m); }
 .hero > .corner.c1, .hero > .corner.c4 { right: var(--m); } .hero > .corner.c2, .hero > .corner.c3 { left: var(--m); }
 .hero-in { position: relative; z-index: 1; display: grid; justify-items: center; align-content: center; text-align: center; gap: 10px; padding-bottom: 48px; }
 .hero-jewel { animation: float 7s ease-in-out infinite; perspective: 900px; }
-.jw { position: relative; transform-style: preserve-3d; }
+.jw { position: relative; transform-style: preserve-3d; will-change: transform; }
+.hero-jewel { will-change: transform; }
 .jw img { display: block; height: clamp(120px, 17vh, 190px); width: auto; }
 .jw-face { position: relative; filter: drop-shadow(0 0 28px rgba(232,207,142,.45)) drop-shadow(0 18px 30px rgba(0,0,0,.55)); }
 .jw-back { position: absolute; inset: 0; transform: translateZ(calc(var(--z) * -1px)); filter: brightness(.55) sepia(.4); }

@@ -3,15 +3,25 @@
 // upright axis while it settles into place, then the names and the actions rise. The hero holds still (pinned)
 // for that turn. After that, every section's parts rise in turn as they
 // enter, the rosettes drift against the scroll, and the plaques tip toward the pointer.
+// A wheel or trackpad scroll is eased by Lenis, slower than the native step, so even a hard flick moves the page
+// (and everything tied to it) in one smooth glide. Touch keeps the phone's own momentum.
 import { useEffect } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import Lenis from "lenis";
+import "lenis/dist/lenis.css";
 
 export default function Motion() {
   useEffect(() => {
     gsap.registerPlugin(ScrollTrigger);
     const mm = gsap.matchMedia();
     mm.add("(prefers-reduced-motion: no-preference)", () => {
+      const lenis = new Lenis({ lerp: 0.075, wheelMultiplier: 0.8, anchors: true, prevent: (n) => !!n.closest?.(".sheet, .case") });
+      lenis.on("scroll", ScrollTrigger.update);
+      const tick = (t: number) => lenis.raf(t * 1000);
+      gsap.ticker.add(tick);
+      gsap.ticker.lagSmoothing(0);
+
       const tl = gsap.timeline({ defaults: { ease: "expo.out" } });
       tl.from(".hero-rose.r1", { scale: 0.86, duration: 3.2 }, 0)
         .from(".hero-rose.r2", { scale: 0.4, opacity: 0, duration: 2 }, 0.15)
@@ -37,7 +47,7 @@ export default function Motion() {
       const toMiddle = () => { const h = jewel.closest(".hero")!.getBoundingClientRect(), j = jewel.getBoundingClientRect(); return h.top + h.height * 0.45 - (j.top + j.height / 2 - Number(gsap.getProperty(jewel, "y"))); };
       const words = [".hero-latin", ".hero-name", ".hero-cta .btn"];
       gsap.set(words, { opacity: 0, y: 30 });
-      gsap.timeline({ defaults: { ease: "none" }, scrollTrigger: { trigger: ".hero", start: "top top", end: "+=140%", pin: true, scrub: 0.6, invalidateOnRefresh: true } })
+      gsap.timeline({ defaults: { ease: "none" }, scrollTrigger: { trigger: ".hero", start: "top top", end: "+=200%", pin: true, scrub: 1.2, invalidateOnRefresh: true } })
         .to(".hero-cue", { opacity: 0, duration: 0.08 }, 0)
         .fromTo(jewel, { y: toMiddle, scale: 1.9 }, { y: 0, scale: 1, duration: 0.6, ease: "power1.inOut" }, 0)
         .fromTo(".jw", { rotationY: 0 }, { rotationY: 360, duration: 0.6, ease: "power1.inOut" }, 0)
@@ -51,8 +61,9 @@ export default function Motion() {
       gsap.from(".plaque, .calc, .pp-board", { y: 40, opacity: 0, duration: 1.1, ease: "power3.out", stagger: 0.1, scrollTrigger: { trigger: ".pp", start: "top 85%", once: true } });
 
       document.querySelectorAll<HTMLElement>(".her-rose, .order-rose, .foot-rose").forEach((r) => {
-        gsap.fromTo(r, { y: -60 }, { y: 60, ease: "none", scrollTrigger: { trigger: r.parentElement, start: "top bottom", end: "bottom top", scrub: true } });
+        gsap.fromTo(r, { y: -60 }, { y: 60, ease: "none", scrollTrigger: { trigger: r.parentElement, start: "top bottom", end: "bottom top", scrub: 1 } });
       });
+      return () => { gsap.ticker.remove(tick); lenis.destroy(); };
     });
 
     // plaques and exhibit frames tip toward a mouse pointer
