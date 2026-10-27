@@ -36,8 +36,8 @@ export default function Home() {
           <div className="hero-in">
             {/* the jewel, struck with a little depth: stacked copies behind it read as gold thickness when it turns */}
             <div className="hero-jewel"><div className="jw">
-              {DEPTH.map((z) => <img key={z} className="jw-back" src="/leaf.png" alt="" width={265} height={490} style={{ "--z": z } as React.CSSProperties} />)}
-              <img className="jw-face" src="/leaf.png" alt="" width={265} height={490} fetchPriority="high" />
+              {DEPTH.map((z) => <img key={z} className="jw-back" src="/leaf.webp" alt="" width={265} height={490} fetchPriority="high" style={{ "--z": z } as React.CSSProperties} />)}
+              <img className="jw-face" src="/leaf.webp" alt="" width={265} height={490} fetchPriority="high" />
             </div></div>
             <p className="hero-latin leaf leaf-sweep" lang="en" dir="ltr">LEON GOLD</p>
             <h1 id="hero-h" className="hero-name leaf leaf-sweep">لئون گلد</h1>
