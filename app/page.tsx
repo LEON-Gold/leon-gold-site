@@ -29,8 +29,6 @@ export default function Home() {
             <div className="hero-jewel"><img src="leaf.png" alt="" width={265} height={490} /></div>
             <p className="hero-latin leaf leaf-sweep" lang="en" dir="ltr">LEON GOLD</p>
             <h1 id="hero-h" className="hero-name leaf leaf-sweep">لئون گلد</h1>
-            <p className="hero-tag" lang="en" dir="ltr">FINE JEWELRY · TEHRAN · SINCE 1988</p>
-            <p className="hero-sub">طلا و جواهرات ۱۸ عیار، از {SHOP.since}؛ برای مشتری‌ای که یک کار می‌خرد و همکاری که به گرم حساب می‌کند.</p>
             <div className="hero-cta">
               <a className="btn btn-gold" href="#order">ثبت سفارش</a>
               <a className="btn btn-line" href="#price">قیمت امروز</a>
