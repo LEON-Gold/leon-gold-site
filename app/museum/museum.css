@@ -262,3 +262,7 @@ html:has(.mu-chips) { scroll-padding-top: 124px; }
   .bar-brand span { font-size: 21px; }
   .facts { grid-template-columns: 1fr; }
 }
+
+/* tap targets: at least 44px on a phone */
+.mu-bar-back { min-height: 44px; }
+.mu-chips a { min-height: 44px; box-sizing: border-box; display: inline-flex; align-items: center; }

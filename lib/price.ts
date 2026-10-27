@@ -27,13 +27,11 @@ async function getJson(u: string): Promise<unknown> {
 }
 const age = (f: Feed) => Date.now() - Date.parse(f.fetched || "");
 async function fetchFeed(): Promise<Feed | null> {
+  // both mirrors at once: the first fresh answer wins, so one slow or filtered mirror never holds the page up
+  const got = FEEDS.map((u) => getJson(u + "?t=" + Math.floor(Date.now() / 60000)).then((j) => (j && (j as Feed).gp > 0 ? (j as Feed) : null)));
+  try { return await Promise.any(got.map((p) => p.then((j) => (j && age(j) < FRESH ? j : Promise.reject())))); } catch {}
   let stale: Feed | null = null;
-  for (const u of FEEDS) {
-    const j = (await getJson(u + "?t=" + Math.floor(Date.now() / 60000))) as Feed | null;
-    if (!j || !(j.gp > 0)) continue;
-    if (age(j) < FRESH) return j;
-    if (!stale || !(age(j) >= age(stale))) stale = j;
-  }
+  for (const j of await Promise.all(got)) if (j && (!stale || !(age(j) >= age(stale)))) stale = j;
   const t = (await getJson(TGJU)) as { data?: string[][] } | null;
   const row = t?.data?.[0], gp = row ? Number(String(row[0]).replace(/\D/g, "")) : 0;
   if (gp > 1e6 && gp < 1e12) return { gp, day: "امروز", time: String(row![1] || "").slice(0, 5), src: "tgju" };

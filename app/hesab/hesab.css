@@ -188,3 +188,9 @@
 
 @media (min-width: 900px) { .hs-main { width: min(780px, 100%); } }
 @media (max-width: 560px) { .hs-bar { padding-inline: 16px; } .hs-brand { font-size: 21px; } .hs-brand img { width: 26px; height: 26px; } .hs-bar-t { font-size: 15px; } }
+
+/* tap targets: at least 44px on a phone */
+.hs-mini button, .hs-out { min-height: 44px; }
+.hs-link { padding-block: 12px; }
+.hs-foot .hs-link { padding: 0; }
+.hs-brand { padding-block: 6px; margin-block: -6px; }
