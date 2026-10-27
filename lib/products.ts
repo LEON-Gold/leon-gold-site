@@ -27,6 +27,12 @@ export function estimate(p: Product, gp: number) {
 
 // Mina d'Or pieces from the owner's posters (2026-10-27), framed without the poster text. Weights and ajrat to come.
 export const PRODUCTS: Product[] = [
+  // from the owner's raw photo (card in its bag on the counter, 2026-10-27), cut out in the studio
+  { slug: "earring-hearts", name: "گوشواره‌ی قلب و گوی", kind: "گوشواره",
+    line: "قلبی توخالی با قلب کوچکی کنارش، زیر یک گوی براق.",
+    story: "از قلاب، یک پلاک بیضی چکش‌خورده و زنجیری ظریف پایین می‌آید؛ بعد گویی که مثل نگین برق می‌زند و قلبی توخالی که قلب کوچک تختی در آغوش دارد. ظریف و سبک است؛ هم برای هر روز، هم برای هدیه.",
+    details: [["قفل", "قلاب"], ["کد", "E39"]],
+    shots: [{ src: "/products/earring-hearts/1.webp", w: 1280, h: 1600 }] },
   { slug: "earring-drop", name: "گوشواره‌ی آویز اشک", kind: "گوشواره", collection: "مینا دُر",
     line: "قطره‌ای طلایی با چهار گوی براق، روی دو رشته زنجیر.",
     story: "دو رشته زنجیر نازک از قلاب پایین می‌آید و یک قطره‌ی طلا را نگه می‌دارد؛ دورش نقش پیچ حک شده و پایینش چهار گوی ریز برق می‌زند. بلند است و با هر حرکت سر تکان می‌خورد؛ با موی جمع‌شده بیشتر دیده می‌شود.",

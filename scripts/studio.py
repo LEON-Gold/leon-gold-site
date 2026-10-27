@@ -170,6 +170,14 @@ def main():
         a = cutout(img, session)
         rgb = np.asarray(img).astype(np.float32)
         a = holes(rgb, a)
+        if os.environ.get("DROP"):
+            # DROP=cx,cy,rx,ry[;...]: things the model took for the piece that are not it (a card's slots), as ellipses
+            # in the PRE crop's pixels. Only ground goes; the piece is never painted.
+            m = np.zeros(a.shape, np.float32)
+            for r in os.environ["DROP"].split(";"):
+                cx, cy, rx, ry = [int(v) for v in r.split(",")]
+                cv2.ellipse(m, (cx, cy), (rx, ry), 0, 0, 360, 1, -1)
+            a = a * (1 - cv2.GaussianBlur(m, (0, 0), 1.5))
         rgb = polish(neutralise(rgb, a), a)
         shot, box = stage(rgb, a)
         Image.fromarray(shot).save(os.path.join(out, f"{n}.webp"), quality=88, method=6)

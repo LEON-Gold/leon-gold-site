@@ -48,3 +48,5 @@ next-env.d.ts
 
 # product studio: raw photos and before|after proofs stay local
 /products/
+/public/products/*/*-cut.png
+__pycache__/
