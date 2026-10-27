@@ -3,21 +3,27 @@ import Header from "@/components/Header";
 import { PricePanel, Ticker } from "@/components/Price";
 import OrderForm from "@/components/OrderForm";
 import Motion from "@/components/Motion";
-import { ROSETTE, ROSETTE_DRAW, medallion } from "@/lib/guilloche";
+import InlineSvg from "@/components/InlineSvg";
 import Jewel from "@/components/Jewel";
 import Hallmark from "@/components/Hallmark";
 import Exhibits from "@/components/Exhibits";
 import Products from "@/components/Products";
 import { PRODUCTS } from "@/lib/products";
+import { STORE_LD } from "@/lib/seo";
 import { COLLECTION, EXHIBITS, HERO, LEDGER, MELT, SHOP, STEPS, WORKBOX } from "@/lib/content";
 
-const Rosette = ({ className, draw }: { className: string; draw?: boolean }) => <div className={className} aria-hidden dangerouslySetInnerHTML={{ __html: draw ? ROSETTE_DRAW : ROSETTE }} />;
+// the rosettes are files from public/gl/ (see lib/guilloche.ts): the hero's first one is put inline once loaded so it can engrave itself, the rest are images
+const Rosette = ({ className, draw }: { className: string; draw?: boolean }) => draw ? <InlineSvg className={className} src="/gl/rose-draw.svg" />
+  : <div className={className} aria-hidden><img src="/gl/rose.svg" alt="" width={400} height={400} loading="lazy" decoding="async" /></div>;
 const fa = (n: number) => n.toLocaleString("fa-IR");
 const DEPTH = [9, 8, 7, 6, 5, 4, 3, 2, 1];
+
+export const metadata = { alternates: { canonical: "./" } };
 
 export default function Home() {
   return (
     <>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(STORE_LD) }} />
       <Header ledger={LEDGER} />
       <Motion />
       <main id="top">
@@ -62,7 +68,7 @@ export default function Home() {
             {COLLECTION.map((c, i) => (
               <li className="card" key={c.name}>
                 <div className="card-art">
-                  <div className="card-med" aria-hidden dangerouslySetInnerHTML={{ __html: medallion(i) }} />
+                  <div className="card-med" aria-hidden><img src={`/gl/medallion-${i}.svg`} alt="" width={200} height={200} loading="lazy" decoding="async" /></div>
                   <Jewel kind={c.art} id={String(i)} />
                 </div>
                 <h3>{c.name}</h3>

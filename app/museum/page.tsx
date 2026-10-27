@@ -4,18 +4,19 @@ import Karat from "@/components/Karat";
 import Timeline from "@/components/Timeline";
 import HandDraw from "@/components/HandDraw";
 import MuseumMotion from "@/components/MuseumMotion";
-import { ROSETTE } from "@/lib/guilloche";
 import { EXHIBITS, MELT, WORKBOX } from "@/lib/content";
 import { ASSAY, COLOURS, ELEMENT, ERAS, FACTS, HALLS, HANDS, MITHQAL, ORIGIN, SOURCES, STOCK, WORDS } from "@/lib/museum";
 import "./museum.css";
 
 export const metadata: Metadata = {
   title: "موزه‌ی طلا · لئون گلد",
+  alternates: { canonical: process.env.PREVIEW_BASE ? "museum/" : "museum" },
   description: "طلا چیست، عیار چطور شمرده می‌شود، سه هزار سال طلا در ایران و فنون دست زرگر؛ با آثاری از مجموعه‌های آزاد موزه‌ها.",
   openGraph: { title: "موزه‌ی طلا · لئون گلد", description: "علم و تاریخ طلا، از ستاره‌ها تا بازار تهران.", images: [{ url: "og.jpg", width: 1200, height: 630 }], locale: "fa_IR", type: "article" },
 };
 
-const Rosette = ({ className }: { className: string }) => <div className={className} aria-hidden dangerouslySetInnerHTML={{ __html: ROSETTE }} />;
+// the rosette file from public/gl/ (see lib/guilloche.ts), fetched once for every rosette on the page
+const Rosette = ({ className }: { className: string }) => <div className={className} aria-hidden><img src="/gl/rose.svg" alt="" width={400} height={400} loading="lazy" decoding="async" /></div>;
 const Corners = () => <><i className="corner c1" aria-hidden /><i className="corner c2" aria-hidden /><i className="corner c3" aria-hidden /><i className="corner c4" aria-hidden /></>;
 const fa = (n: number) => n.toLocaleString("fa-IR");
 const RHYTON = ERAS.find((e) => e.piece?.src.includes("lion-rhyton"))!.piece!;

@@ -33,7 +33,6 @@ function band(W: number, H: number, L: number, f: number, A: number, a: number) 
 function svg(w: number, h: number, body: string, stroke: string, op: number, sw: number, stretch = false) {
   return `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 ${w} ${h}'${stretch ? " preserveAspectRatio='none'" : ""} fill='none' stroke='${stroke}' stroke-width='${sw}' stroke-opacity='${op}'>${body.replace(/"/g, "'")}</svg>`;
 }
-const url = (s: string) => `url("data:image/svg+xml,${s.replace(/</g, "%3C").replace(/>/g, "%3E").replace(/#/g, "%23")}")`;
 
 const GOLD = "#e8cf8e";
 const INK = "#9c7433";
@@ -47,13 +46,28 @@ export const ROSETTE_DRAW = ROSETTE.replace(/<polyline /g, (() => {
   return () => `<polyline pathLength='1' style='animation-delay:${(0.15 + (29 - k++) * 0.06).toFixed(2)}s' `;
 })());
 
+// the patterns are written to public/gl/ as files by next.config.ts, so a page links them (cached once for every page)
+// instead of carrying hundreds of KB of points inline in its HTML and again in its React payload
+const ROSE_BG = svg(400, 400, ring(400, 150, 22, 24, 8, 72, 12, 520) + ring(400, 95, 16, 18, 5, 54, 10, 400) + ring(400, 48, 10, 12, 3, 36, 8, 260), GOLD, 0.38, 0.55);
+const SMALL = (stroke: string, op: number) => svg(220, 220, ring(220, 82, 14, 20, 5, 60, 10, 440) + ring(220, 44, 9, 12, 3, 36, 8, 260), stroke, op, 0.5);
+const BAND = (stroke: string, op: number) => svg(600, 64, band(600, 64, 14, 6, 18, 4), stroke, op, 0.55, true);
+
+export function glFiles(medallions: number): Record<string, string> {
+  const files: Record<string, string> = {
+    "rosette.svg": ROSE_BG, "small.svg": SMALL(GOLD, 0.3), "band.svg": BAND(GOLD, 0.2), "paper.svg": SMALL(INK, 0.16), "paperband.svg": BAND(INK, 0.14),
+    "rose.svg": ROSETTE, "rose-draw.svg": ROSETTE_DRAW,
+  };
+  for (let i = 0; i < medallions; i++) files[`medallion-${i}.svg`] = medallion(i);
+  return files;
+}
+
 // CSS variables for backgrounds: on emerald (gold lines) and on paper (darker gold lines)
 export const GL_VARS: Record<string, string> = {
-  "--gl-rosette": url(svg(400, 400, ring(400, 150, 22, 24, 8, 72, 12, 520) + ring(400, 95, 16, 18, 5, 54, 10, 400) + ring(400, 48, 10, 12, 3, 36, 8, 260), GOLD, 0.38, 0.55)),
-  "--gl-small": url(svg(220, 220, ring(220, 82, 14, 20, 5, 60, 10, 440) + ring(220, 44, 9, 12, 3, 36, 8, 260), GOLD, 0.3, 0.5)),
-  "--gl-band": url(svg(600, 64, band(600, 64, 14, 6, 18, 4), GOLD, 0.2, 0.55, true)),
-  "--gl-paper": url(svg(220, 220, ring(220, 82, 14, 20, 5, 60, 10, 440) + ring(220, 44, 9, 12, 3, 36, 8, 260), INK, 0.16, 0.5)),
-  "--gl-paperband": url(svg(600, 64, band(600, 64, 14, 6, 18, 4), INK, 0.14, 0.55, true)),
+  "--gl-rosette": "url(/gl/rosette.svg)",
+  "--gl-small": "url(/gl/small.svg)",
+  "--gl-band": "url(/gl/band.svg)",
+  "--gl-paper": "url(/gl/paper.svg)",
+  "--gl-paperband": "url(/gl/paperband.svg)",
 };
 
 // a medallion per collection category: same family, different counts, so each reads as its own stamp

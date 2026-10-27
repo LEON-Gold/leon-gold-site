@@ -515,3 +515,14 @@ body::before { content: ""; position: fixed; inset: 0; z-index: -1; pointer-even
   .door-card { padding: 36px 20px 22px; }
 }
 @media (max-width: 360px) { .door-bar-t { display: none; } }
+
+/* the rosettes and medallions are <img> files from public/gl/ (speed: not inline in every page) */
+.hero-rose img, .her-rose img, .order-rose img, .foot-rose img, .mu-rose img, .card-med img { display: block; width: 100%; height: 100%; }
+
+/* tap targets: everything you tap on a phone is at least 44px tall; the hit area grows, the layout does not */
+.card-go { padding-block: 10px; margin-block: -4px; }
+.btn-text, .foot-links a, .order-info a { padding-block: 8px; margin-block: -8px; }
+.foot-links a { padding-inline: 10px; margin-inline: -10px; }
+.bar-brand { padding-block: 6px; margin-block: -6px; }
+.foot-credit a { padding-block: 10px; margin-block: -10px; }
+.door-back { min-height: 44px !important; }

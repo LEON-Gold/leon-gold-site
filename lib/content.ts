@@ -32,7 +32,7 @@ export const EXHIBITS: Exhibit[] = [
 export const HERO = { src: "/museum/dark/gold-lion-head-pendant.jpg", w: 1714, h: 2188, alt: "آویز طلا به شکل سرِ شیر، قبرس، سده‌ی پنجم پیش از میلاد",
   credit: "The Met, Open Access (CC0)", page: "https://www.metmuseum.org/art/collection/search/242762" };
 
-export const WORKBOX = { src: "/museum/goldsmith-s-workbox-mao-685-30.jpg", w: 1920, h: 1440, alt: "جعبه‌ی ابزار زرگر با ترازو و سنگ‌های وزن، ایران، ۱۷۰۹ میلادی",
+export const WORKBOX = { src: "/museum/goldsmith-s-workbox-mao-685-30.webp", w: 1280, h: 960, alt: "جعبه‌ی ابزار زرگر با ترازو و سنگ‌های وزن، ایران، ۱۷۰۹ میلادی",
   credit: "Rmashhadi, public domain, Wikimedia Commons (Louvre MAO 685)", page: "https://commons.wikimedia.org/wiki/File:Goldsmith%27s_workbox,_MAO_685_(30).jpg" };
 
 export const MELT = { src: "/museum/the-crystallization-phenomenon-when-liquid-gold-solidifies.webm", poster: "/museum/the-crystallization-phenomenon-when-liquid-gold-solidifies-poster.jpg",
