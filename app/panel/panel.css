@@ -244,7 +244,7 @@
 .pn-hero h1 em { -webkit-text-fill-color: currentColor; color: #fff3cf; }
 .pn-date { color: var(--gold); letter-spacing: 0; }
 .pn-hero-sub, .pn-head p { color: #d6ccb0; }
-.pn-head .pn-count { background: rgba(232,207,142,.14); color: var(--gold-lt); box-shadow: inset 0 0 0 1px rgba(232,207,142,.3); }
+.pn-head .pn-count, .pn-block.lead .pn-count { background: rgba(232,207,142,.14); color: var(--gold-lt); box-shadow: inset 0 0 0 1px rgba(232,207,142,.3); }
 .pn-back { color: var(--gold-lt); }
 .pn-loading, .pn-boot { color: #cfc4a3; }
 .pn-page > .pn-empty { color: #cfc4a3; }
