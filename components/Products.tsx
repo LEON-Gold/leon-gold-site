@@ -9,7 +9,8 @@ import { SHOP } from "@/lib/content";
 import "@/app/products.css";
 
 const gram = (w: number) => fa(w, 2) + " گرم";
-const ask = (p: Product) => SHOP.whatsapp + "?text=" + encodeURIComponent(`سلام، دربارهٔ «${p.name}» (${gram(p.weight)}) از سایت لئون گلد می‌پرسم.`);
+const ask = (p: Product) => SHOP.whatsapp + "?text=" + encodeURIComponent(`سلام، دربارهٔ «${p.name}»${p.weight ? ` (${gram(p.weight)})` : ""} از سایت لئون گلد می‌پرسم.`);
+const kindOf = (p: Product) => p.kind + (p.collection ? "، مجموعه‌ی " + p.collection : "");
 
 function Price({ p }: { p: Product }) {
   const { feed } = usePrice();
@@ -38,11 +39,11 @@ export default function Products({ items }: { items: Product[] }) {
               <Image src={it.shots[0].src} width={it.shots[0].w} height={it.shots[0].h} alt={it.name} sizes="(min-width: 1100px) 30vw, (min-width: 600px) 45vw, 90vw" />
             </button>
             <div className="pr-text">
-              <small className="pr-kind">{it.kind}</small>
+              <small className="pr-kind">{kindOf(it)}</small>
               <h3>{it.name}</h3>
               <p>{it.line}</p>
               <div className="pr-row">
-                <span className="pr-w num">{gram(it.weight)}</span>
+                {it.weight ? <span className="pr-w num">{gram(it.weight)}</span> : null}
                 <Price p={it} />
               </div>
             </div>
@@ -66,11 +67,11 @@ export default function Products({ items }: { items: Product[] }) {
               )}
             </div>
             <div className="case-text">
-              <span className="case-n">{p.kind}</span>
+              <span className="case-n">{kindOf(p)}</span>
               <h3 className="leaf">{p.name}</h3>
               <p>{p.story}</p>
               <dl className="pr-label">
-                <div><dt>وزن</dt><dd className="num">{gram(p.weight)}</dd></div>
+                <div><dt>وزن</dt><dd className="num">{p.weight ? gram(p.weight) : "با تماس"}</dd></div>
                 <div><dt>عیار</dt><dd className="num">۷۵۰ (۱۸ عیار)</dd></div>
                 {p.ajrat ? <div><dt>اجرت</dt><dd className="num">{fa(p.ajrat)}٪</dd></div> : null}
                 {p.details.map(([k, v]) => <div key={k}><dt>{k}</dt><dd>{v}</dd></div>)}

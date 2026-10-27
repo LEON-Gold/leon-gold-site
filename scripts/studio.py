@@ -116,8 +116,38 @@ def stage(rgb, a):
     canvas = canvas * (1 - full[..., None]) + piece * full[..., None]
     return np.clip(canvas, 0, 255).astype(np.uint8), (x0, y0, x1, y1)
 
+def frame(img, crop):
+    # an already staged photo (a poster): no cutout, only a 4:5 crop that leaves its text and logos out,
+    # a clean resize, a little sharpening, and edges that fade into the vault so it sits in the card
+    x, y, w = crop
+    # ERASE=x,y,w,h[;...]: poster text lying on the ground (never on the piece) is filled in from the ground around it
+    if os.environ.get("ERASE"):
+        a = np.asarray(img).copy(); m = np.zeros(a.shape[:2], np.uint8)
+        for r in os.environ["ERASE"].split(";"):
+            ex, ey, ew, eh = [int(v) for v in r.split(",")]; m[ey:ey + eh, ex:ex + ew] = 255
+        img = Image.fromarray(cv2.inpaint(a, m, 9, cv2.INPAINT_TELEA))
+    img = img.crop((x, y, x + w, y + round(w * H / W)))
+    s = W / w
+    shot = np.asarray(img.resize((W, H), Image.LANCZOS)).astype(np.float32)
+    blur = cv2.GaussianBlur(shot, (0, 0), 1.0 + 0.6 * max(0, s - 1))
+    shot = cv2.addWeighted(shot, 1.35 if s > 1.5 else 1.25, blur, -0.35 if s > 1.5 else -0.25, 0)
+    yy, xx = np.mgrid[0:H, 0:W].astype(np.float32)
+    edge = np.minimum.reduce([xx, W - 1 - xx, yy, H - 1 - yy]) / (W * 0.09)
+    k = np.clip(edge, 0, 1) ** 0.8
+    shot = VAULT + (shot - VAULT) * (0.55 + 0.45 * k)[..., None]
+    return np.clip(shot, 0, 255).astype(np.uint8)
+
 def main():
     slug, files = sys.argv[1], sys.argv[2:]
+    if os.environ.get("CROP"):
+        # Usage: CROP=x,y,w studio.py <slug> <poster>  (height follows from 4:5)
+        out = os.path.join(ROOT, "public", "products", slug); os.makedirs(out, exist_ok=True)
+        n = int(os.environ.get("N", "1"))
+        crop = [int(v) for v in os.environ["CROP"].split(",")]
+        img = ImageOps.exif_transpose(Image.open(files[0])).convert("RGB")
+        Image.fromarray(frame(img, crop)).save(os.path.join(out, f"{n}.webp"), quality=88, method=6)
+        print(f"{slug}/{n}.webp  framed from {os.path.basename(files[0])} at {crop}")
+        return
     out = os.path.join(ROOT, "public", "products", slug); os.makedirs(out, exist_ok=True)
     proof = os.path.join(ROOT, "products", "proof"); os.makedirs(proof, exist_ok=True)
     session = new_session(MODEL)
