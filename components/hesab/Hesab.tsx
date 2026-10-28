@@ -299,7 +299,7 @@ function Statement({ ent }: { ent: Entry[] }) {
               <>
                 <span className="hs-st-d num">{e.date || jdate(e.ts)}</span>
                 <span className="hs-st-l">{faDigits(e.label)}</span>
-                <span className={"hs-st-a num " + side(e.d, e.u)}><bdi>{side(e.d, e.u) === "cr" ? "−" : "+"}{e.u === "g" ? gram(e.d) : rial(e.d)}</bdi><small>{e.u === "g" ? "گرم" : "ریال"}</small></span>
+                <span className={"hs-st-a num " + side(e.d, e.u)}><bdi>{({ cr: "−", dr: "+", z: "" } as const)[side(e.d, e.u)]}{e.u === "g" ? gram(e.d) : rial(e.d)}</bdi><small>{e.u === "g" ? "گرم" : "ریال"}</small></span>
                 <span className="hs-st-r num">مانده {amt(e, e.run)} <em>{side(e.run, e.u) === "z" ? "تسویه" : side(e.run, e.u) === "dr" ? "بدهکار" : "بستانکار"}</em></span>
               </>
             );
