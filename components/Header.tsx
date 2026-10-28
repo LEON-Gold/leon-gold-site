@@ -1,18 +1,17 @@
 "use client";
 // The ledger's emerald bar: the jewel and the name in gold leaf, a few links and the one action.
 // It sits clear over the hero and takes its woven band once the page scrolls.
-// On a phone the menu opens as a vault sheet: guilloché, gold corners, numbered rows and the ledger card.
+// On a phone the menu is a small dropdown card under the ☰ button: links, then the three account pills, then the CTA.
 import { useEffect, useState } from "react";
 
 const LINKS = [
-  ["#price", "قیمت امروز", "نرخ زنده‌ی اتحادیه و ماشین‌حساب"],
-  ["#collection", "مجموعه", "کارهای ویترین با وزن و عیار"],
-  ["#heritage", "شیر در طلا", "شیر در طلای ایران، از موزه‌ها"],
-  ["museum/", "موزه", "علم و تاریخ طلا، از ستاره‌ها تا تهران"],
-  ["#wholesale", "همکاران", "فروش عمده، به گرم"],
-  ["#order", "تماس", "ثبت سفارش و راه‌های تماس"],
+  ["#price", "قیمت امروز"],
+  ["#collection", "مجموعه"],
+  ["#heritage", "شیر در طلا"],
+  ["museum/", "موزه"],
+  ["#wholesale", "همکاران"],
+  ["#order", "تماس"],
 ];
-const fa = (n: number) => String(n).padStart(2, "0").replace(/\d/g, d => "۰۱۲۳۴۵۶۷۸۹"[+d]);
 
 export default function Header({ ledger }: { ledger: string }) {
   const [solid, setSolid] = useState(false);
@@ -53,35 +52,18 @@ export default function Header({ ledger }: { ledger: string }) {
         <i /><i /><i />
       </button>
 
-      <div id="sheet" className="sheet" inert={!open} aria-hidden={!open}>
-        <i className="corner c1" aria-hidden /><i className="corner c2" aria-hidden /><i className="corner c3" aria-hidden /><i className="corner c4" aria-hidden />
-        <div className="sheet-in">
-          <p className="sheet-latin" lang="en" dir="ltr">LEON GOLD</p>
+      <div id="sheet" className="sheet" inert={!open} aria-hidden={!open} onClick={close}>
+        <div className="sheet-in" onClick={e => e.stopPropagation()}>
+          <i className="corner c1" aria-hidden /><i className="corner c2" aria-hidden /><i className="corner c3" aria-hidden /><i className="corner c4" aria-hidden />
           <nav className="sheet-links" aria-label="بخش‌های سایت">
-            {LINKS.map(([h, t, s], i) => (
-              <a key={h} href={h} onClick={close} style={{ "--i": i } as React.CSSProperties}>
-                <span className="sheet-n">{fa(i + 1)}</span>
-                <span className="sheet-t"><b>{t}</b><small>{s}</small></span>
-                <span className="sheet-go" aria-hidden>‹</span>
-              </a>
-            ))}
+            {LINKS.map(([h, t]) => <a key={h} href={h} onClick={close}>{t}</a>)}
           </nav>
           {/* the customers' and suppliers' own account, then the shop's CRM panel and ledger (both behind the sync sign-in) */}
-          <a className="sheet-ledger sheet-hesab" href="hesab/" style={{ "--i": LINKS.length } as React.CSSProperties}>
-            <img src="/leaf.webp" alt="" width={16} height={30} />
-            <span className="sheet-t"><b className="leaf">حساب من</b><small>مانده و سفارش‌های مشتریان و تأمین‌کنندگان</small></span>
-            <span className="sheet-go" aria-hidden>‹</span>
-          </a>
-          <a className="sheet-ledger sheet-panel" href="panel/" style={{ "--i": LINKS.length + 1 } as React.CSSProperties}>
-            <img src="/leaf.webp" alt="" width={16} height={30} />
-            <span className="sheet-t"><b className="leaf">پنل مدیریت</b><small>مشتریان، مناسبت‌ها و پیگیری‌ها، با رمز فروشگاه</small></span>
-            <span className="sheet-go" aria-hidden>‹</span>
-          </a>
-          <a className="sheet-ledger" href={ledger} style={{ "--i": LINKS.length + 2 } as React.CSSProperties}>
-            <img src="/leaf.webp" alt="" width={16} height={30} />
-            <span className="sheet-t"><b className="leaf">دفتر لئون</b><small>دفتر حساب و انبار مغازه</small></span>
-            <span className="sheet-go" aria-hidden>‹</span>
-          </a>
+          <div className="sheet-more">
+            <a className="sheet-pill" href="hesab/" onClick={close}>حساب من</a>
+            <a className="sheet-pill" href="panel/" onClick={close}>پنل مدیریت</a>
+            <a className="sheet-pill" href={ledger} onClick={close}>دفتر لئون</a>
+          </div>
           <a className="btn btn-gold sheet-cta" href="#order" onClick={close}>ثبت سفارش</a>
         </div>
       </div>
