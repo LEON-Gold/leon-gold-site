@@ -16,7 +16,7 @@
 - `bash scripts/check.sh` — clean build (`rm -rf .next` first: the Turbopack cache serves stale CSS), `next start` on :3100, taste inspector.
 - `bash scripts/publish.sh "<message>"` — static preview build, push `../leon-gold-app/site`, commit and push this repo. It stops the :3100 server; rerun check.sh afterwards.
 - `powershell -File scripts/shot.ps1 -Urls "url|out.png;..." -Wait 6000 -W 390 -H 844` — headless Chrome screenshots. Only ever stop the test Chrome by its profile, never all Chrome.
-- `node scripts/darkroom.mjs` — fades the grey ground of museum photos to the vault colour (`public/museum/dark/`).
+- `node scripts/darkroom.mjs` — fades the grey ground of museum photos to the vault colour (`public/museum/dark/`, WebP).
 - `public/t.html?s=<selector>&o=<offset>` scrolls to a section for a screenshot; `t2.html` opens the exhibit case. Neither is published.
 - Preview build quirks: `MSYS2_ENV_CONV_EXCL=PREVIEW_BASE` (Git Bash rewrites the path), no `cacheComponents` in export mode.
 

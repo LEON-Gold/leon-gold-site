@@ -1,5 +1,5 @@
 // Puts a museum photograph into the dark room: pixels that are not gold-coloured (the grey or white studio ground)
-// fade to the page ground, so each piece sits in the darkness without a frame. Writes public/museum/dark/<name>.jpg.
+// fade to the page ground, so each piece sits in the darkness without a frame. Writes public/museum/dark/<name>.webp.
 // Usage: node scripts/darkroom.mjs <file in public/museum> [...]
 import sharp from "sharp";
 import path from "node:path";
@@ -27,10 +27,12 @@ for (const f of process.argv.slice(2)) {
     const a = clamp((s - MIN_S) / 0.18) * warm;
     for (let k = 0; k < 3; k++) px[i + k] = Math.round(BG[k] + (data[i + k] - BG[k]) * a);
   }
-  const name = path.basename(f).replace(/\.[^.]+$/, ".jpg");
+  const name = path.basename(f).replace(/\.[^.]+$/, ".webp");
   // crop to the piece, then give it an even margin of darkness (12% of its longer side)
   const trimmed = await sharp(px, { raw: { width: info.width, height: info.height, channels: 3 } }).trim({ background: { r: BG[0], g: BG[1], b: BG[2] }, threshold: 18 }).toBuffer({ resolveWithObject: true });
   const pad = Math.round(Math.max(trimmed.info.width, trimmed.info.height) * 0.12);
-  await sharp(trimmed.data, { raw: { width: trimmed.info.width, height: trimmed.info.height, channels: 3 } }).extend({ top: pad, bottom: pad, left: pad, right: pad, background: { r: BG[0], g: BG[1], b: BG[2] } }).jpeg({ quality: 84, mozjpeg: true }).toFile(path.join(out, name));
+  const framed = await sharp(trimmed.data, { raw: { width: trimmed.info.width, height: trimmed.info.height, channels: 3 } }).extend({ top: pad, bottom: pad, left: pad, right: pad, background: { r: BG[0], g: BG[1], b: BG[2] } }).toBuffer();
+  // WebP no longer than 1600 px: the static build serves the file as it is, to phones too
+  await sharp(framed).resize(1600, 1600, { fit: "inside", withoutEnlargement: true }).webp({ quality: 82 }).toFile(path.join(out, name));
   console.log(name, info.width + "x" + info.height);
 }
