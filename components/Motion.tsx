@@ -1,8 +1,8 @@
 "use client";
-// The motion layer. The vault opens on the jewel alone, large and centred. Scrolling turns it once about its
-// upright axis while it settles into place, then the names and the actions rise. The hero holds still (pinned)
-// for that turn. After that, every section's parts rise in turn as they
-// enter, the rosettes drift against the scroll, and the plaques tip toward the pointer.
+// The motion layer. The jewel is already at rest (CSS fade-in, site.css .jw) by the time this loads; scrolling then
+// turns it once about its upright axis, then the names and the actions rise. The hero holds still (pinned) for that
+// turn. After that, every section's parts rise in turn as they enter, the rosettes drift against the scroll, and the
+// plaques tip toward the pointer.
 // A wheel or trackpad scroll is eased by Lenis, slower than the native step, so even a hard flick moves the page
 // (and everything tied to it) in one smooth glide. Touch keeps the phone's own momentum (no Lenis there). The jewel's
 // fade-in is CSS (site.css .jw) so the largest paint does not wait for this script.
@@ -55,15 +55,13 @@ function start(gsap: G, ScrollTrigger: ST, Lenis: L) {
     const lamp = (e: PointerEvent) => { const r = hero!.getBoundingClientRect(); hero!.style.setProperty("--mx", e.clientX - r.left + "px"); hero!.style.setProperty("--my", e.clientY - r.top + "px"); };
     hero?.addEventListener("pointermove", lamp);
 
-    // the jewel turns on the scroll: large in the middle of the screen, one full turn while it shrinks into its
-    // place above the name, then the names and actions rise
-    const jewel = document.querySelector<HTMLElement>(".hero-jewel")!;
-    const toMiddle = () => { const h = jewel.closest(".hero")!.getBoundingClientRect(), j = jewel.getBoundingClientRect(); return h.top + h.height * 0.45 - (j.top + j.height / 2 - Number(gsap.getProperty(jewel, "y"))); };
+    // the jewel turns once on the scroll, then the names and actions rise. It no longer grows in from a big,
+    // centred "from" state here: it is already settled where it sits (CSS fade-in, site.css .jw) before this
+    // loads, so a GSAP entrance on top of that CSS one would just play as a second, jarring intro.
     const words = [".hero-latin", ".hero-name", ".hero-cta .btn"];
     gsap.set(words, { opacity: 0, y: 30 });
     gsap.timeline({ defaults: { ease: "none" }, scrollTrigger: { trigger: ".hero", start: "top top", end: "+=200%", pin: true, scrub: 1.2, invalidateOnRefresh: true } })
       .to(".hero-cue", { opacity: 0, duration: 0.08 }, 0)
-      .fromTo(jewel, { y: toMiddle, scale: 1.9 }, { y: 0, scale: 1, duration: 0.6, ease: "power1.inOut" }, 0)
       .fromTo(".jw", { rotationY: 0 }, { rotationY: 360, duration: 0.6, ease: "power1.inOut" }, 0)
       .to(words, { opacity: 1, y: 0, duration: 0.2, stagger: 0.07, ease: "power2.out" }, 0.55)
       .to({}, { duration: 0.1 });
