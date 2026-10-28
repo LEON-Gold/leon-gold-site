@@ -90,6 +90,17 @@ section { position: relative; padding: clamp(88px, 11vw, 150px) var(--m); }
 .jw { position: relative; transform-style: preserve-3d; will-change: transform; }
 /* the jewel fades in from the first paint, not after the scripts load: it is the page's largest paint */
 @media (prefers-reduced-motion: no-preference) { .jw { animation: jw-in 1.6s cubic-bezier(.16, 1, .3, 1) .15s both; } }
+/* the inner rosette is the phone's largest paint, so it too opens by CSS rather than waiting for the motion script */
+@keyframes r2-in { from { opacity: .01; scale: .4; } }
+@media (prefers-reduced-motion: no-preference) { .hero-rose.r2 { animation: turn 180s linear infinite reverse, r2-in 2s cubic-bezier(.16, 1, .3, 1) .15s both; } }
+/* so do the price ticker and the home page's bar. Both start at .01, not 0: a fully clear paint is not counted, and the
+   largest paint would wait for the fade (no transform left behind: it would trap the fixed menu panel inside it) */
+@keyframes ticker-in { from { translate: 0 58px; } }
+@media (prefers-reduced-motion: no-preference) { .hero .ticker { animation: ticker-in 1.1s cubic-bezier(.16, 1, .3, 1) 1.2s both; } }
+@keyframes bar-in { from { opacity: .01; translate: 0 -30px; } }
+@media (prefers-reduced-motion: no-preference) { body:has(.hero) .bar { animation: bar-in 1s cubic-bezier(.16, 1, .3, 1) .9s both; } }
+/* until the motion script has loaded (components/Motion.tsx) the intro's parts wait hidden where GSAP starts them */
+@media (prefers-reduced-motion: no-preference) { .mo-wait :is(.hero-latin, .hero-name, .hero-cta .btn, .hero-cue, .hero .corner) { opacity: 0; } }
 @keyframes jw-in { from { opacity: 0; } }
 .hero-jewel { will-change: transform; }
 .jw img { display: block; height: clamp(120px, 17vh, 190px); width: auto; }

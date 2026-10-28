@@ -38,7 +38,7 @@ export default function Museum() {
       <MuseumMotion />
       <header className="bar solid mu-bar">
         <a className="bar-brand" href="../" aria-label="لئون گلد، صفحه‌ی اصلی">
-          <img src="/leaf.png" alt="" width={18} height={34} />
+          <img src="/leaf.webp" alt="" width={18} height={34} />
           <span className="leaf">لئون گلد</span>
         </a>
         <span className="mu-bar-t">موزه‌ی طلا</span>
@@ -257,7 +257,7 @@ export default function Museum() {
 
       <footer className="foot">
         <Rosette className="foot-rose" />
-        <img className="foot-jewel" src="/leaf.png" alt="" width={265} height={490} />
+        <img className="foot-jewel" src="/leaf.webp" alt="" width={265} height={490} />
         <p className="foot-latin leaf" lang="en" dir="ltr">LEON GOLD</p>
         <p className="foot-fa">موزه‌ی طلا · تهران</p>
         <nav className="foot-links" aria-label="پیوندها">

@@ -177,7 +177,7 @@ export default function Home() {
 
       <footer className="foot">
         <Rosette className="foot-rose" />
-        <img className="foot-jewel" src="/leaf.png" alt="" width={265} height={490} />
+        <img className="foot-jewel" src="/leaf.webp" alt="" width={265} height={490} />
         <p className="foot-latin leaf" lang="en" dir="ltr">LEON GOLD</p>
         <p className="foot-fa">طلا و جواهرات · تهران</p>
         <nav className="foot-links" aria-label="پیوندها">

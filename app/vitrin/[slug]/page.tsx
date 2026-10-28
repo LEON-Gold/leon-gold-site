@@ -69,7 +69,7 @@ export default async function Piece({ params }: { params: Promise<{ slug: string
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(productLd(p)).replace(/</g, "\\u003c") }} />
       <header className="bar solid vt-bar">
         <a className="bar-brand" href="../../" aria-label="لئون گلد، صفحه‌ی اصلی">
-          <img src="/leaf.png" alt="" width={18} height={34} />
+          <img src="/leaf.webp" alt="" width={18} height={34} />
           <span className="leaf">لئون گلد</span>
         </a>
         <span className="vt-bar-t">ویترین</span>
