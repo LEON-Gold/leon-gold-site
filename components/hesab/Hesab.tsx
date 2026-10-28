@@ -31,6 +31,9 @@ const errText = (e: unknown) => {
 const wa = (text: string) => SHOP.whatsapp + "?text=" + encodeURIComponent(text);
 const Corners = () => <><i className="corner c1" aria-hidden /><i className="corner c2" aria-hidden /><i className="corner c3" aria-hidden /><i className="corner c4" aria-hidden /></>;
 
+// a hand-typed or cut-off address can hold a broken %-escape; that must not stop the page
+const safeDecode = (s: string) => { try { return decodeURIComponent(s); } catch { return ""; } };
+
 export default function Hesab() {
   const [phase, setPhase] = useState<Phase>("boot");
   const [role, setRole] = useState<Role>("customer");
@@ -51,7 +54,7 @@ export default function Hesab() {
     (async () => {
       if (h === "#demo") { setData(SAMPLE); setPhase("in"); return; }
       // #owner, or #owner/<partyId> from the CRM panel's client page with that person already chosen
-      if (h === "#owner" || h.startsWith("#owner/")) { setPick(decodeURIComponent(h.slice(7))); setPhase("owner"); return; }
+      if (h === "#owner" || h.startsWith("#owner/")) { setPick(safeDecode(h.slice(7))); setPhase("owner"); return; }
       if (k) {
         try { await redeem(k); }
         catch (e) { setErr(e instanceof ApiError && e.code === "expired" ? "این لینک ورود قبلاً استفاده شده یا وقتش گذشته. لینک تازه را از لئون گلد بخواهید." : errText(e)); setPhase("phone"); return; }
