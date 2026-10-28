@@ -5,10 +5,13 @@ import { Client, LEAD_STATUS, Store, ago, dayNo, daysUntil, fa, jParts, mdLabel,
 
 const WEEK = ["یکشنبه", "دوشنبه", "سه‌شنبه", "چهارشنبه", "پنجشنبه", "جمعه", "شنبه"];
 
-export const greet = (kind: "birthday" | "anniversary", name: string) =>
+// WhatsApp messages in the shop's own voice: polite «شما», short, signed, no prices or offers (those are the owner's to add)
+export const greet = (kind: "birthday" | "anniversary" | "missed", name: string) =>
   kind === "birthday"
-    ? `${name} عزیز، تولدت مبارک. از طرف همه‌ی ما در لئون گلد، سالی پر از روشنی برایت آرزو می‌کنیم.`
-    : `${name} عزیز، سالگرد ازدواجتان مبارک. از طرف لئون گلد بهترین‌ها را برایتان آرزو می‌کنیم.`;
+    ? `سلام ${name} عزیز، تولدتان مبارک 🌹 امیدواریم سال تازه‌تان پر از سلامتی و دل خوش باشد.\nبا احترام، لئون گلد`
+    : kind === "anniversary"
+      ? `سلام ${name} عزیز، سالگرد ازدواجتان مبارک 🌹 ان‌شاءالله سال‌های سال کنار هم شاد باشید.\nبا احترام، لئون گلد`
+      : `سلام ${name} عزیز، وقتتان بخیر. مدتی است خدمتتان نرسیده‌ایم و جایتان در فروشگاه خالی است. هر وقت گذرتان افتاد، خوشحال می‌شویم ببینیمتان.\nلئون گلد`;
 
 export default function Today({ st, all }: { st: Store; all: Client[] }) {
   const t = today(), j = jParts(new Date());
@@ -58,7 +61,7 @@ export default function Today({ st, all }: { st: Store; all: Client[] }) {
           {quiet.map((c) => (
             <Row key={c.party.id} href={`#/c/${encodeURIComponent(c.party.id)}`} name={c.party.name}
               meta={"آخرین خرید " + ago(c.last)} tag={c.spent ? toman(c.spent) + " تومان" : ""}
-              wa={waLink(c.party.phone, `سلام ${c.party.name} عزیز، دلمان برایتان تنگ شده. کارهای تازه‌ی لئون گلد رسیده؛ خوشحال می‌شویم سری بزنید.`)} />
+              wa={waLink(c.party.phone, greet("missed", c.party.name))} />
           ))}
         </Block>
       </div>
