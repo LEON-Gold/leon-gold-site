@@ -11,9 +11,11 @@ import Numbers from "./Numbers";
 import Door from "@/components/Door";
 
 export type Route = { page: "today" | "clients" | "client" | "leads" | "numbers"; id?: string };
+// a hand-typed or cut-off address can hold a broken %-escape; that must not stop the panel
+const safeDecode = (s: string) => { try { return decodeURIComponent(s); } catch { return ""; } };
 const parse = (h: string): Route => {
   const [p, id] = h.replace(/^#\/?/, "").split("/");
-  return p === "clients" || p === "leads" || p === "numbers" ? { page: p } : p === "c" && id ? { page: "client", id: decodeURIComponent(id) } : { page: "today" };
+  return p === "clients" || p === "leads" || p === "numbers" ? { page: p } : p === "c" && id ? { page: "client", id: safeDecode(id) } : { page: "today" };
 };
 const onHash = (f: () => void) => { addEventListener("hashchange", f); return () => removeEventListener("hashchange", f); };
 
