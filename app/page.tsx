@@ -7,9 +7,7 @@ import InlineSvg from "@/components/InlineSvg";
 import Jewel from "@/components/Jewel";
 import Hallmark from "@/components/Hallmark";
 import Exhibits from "@/components/Exhibits";
-import Products from "@/components/Products";
 import Ruler from "@/components/Ruler";
-import { PRODUCTS } from "@/lib/products";
 import { STORE_LD } from "@/lib/seo";
 import { COLLECTION, EXHIBITS, HERO, LEDGER, MELT, SHOP, STEPS, WORKBOX } from "@/lib/content";
 
@@ -84,16 +82,6 @@ export default function Home() {
             ))}
           </ul>
         </section>
-
-        {PRODUCTS.length > 0 && (
-          <section id="products" className="sec-paper" aria-labelledby="pr-h">
-            <div className="sec-head" data-rise>
-              <h2 id="pr-h"><i aria-hidden>◆</i>ویترین</h2>
-              <p>کارهای همین روزهای لئون گلد، با وزن برچسب و قیمت تقریبی با نرخ همین ساعت اتحادیه.</p>
-            </div>
-            <Products items={PRODUCTS} />
-          </section>
-        )}
 
         <section id="heritage" className="sec-vault heritage" aria-labelledby="her-h">
           <Rosette className="her-rose" />
