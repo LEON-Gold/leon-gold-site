@@ -9,5 +9,7 @@ if [ -n "$(git status --porcelain)" ]; then
 fi
 git pull -q --rebase || { echo "git pull --rebase failed"; exit 1; }
 bash scripts/preview.sh >/dev/null 2>&1 || { echo "preview build failed"; exit 1; }
-(cd ../leon-gold-app && git add -A site >/dev/null 2>&1 && git commit -qm "Preview: $1"; git push -q 2>/dev/null)
-git push -q 2>/dev/null && echo "published: $1"
+G="git -c http.version=HTTP/1.1"   # this network drops HTTP/2 pushes to GitHub
+(cd ../leon-gold-app && git add -A site >/dev/null 2>&1 && { git diff --cached --quiet || git commit -qm "Preview: $1"; } && $G pull -q --rebase && $G push -q) || { echo "FAILED: preview push to leon-gold-app"; exit 1; }
+$G push -q || { echo "FAILED: push of leon-gold-site"; exit 1; }
+echo "published: $1"
