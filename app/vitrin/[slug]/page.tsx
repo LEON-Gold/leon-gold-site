@@ -4,7 +4,6 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import { notFound } from "next/navigation";
 import { Price } from "@/components/Products";
-import { AssaySlip } from "@/components/AssaySlip";
 import Ruler from "@/components/Ruler";
 import { PRODUCTS, ask, codeOf, gram, kindOf, type Product } from "@/lib/products";
 import { SHOP } from "@/lib/content";
@@ -62,15 +61,6 @@ function productLd(p: Product) {
 
 const Corners = () => <><i className="corner c1" aria-hidden /><i className="corner c2" aria-hidden /><i className="corner c3" aria-hidden /><i className="corner c4" aria-hidden /></>;
 
-// the assay slip's own rows: only what the label actually says; weight and ajrat wait for the owner, never guessed
-function slipRows(p: Product): [string, string, boolean?][] {
-  const rows: [string, string, boolean?][] = [["عیار", "۷۵۰ (۱۸ عیار)"], ["وزن", p.weight ? gram(p.weight) : "به‌زودی", !p.weight]];
-  rows.push(["اجرت", p.ajrat ? fa(p.ajrat) + "٪" : "به‌زودی", !p.ajrat]);
-  const code = codeOf(p);
-  if (code) rows.push(["کد", code]);
-  return rows;
-}
-
 export default async function Piece({ params }: { params: Promise<{ slug: string }> }) {
   const p = find((await params).slug);
   if (!p) notFound();
@@ -105,7 +95,6 @@ export default async function Piece({ params }: { params: Promise<{ slug: string
 
           <div className="vt-text">
             <Corners />
-            <AssaySlip title={p.name} rows={slipRows(p)} />
             <p className="vt-kind">{kindOf(p)}</p>
             <h1 className="leaf">{p.name}</h1>
             <p className="vt-line">{p.line}</p>

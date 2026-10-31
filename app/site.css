@@ -28,21 +28,6 @@ section { position: relative; padding: clamp(88px, 11vw, 150px) var(--m); }
   background: repeating-linear-gradient(to bottom, var(--gold-lt) 0 1px, transparent 1px 26px); }
 .ruler.l { inset-inline-start: 7px; } .ruler.r { inset-inline-end: 7px; }
 
-/* the assay slip: a small appraisal tag beside the jewel and on each vitrin piece, receipt-styled but Leon's own */
-.slip { position: relative; width: min(220px, 62vw); box-sizing: border-box; padding: 13px 15px; border-radius: 10px; color: var(--ink);
-  background: linear-gradient(180deg, #fffefa, #fbf6ea); box-shadow: var(--lift), inset 0 0 0 1px rgba(197,154,80,.4); }
-.slip-tick { position: absolute; width: 9px; height: 9px; border: 1px solid var(--gold); pointer-events: none; }
-.slip-tick.c1 { top: 5px; right: 5px; border-width: 1px 1px 0 0; } .slip-tick.c2 { top: 5px; left: 5px; border-width: 1px 0 0 1px; }
-.slip-tick.c3 { bottom: 5px; left: 5px; border-width: 0 0 1px 1px; } .slip-tick.c4 { bottom: 5px; right: 5px; border-width: 0 1px 1px 0; }
-.slip-h { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; margin-bottom: 8px; padding-bottom: 7px; border-bottom: 1px dashed rgba(156,116,51,.4); }
-.slip-h span:first-child { font: 700 10px/1 ui-monospace, "SFMono-Regular", Consolas, monospace; letter-spacing: .16em; color: var(--gold-ink); }
-.slip-h span:last-child { font-size: 12px; color: var(--muted); }
-.slip-rows { margin: 0; }
-.slip-row { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; padding: 4px 0; font-size: 13px; }
-.slip-row dt { color: var(--muted); }
-.slip-row dd { margin: 0; font-weight: 700; color: var(--ink); }
-.slip-row dd.soon { font-weight: 600; color: var(--gold-ink); }
-
 /* ---------- bar ---------- */
 .bar { position: fixed; inset: 0 0 auto; z-index: 50; height: 64px; background: var(--gl-band) center / 100% 100% no-repeat, linear-gradient(180deg, rgba(15,64,48,.92), rgba(6,20,14,.92)); box-shadow: 0 1px 0 rgba(197,154,80,.35); display: flex; align-items: center; gap: 28px; padding: 0 var(--m);
   transition: background-color .4s var(--ease), box-shadow .4s var(--ease), height .4s var(--ease); }
@@ -102,8 +87,6 @@ section { position: relative; padding: clamp(88px, 11vw, 150px) var(--m); }
 .hero > .corner { top: 84px; } .hero > .corner.c3, .hero > .corner.c4 { top: auto; bottom: 74px; }
 .hero > .corner.c1, .hero > .corner.c4 { right: var(--m); } .hero > .corner.c2, .hero > .corner.c3 { left: var(--m); }
 .hero-in { position: relative; z-index: 1; display: grid; justify-items: center; align-content: center; text-align: center; gap: 10px; padding-bottom: 48px; }
-.hero-jewel-wrap { display: grid; justify-items: center; gap: 18px; }
-@media (min-width: 861px) { .hero-jewel-wrap { grid-auto-flow: column; align-items: center; gap: 36px; } }
 .hero-jewel { animation: float 7s ease-in-out infinite; perspective: 900px; }
 .jw { position: relative; transform-style: preserve-3d; will-change: transform; }
 /* the jewel fades in from the first paint, not after the scripts load: it is the page's largest paint, and it
