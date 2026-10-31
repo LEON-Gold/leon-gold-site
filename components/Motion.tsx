@@ -61,11 +61,32 @@ function start(gsap: G, ScrollTrigger: ST, Lenis: L) {
     // loads, so a GSAP entrance on top of that CSS one would just play as a second, jarring intro.
     const words = [".hero-latin", ".hero-name", ".hero-cta .btn"];
     gsap.set(words, { opacity: 0, y: 30 });
-    gsap.timeline({ defaults: { ease: "none" }, scrollTrigger: { trigger: ".hero", start: "top top", end: "+=200%", pin: true, scrub: 1.2, invalidateOnRefresh: true } })
+    const heroTl = gsap.timeline({ defaults: { ease: "none" }, scrollTrigger: { trigger: ".hero", start: "top top", end: "+=200%", pin: true, scrub: 1.2, invalidateOnRefresh: true } })
       .to(".hero-cue", { opacity: 0, duration: 0.08 }, 0)
       .fromTo(".jw", { rotationY: 0 }, { rotationY: 360, duration: 0.6, ease: "power1.inOut" }, 0)
       .to(words, { opacity: 1, y: 0, duration: 0.2, stagger: 0.07, ease: "power2.out" }, 0.55)
       .to({}, { duration: 0.1 });
+
+    // an anchor jump (a menu/footer link, or the URL's own #hash on load) scrolls straight through the pinned
+    // hero; land cleanly by snapping its scrubbed state to settled and jumping instantly, so the fast transit
+    // never flashes the jewel mid-turn over the names mid-fade. "#top" is the hero itself, left alone.
+    const land = (id: string) => {
+      const target = id && id !== "top" && document.getElementById(id);
+      if (!target) return;
+      heroTl.progress(1);
+      target.scrollIntoView({ behavior: "instant", block: "start" });
+    };
+    land(location.hash.slice(1)); // arrived with a #hash before the pin's spacer existed; the browser's own jump used the old layout
+    const jump = (e: MouseEvent) => {
+      const a = (e.target as HTMLElement).closest?.("a[href^='#']") as HTMLAnchorElement | null;
+      const id = a?.getAttribute("href")?.slice(1);
+      if (!id || id === "top" || !document.getElementById(id)) return;
+      e.preventDefault(); e.stopImmediatePropagation();
+      heroTl.progress(1);
+      document.getElementById(id)!.scrollIntoView({ behavior: "instant", block: "start" });
+      history.pushState(null, "", "#" + id);
+    };
+    document.addEventListener("click", jump, true);
 
     document.querySelectorAll<HTMLElement>("[data-rise]").forEach((sec) => {
       const parts = sec.matches("ul, ol") ? sec.children : sec.querySelectorAll(":scope > *");
@@ -76,11 +97,12 @@ function start(gsap: G, ScrollTrigger: ST, Lenis: L) {
     document.querySelectorAll<HTMLElement>(".her-rose, .order-rose, .foot-rose").forEach((r) => {
       gsap.fromTo(r, { y: -60 }, { y: 60, ease: "none", scrollTrigger: { trigger: r.parentElement, start: "top bottom", end: "bottom top", scrub: 1 } });
     });
-    // fonts and photos arriving late move everything down; measure again so no part waits forever unrevealed
-    const refresh = () => ScrollTrigger.refresh();
+    // fonts and photos arriving late move everything down; measure again so no part waits forever unrevealed,
+    // and re-land on the #hash if one brought the visitor here (the refresh can move it again)
+    const refresh = () => { ScrollTrigger.refresh(); land(location.hash.slice(1)); };
     addEventListener("load", refresh);
     document.fonts?.ready.then(refresh);
-    return () => { removeEventListener("load", refresh); if (lenis) { gsap.ticker.remove(tick); lenis.destroy(); } };
+    return () => { removeEventListener("load", refresh); document.removeEventListener("click", jump, true); if (lenis) { gsap.ticker.remove(tick); lenis.destroy(); } };
   });
 
   // plaques and exhibit frames tip toward a mouse pointer
