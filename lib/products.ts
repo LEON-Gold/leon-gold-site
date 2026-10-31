@@ -12,6 +12,7 @@ export type Product = {
   line: string;              // one line under the name: what you notice first
   story: string;             // two or three short sentences: how it is made, how it is worn
   weight?: number;           // grams, from the label; until the owner sends it the card shows no weight and no price
+  weightNote?: string;       // shown instead of weight for a group of pieces, e.g. the range read off their tags
   ajrat?: number;            // percent; without it the card shows no price, only «قیمت با تماس»
   details: [string, string][]; // label rows beyond weight and karat: سنگ، سایز، طول، قفل، ...
   shots: Shot[];             // first one is the card
@@ -36,6 +37,33 @@ export const codeOf = (p: Product) => p.details.find(([k]) => k === "کد")?.[1]
 
 // Mina d'Or pieces from the owner's posters (2026-10-27), framed without the poster text. Weights and ajrat to come.
 export const PRODUCTS: Product[] = [
+  // from the owner's raw photos (2026-10-31). Weights and ajrat to come; no maker or design-house names, ever.
+  { slug: "set-curb-chain", name: "سرویس زنجیر و دستبند کوبایی", kind: "سرویس",
+    line: "زنجیر کوبایی پهن با دستبند هم‌نقشش.",
+    story: "حلقه‌های تخت و صیقلی در هم خوابیده‌اند و نوار یکدستی از طلا ساخته‌اند که با هر حرکت نور می‌گیرد. گردنبند و دستبند هم‌نقش‌اند؛ با هم یا جدا.",
+    details: [["شامل", "گردنبند و دستبند"], ["نقش", "کوبایی، حلقه‌های تخت"], ["قفل", "حلقه‌ای فنری"]],
+    shots: [{ src: "/products/set-curb-chain/1.webp", w: 1280, h: 1600 }] },
+  { slug: "set-crowned-medallion", name: "سرویس مدال تاج‌دار", kind: "سرویس",
+    line: "مدالی گرد با نقش چهره‌ی تاج‌دار و حاشیه‌ی یونانی.",
+    story: "وسط مدال چهره‌ای مات با تاجی به رنگ طلای سفید نشسته و پشتش گل‌های مشبک برق می‌زنند؛ دورش حاشیه‌ی یونانی است. دو گوشواره‌ی کوچک‌تر همین نقش را تکرار می‌کنند.",
+    details: [["شامل", "آویز و یک جفت گوشواره"], ["نقش", "چهره‌ی تاج‌دار، حاشیه‌ی یونانی"], ["رنگ", "زرد با جزئیات سفید"]],
+    shots: [{ src: "/products/set-crowned-medallion/1.webp", w: 1280, h: 1600 }] },
+  { slug: "bracelets-link", name: "چهار مدل دستبند زنجیری", kind: "دستبند",
+    line: "دو مدل ظریف، یک مدل متوسط و یک مدل پهن.",
+    story: "هر چهار دستبند از حلقه‌های چهارگوشِ کنار هم ساخته شده‌اند و مثل نواری نرم روی مچ می‌نشینند. مدل پهن تنها هم دیده می‌شود؛ مدل‌های ظریف کنار ساعت یا دستبند دیگر.",
+    details: [["مدل‌ها", "دو ظریف، یک متوسط، یک پهن"], ["قفل", "قلاب"]],
+    shots: [{ src: "/products/bracelets-link/1.webp", w: 1280, h: 1600 }, { src: "/products/bracelets-link/2.webp", w: 1280, h: 1600 }] },
+  { slug: "pendants-greek-key", name: "آویز و گوشواره‌ی گرد مشبک", kind: "گردنبند و آویز",
+    line: "گردی مشبک با حاشیه‌ی یونانی و نقش چهره در وسط.",
+    story: "حاشیه‌ی یونانی دور هر گرد را گرفته و وسطش طرحی مشبک است: گل، ستاره یا پرتو؛ روی آن نقش چهره‌ای به طلای زرد پررنگ نشسته. چند طرح هست، هم آویز و هم گوشواره‌ی بلند.",
+    details: [["مدل‌ها", "چند طرح؛ آویز و گوشواره"], ["گوشواره", "قلاب بلند"]],
+    shots: [{ src: "/products/pendants-greek-key/2.webp", w: 1280, h: 1600 }, { src: "/products/pendants-greek-key/1.webp", w: 1280, h: 1600 }] },
+  // the tray's tags, read where legible: 3.3 g to 5.1 g
+  { slug: "rings-twist-tricolor", name: "انگشترهای فانتزی سه‌رنگ", kind: "انگشتر", weightNote: "۳٫۳ تا ۵٫۱ گرم",
+    line: "حلقه‌های تراش‌خورده‌ی در هم، به طلای زرد، رز و سفید.",
+    story: "حلقه‌های باریک و براق از هم رد می‌شوند و گره می‌خورند؛ هر انگشتر ترکیب رنگ و طرح خودش را دارد. وزن هر کدام روی برچسبش نوشته شده؛ در فروشگاه انتخاب کنید.",
+    details: [["رنگ", "زرد، رز و سفید"], ["وزن هر انگشتر", "روی برچسب خودش"]],
+    shots: [{ src: "/products/rings-twist-tricolor/1.webp", w: 1280, h: 1600 }] },
   // from the owner's raw photo (card in its bag on the counter, 2026-10-27), cut out in the studio
   { slug: "earring-hearts", name: "گوشواره‌ی قلب و گوی", kind: "گوشواره",
     line: "قلبی توخالی با قلب کوچکی کنارش، زیر یک گوی براق.",

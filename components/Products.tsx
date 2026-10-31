@@ -41,7 +41,7 @@ export default function Products({ items }: { items: Product[] }) {
               <h3><a href={pageOf(it)}>{it.name}</a></h3>
               <p>{it.line}</p>
               <div className="pr-row">
-                {it.weight ? <span className="pr-w num">{gram(it.weight)}</span> : null}
+                {it.weight || it.weightNote ? <span className="pr-w num">{it.weight ? gram(it.weight) : it.weightNote}</span> : null}
                 <Price p={it} />
               </div>
             </div>
@@ -69,7 +69,7 @@ export default function Products({ items }: { items: Product[] }) {
               <h3 className="leaf">{p.name}</h3>
               <p>{p.story}</p>
               <dl className="pr-label">
-                <div><dt>وزن</dt><dd className="num">{p.weight ? gram(p.weight) : "با تماس"}</dd></div>
+                <div><dt>وزن</dt><dd className="num">{p.weight ? gram(p.weight) : p.weightNote || "به‌زودی"}</dd></div>
                 <div><dt>عیار</dt><dd className="num">۷۵۰ (۱۸ عیار)</dd></div>
                 {p.ajrat ? <div><dt>اجرت</dt><dd className="num">{fa(p.ajrat)}٪</dd></div> : null}
                 {p.details.map(([k, v]) => <div key={k}><dt>{k}</dt><dd>{v}</dd></div>)}

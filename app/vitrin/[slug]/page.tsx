@@ -100,7 +100,7 @@ export default async function Piece({ params }: { params: Promise<{ slug: string
             <p className="vt-line">{p.line}</p>
             <p className="vt-story">{p.story}</p>
             <dl className="pr-label">
-              <div><dt>وزن</dt><dd className="num">{p.weight ? gram(p.weight) : "با تماس"}</dd></div>
+              <div><dt>وزن</dt><dd className="num">{p.weight ? gram(p.weight) : p.weightNote || "به‌زودی"}</dd></div>
               <div><dt>عیار</dt><dd className="num">۷۵۰ (۱۸ عیار)</dd></div>
               {p.ajrat ? <div><dt>اجرت</dt><dd className="num">{fa(p.ajrat)}٪</dd></div> : null}
               {p.details.map(([k, v]) => <div key={k}><dt>{k}</dt><dd>{v}</dd></div>)}
