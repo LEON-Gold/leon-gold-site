@@ -56,6 +56,19 @@ export async function logout() {
   setSession(null);
 }
 
+// The ledger opens the panel as panel/#h=<one-time code> (60 s, one use, made by the owner's ledger session).
+// The code leaves the address bar and the history at once, then buys this panel its own session; a used or
+// expired code just shows the sign-in. Returns null when there is no hand-off.
+export function takeHandoff(): Promise<void> | null {
+  const m = /^#h=([\w-]{6,200})$/.exec(location.hash);
+  if (!m) return null;
+  history.replaceState(null, "", location.pathname + "#/today");
+  return fetch(SERVER + "/api/handoff/redeem", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ code: m[1] }), cache: "no-store" })
+    .then(r => (r.ok ? r.json() : null))
+    .then((s: Session | null) => { if (s?.token) setSession({ token: s.token, user: s.user }); })
+    .catch(() => {});
+}
+
 // ---------- a customer's card-to-card receipt: pending until the owner records the real document in the ledger by hand ----------
 export type Receipt = { id: string; party: string; partyName: string; blob: string; amount: number | null; date: string; ts: number; status: "pending" | "done" };
 export const receipts = () => api<{ receipts: Receipt[] }>("/api/portal/receipts").then(r => r.receipts);

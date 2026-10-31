@@ -2,7 +2,7 @@
 // The CRM panel: signs in to the sync server, keeps one copy of the store in memory (never in this browser's storage)
 // and moves between its pages by the address hash, so the phone's back gesture works.
 import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
-import { Client, LoginNeeded, Store, clients, emptyStore, login, logout, onSession, sessionUser, pull, save, type Lead, type Person } from "@/lib/crm";
+import { Client, LoginNeeded, Store, clients, emptyStore, login, logout, onSession, sessionUser, pull, save, takeHandoff, type Lead, type Person } from "@/lib/crm";
 import Today from "./Today";
 import Clients from "./Clients";
 import ClientPage from "./ClientPage";
@@ -10,7 +10,10 @@ import Leads from "./Leads";
 import Numbers from "./Numbers";
 import Door from "@/components/Door";
 
-export type Route = { page: "today" | "clients" | "client" | "leads" | "numbers"; id?: string };
+// a sign-in handed over by the ledger starts before the first render; the door waits for it instead of flashing
+const handoff = typeof window !== "undefined" ? takeHandoff() : null;
+
+export type Route ={ page: "today" | "clients" | "client" | "leads" | "numbers"; id?: string };
 // a hand-typed or cut-off address can hold a broken %-escape; that must not stop the panel
 const safeDecode = (s: string) => { try { return decodeURIComponent(s); } catch { return ""; } };
 const parse = (h: string): Route => {
@@ -31,6 +34,8 @@ export default function Panel() {
   const [st, setSt] = useState<Store>(emptyStore);
   const [state, setState] = useState<"busy" | "ok" | "err">("busy");
   const [toast, setToast] = useState("");
+  const [handing, setHanding] = useState(!!handoff);
+  useEffect(() => { handoff?.finally(() => setHanding(false)); }, []);
   const now = useRef(st);
   useEffect(() => { now.current = st; }, [st]);
 
@@ -75,7 +80,7 @@ export default function Panel() {
 
   const all: Client[] = useMemo(() => clients(st), [st]);
 
-  if (user === undefined) return <div className="pn-boot" />;
+  if (user === undefined || (handing && !user)) return <div className="pn-boot" />;
   if (!user) return <Login onIn={() => setSt(emptyStore())} />;
 
   const first = state === "busy" && st.rev === 0;

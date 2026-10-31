@@ -44,7 +44,6 @@ export default function Header({ ledger }: { ledger: string }) {
       <nav className="bar-links" aria-label="بخش‌های سایت">
         {LINKS.map(([h, t]) => <a key={h} href={h}>{t}</a>)}
         <a className="bar-ledger" href="hesab/">حساب من</a>
-        <a className="bar-ledger" href="panel/">پنل مدیریت</a>
         <a className="bar-ledger" href={ledger}>دفتر لئون</a>
       </nav>
       <a className="btn btn-gold bar-cta" href="#order">ثبت سفارش</a>
@@ -58,10 +57,9 @@ export default function Header({ ledger }: { ledger: string }) {
           <nav className="sheet-links" aria-label="بخش‌های سایت">
             {LINKS.map(([h, t]) => <a key={h} href={h} onClick={close}>{t}</a>)}
           </nav>
-          {/* the customers' and suppliers' own account, then the shop's CRM panel and ledger (both behind the sync sign-in) */}
+          {/* the customers' and suppliers' own account, then the ledger; the CRM panel is opened from inside the ledger, never linked here */}
           <div className="sheet-more">
             <a className="sheet-pill" href="hesab/" onClick={close}>حساب من</a>
-            <a className="sheet-pill" href="panel/" onClick={close}>پنل مدیریت</a>
             <a className="sheet-pill" href={ledger} onClick={close}>دفتر لئون</a>
           </div>
           <a className="btn btn-gold sheet-cta" href="#order" onClick={close}>ثبت سفارش</a>
