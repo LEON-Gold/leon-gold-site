@@ -1,11 +1,11 @@
 "use client";
-// The motion layer. The jewel is already at rest (CSS fade-in, site.css .jw) by the time this loads; scrolling then
-// turns it once about its upright axis, then the names and the actions rise. The hero holds still (pinned) for that
-// turn. After that, every section's parts rise in turn as they enter, the rosettes drift against the scroll, and the
-// plaques tip toward the pointer.
+// The motion layer. The jewel's own big-to-small entrance and the rosette rings behind it are CSS (site.css .jw,
+// .hero-rose), played once from first paint so the largest paint does not wait for this script; by the time this
+// loads they've already settled. Scrolling then turns the jewel once about its upright axis, then the names and
+// the actions rise. The hero holds still (pinned) for that turn. After that, every section's parts rise in turn as
+// they enter, the rosettes drift against the scroll, and the plaques tip toward the pointer.
 // A wheel or trackpad scroll is eased by Lenis, slower than the native step, so even a hard flick moves the page
-// (and everything tied to it) in one smooth glide. Touch keeps the phone's own momentum (no Lenis there). The jewel's
-// fade-in is CSS (site.css .jw) so the largest paint does not wait for this script.
+// (and everything tied to it) in one smooth glide. Touch keeps the phone's own momentum (no Lenis there).
 // GSAP, ScrollTrigger and Lenis are fetched only once the hydrated page leaves the phone idle,
 // so their parsing does not block the first paint; until then html.mo-wait (site.css) holds the intro's parts hidden.
 import { useEffect } from "react";
@@ -41,9 +41,10 @@ function start(gsap: G, ScrollTrigger: ST, Lenis: L) {
     const tick = (t: number) => lenis!.raf(t * 1000);
     if (lenis) { gsap.ticker.add(tick); gsap.ticker.lagSmoothing(0); }
 
+    // the rosette rings (.hero-rose r1/r2) open by CSS now (site.css), not here, so this timeline doesn't fade them
+    // in a second time
     const tl = gsap.timeline({ defaults: { ease: "expo.out" } });
-    tl.from(".hero-rose.r1", { scale: 0.86, duration: 3.2 }, 0)
-      .from(".hero-cue", { opacity: 0, duration: 1 }, 1.4)
+    tl.from(".hero-cue", { opacity: 0, duration: 1 }, 1.4)
       .from(".hero .corner", { opacity: 0, scale: 0.6, duration: 1, stagger: 0.06 }, 1.1);
 
     // the molten-gold clip loads and plays only while it is on screen

@@ -84,11 +84,18 @@ section { position: relative; padding: clamp(88px, 11vw, 150px) var(--m); }
 .hero-in { position: relative; z-index: 1; display: grid; justify-items: center; align-content: center; text-align: center; gap: 10px; padding-bottom: 48px; }
 .hero-jewel { animation: float 7s ease-in-out infinite; perspective: 900px; }
 .jw { position: relative; transform-style: preserve-3d; will-change: transform; }
-/* the jewel fades in from the first paint, not after the scripts load: it is the page's largest paint */
+/* the jewel fades in from the first paint, not after the scripts load: it is the page's largest paint.
+   It also starts big and settles to size, the vault-opens-on-the-jewel look, played once by CSS so no later
+   script can snap it back through that state a second time. */
 @media (prefers-reduced-motion: no-preference) { .jw { animation: jw-in 1.6s cubic-bezier(.16, 1, .3, 1) .15s both; } }
-/* the inner rosette is the phone's largest paint, so it too opens by CSS rather than waiting for the motion script */
+/* the rosette circles behind it open the same way: each plays its own one-time CSS entrance (not GSAP, which used
+   to run its own fade on r1 at the same time as this and read as the rings opening more than once) */
+@keyframes r1-in { from { opacity: .01; scale: .86; } }
 @keyframes r2-in { from { opacity: .01; scale: .4; } }
-@media (prefers-reduced-motion: no-preference) { .hero-rose.r2 { animation: turn 180s linear infinite reverse, r2-in 2s cubic-bezier(.16, 1, .3, 1) .15s both; } }
+@media (prefers-reduced-motion: no-preference) {
+  .hero-rose.r1 { animation: turn 260s linear infinite, r1-in 3s cubic-bezier(.16, 1, .3, 1) .15s both; }
+  .hero-rose.r2 { animation: turn 180s linear infinite reverse, r2-in 2s cubic-bezier(.16, 1, .3, 1) .15s both; }
+}
 /* so do the price ticker and the home page's bar. Both start at .01, not 0: a fully clear paint is not counted, and the
    largest paint would wait for the fade (no transform left behind: it would trap the fixed menu panel inside it) */
 @keyframes ticker-in { from { translate: 0 58px; } }
