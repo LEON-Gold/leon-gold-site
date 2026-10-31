@@ -8,6 +8,8 @@ import Jewel from "@/components/Jewel";
 import Hallmark from "@/components/Hallmark";
 import Exhibits from "@/components/Exhibits";
 import Products from "@/components/Products";
+import { AssaySlip } from "@/components/AssaySlip";
+import Ruler from "@/components/Ruler";
 import { PRODUCTS } from "@/lib/products";
 import { STORE_LD } from "@/lib/seo";
 import { COLLECTION, EXHIBITS, HERO, LEDGER, MELT, SHOP, STEPS, WORKBOX } from "@/lib/content";
@@ -26,6 +28,7 @@ export default function Home() {
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(STORE_LD).replace(/</g, "\\u003c") }} />
       <Header ledger={LEDGER} />
       <Motion />
+      <Ruler />
       <main id="top">
         {/* the vault: rosettes turning behind the jewel, the name struck in gold leaf */}
         <section className="hero" aria-labelledby="hero-h">
@@ -35,10 +38,13 @@ export default function Home() {
           <i className="corner c1" aria-hidden /><i className="corner c2" aria-hidden /><i className="corner c3" aria-hidden /><i className="corner c4" aria-hidden />
           <div className="hero-in">
             {/* the jewel, struck with a little depth: stacked copies behind it read as gold thickness when it turns */}
-            <div className="hero-jewel"><div className="jw">
-              {DEPTH.map((z) => <img key={z} className="jw-back" src="/leaf.webp" alt="" width={265} height={490} fetchPriority="high" style={{ "--z": z } as React.CSSProperties} />)}
-              <img className="jw-face" src="/leaf.webp" alt="" width={265} height={490} fetchPriority="high" />
-            </div></div>
+            <div className="hero-jewel-wrap">
+              <div className="hero-jewel"><div className="jw">
+                {DEPTH.map((z) => <img key={z} className="jw-back" src="/leaf.webp" alt="" width={265} height={490} fetchPriority="high" style={{ "--z": z } as React.CSSProperties} />)}
+                <img className="jw-face" src="/leaf.webp" alt="" width={265} height={490} fetchPriority="high" />
+              </div></div>
+              <AssaySlip title="لئون گلد" rows={[["عیار", "۷۵۰ (۱۸ عیار)"], ["طلا", "دست‌ساز، تهران"], ["ضمانت", "اصالت و وزن"]]} />
+            </div>
             <p className="hero-latin leaf leaf-sweep" lang="en" dir="ltr">LEON GOLD</p>
             <h1 id="hero-h" className="hero-name leaf leaf-sweep">لئون گلد</h1>
             <div className="hero-cta">
