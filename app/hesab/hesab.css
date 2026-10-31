@@ -88,6 +88,14 @@
 .hs-lines li { display: flex; justify-content: space-between; gap: 12px; font-size: 13.5px; padding: 6px 0; border-top: 1px solid rgba(197,154,80,.2); }
 .hs-lines li span:first-child { overflow-wrap: anywhere; }
 .hs-lines li span.num { color: var(--muted); text-align: left; flex: none; max-width: 60%; }
+.hs-line-main { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.hs-photo { width: 34px; height: 34px; flex: none; border-radius: 8px; object-fit: cover; border: 1px solid rgba(156,116,51,.35); background: #efe7d2; }
+.hs-receipt-open { width: 100%; }
+.hs-receipt { display: grid; gap: 12px; margin-top: 4px; padding: 26px 20px 20px; }
+.hs-receipt .hs-h { text-align: center; }
+.hs-receipt-pick { position: relative; justify-self: stretch; color: var(--emerald) !important; border-color: rgba(156,116,51,.5) !important; cursor: pointer; }
+.hs-receipt-pick input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+.hs-receipt-prev { width: 100%; max-width: 220px; height: auto; max-height: 260px; border-radius: 12px; justify-self: center; }
 .hs-ready { justify-self: start; min-height: 44px; padding: 0 20px; font-size: 14px; background: var(--emerald) !important; color: var(--gold-lt) !important; border-color: var(--emerald) !important; }
 .hs-cancel { font-size: 13px; color: var(--dr); }
 

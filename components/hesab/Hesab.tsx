@@ -6,7 +6,7 @@ import { SHOP } from "@/lib/content";
 import Door from "@/components/Door";
 import Invite from "@/components/hesab/Invite";
 import {
-  ApiError, SAMPLE, dayNum, faDigits, getToken, gram, jdate, jtime, latin, logout, me, redeem, rial, side, startSms, today, toman, verifySms,
+  ApiError, SAMPLE, dayNum, faDigits, getToken, gram, jdate, jtime, latin, logout, me, photoUrl, redeem, rial, sendReceipt, shrinkPhoto, side, startSms, today, toman, verifySms,
   type Account, type Entry, type Me,
 } from "@/lib/hesab";
 
@@ -20,6 +20,8 @@ const ERR: Record<string, string> = {
   offline: "به سرور وصل نشدیم. اینترنت را بررسی کنید و دوباره بزنید.",
   no_account: "این شماره هنوز در دفتر لئون گلد حسابی ندارد. از طریق واتس‌اپ به ما خبر بدهید.",
   login: "ورودتان تمام شده. دوباره وارد شوید.",
+  bad_type: "این فایل عکس نیست. یک عکس از رسید را انتخاب کن.",
+  too_large: "عکس خیلی بزرگ است. عکس کوچک‌تری انتخاب کن یا دوباره از دوربین بگیر.",
 };
 const errText = (e: unknown) => {
   if (e instanceof ApiError) {
@@ -30,6 +32,17 @@ const errText = (e: unknown) => {
 };
 const wa = (text: string) => SHOP.whatsapp + "?text=" + encodeURIComponent(text);
 const Corners = () => <><i className="corner c1" aria-hidden /><i className="corner c2" aria-hidden /><i className="corner c3" aria-hidden /><i className="corner c4" aria-hidden /></>;
+
+// a line item's own photo, fetched with this party's token; quietly absent if it fails, never a broken image
+function Photo({ id }: { id: string }) {
+  const [url, setUrl] = useState<string | null>(null);
+  useEffect(() => {
+    let u = ""; let dead = false;
+    photoUrl(id).then(r => { if (dead) return; u = r; setUrl(r); }).catch(() => {});
+    return () => { dead = true; if (u) URL.revokeObjectURL(u); };
+  }, [id]);
+  return url ? <img className="hs-photo" src={url} alt="" /> : null;
+}
 
 // a hand-typed or cut-off address can hold a broken %-escape; that must not stop the page
 const safeDecode = (s: string) => { try { return decodeURIComponent(s); } catch { return ""; } };
@@ -177,6 +190,7 @@ function Panel({ data, role, onOut, onReload }: { data: Me; role: Role; onOut: (
           )}
         </div>
         <Slip a={a} />
+        {isCustomer && !data.demo && <ReceiptUpload />}
         {blocks}
         <Statement ent={a.ent} />
         <footer className="hs-foot">
@@ -246,7 +260,7 @@ function Orders({ a }: { a: Account }) {
               </div>
               <p className="hs-meta">{[o.date && "ثبت " + o.date, o.due && "موعد " + o.due, o.deposit ? "بیعانه " + toman(o.deposit) + " تومان" : ""].filter(Boolean).join(" · ")}
                 {late(o.due, o.status) && <span className="hs-late">از موعد گذشته</span>}</p>
-              {o.items.length > 0 && <ul className="hs-lines">{o.items.map((i, n) => <li key={n}><span>{i.desc}</span><span className="num">{spec(i)}</span></li>)}</ul>}
+              {o.items.length > 0 && <ul className="hs-lines">{o.items.map((i, n) => <li key={n}><span className="hs-line-main">{i.photo && <Photo id={i.photo} />}{i.desc}</span><span className="num">{spec(i)}</span></li>)}</ul>}
               <Steps status={o.status} />
             </li>
           ))}
@@ -265,7 +279,7 @@ function WorkList({ a }: { a: Account }) {
         <ul className="hs-list">
           {a.work.map((w, n) => (
             <li key={w.ref + n} className={"hs-item paper" + (late(w.due, w.status) ? " is-late" : "")}>
-              <div className="hs-item-top"><b>{w.desc || "قلم سفارش"}</b><span className="num hs-ref">#{w.ref}</span></div>
+              <div className="hs-item-top"><b className="hs-line-main">{w.photo && <Photo id={w.photo} />}{w.desc || "قلم سفارش"}</b><span className="num hs-ref">#{w.ref}</span></div>
               <p className="hs-meta num">{spec(w)}</p>
               <p className="hs-meta">{w.due ? "موعد " + w.due : "بدون موعد"} · {w.statusLabel}{late(w.due, w.status) && <span className="hs-late">از موعد گذشته</span>}</p>
               {w.status !== "ready" && (
@@ -274,6 +288,72 @@ function WorkList({ a }: { a: Account }) {
             </li>
           ))}
         </ul>
+      )}
+    </section>
+  );
+}
+
+// a photo of a card-to-card transfer receipt: shrunk on the phone before it ever leaves it, stored PENDING
+// and touching no balance until Leon records the real document in the ledger by hand
+function ReceiptUpload() {
+  const [open, setOpen] = useState(false);
+  const [file, setFile] = useState<File | null>(null);
+  const [preview, setPreview] = useState("");
+  const [amount, setAmount] = useState("");
+  const [date, setDate] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState("");
+  const [sent, setSent] = useState(false);
+
+  const pick = (f: File | null) => {
+    setFile(f); setErr("");
+    if (preview) URL.revokeObjectURL(preview);
+    setPreview(f ? URL.createObjectURL(f) : "");
+  };
+  const send = async () => {
+    if (!file || busy) return;
+    setBusy(true); setErr("");
+    try {
+      const dataUrl = await shrinkPhoto(file);
+      const toman1 = latin(amount).replace(/\D/g, "");
+      await sendReceipt(dataUrl, toman1 ? +toman1 * 10 : undefined, date.trim() || undefined);
+      setSent(true); pick(null); setAmount(""); setDate("");
+    } catch (x) { setErr(errText(x)); }
+    finally { setBusy(false); }
+  };
+
+  if (!open) return (
+    <button type="button" className="btn btn-ink hs-receipt-open" onClick={() => { setOpen(true); setSent(false); }}>ارسال رسید کارت‌به‌کارت</button>
+  );
+  return (
+    <section className="hs-sec hs-receipt paper" aria-label="ارسال رسید کارت‌به‌کارت">
+      <Corners />
+      <h2 className="hs-h">رسید کارت‌به‌کارت</h2>
+      {sent ? (
+        <>
+          <p className="hs-sent">رسید فرستاده شد؛ لئون آن را می‌بیند و بعد از ثبت سند واقعی در دفتر، حسابتان به‌روز می‌شود.</p>
+          <button type="button" className="hs-link" onClick={() => setOpen(false)}>بستن</button>
+        </>
+      ) : (
+        <>
+          <p className="hs-sent">این رسید فقط برای اطلاع است؛ تا لئون سند واقعی را در دفتر ثبت نکند، به حسابتان افزوده نمی‌شود.</p>
+          <label className="btn btn-ink hs-receipt-pick">
+            {file ? "عوض کردن عکس رسید" : "گرفتن یا انتخاب عکس رسید"}
+            <input type="file" accept="image/*" onChange={e => pick(e.target.files?.[0] || null)} />
+          </label>
+          {preview && <img className="hs-photo hs-receipt-prev" src={preview} alt="" />}
+          <label className="hs-field"><span>مبلغ (تومان، اختیاری)</span>
+            <input className="num" value={amount} onChange={e => setAmount(e.target.value)} inputMode="numeric" dir="ltr" placeholder="۵۰۰۰۰۰۰" />
+          </label>
+          <label className="hs-field"><span>تاریخ (اختیاری)</span>
+            <input value={date} onChange={e => setDate(e.target.value)} placeholder="۱۴۰۵/۰۸/۱۰" />
+          </label>
+          {err && <p className="hs-err" role="alert">{err}</p>}
+          <div className="hs-row">
+            <button type="button" className="btn btn-gold" disabled={!file || busy} onClick={send}>{busy ? "در حال فرستادن…" : "فرستادن رسید"}</button>
+            <button type="button" className="hs-link" onClick={() => setOpen(false)}>انصراف</button>
+          </div>
+        </>
       )}
     </section>
   );

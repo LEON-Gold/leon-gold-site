@@ -1,7 +1,10 @@
 "use client";
 // «امروز»: who to get in touch with today. Occasions in the next two weeks, follow-ups that are due,
 // new requests, and good customers who have not bought for half a year.
-import { Client, LEAD_STATUS, Store, ago, dayNo, daysUntil, fa, jParts, mdLabel, MONTHS, today, toman, waLink } from "@/lib/crm";
+import { useEffect, useState } from "react";
+import {
+  Client, LEAD_STATUS, Receipt, Store, ago, dayNo, daysUntil, fa, jParts, mdLabel, MONTHS, receiptDone, receiptPhotoUrl, receipts, today, toman, waLink,
+} from "@/lib/crm";
 
 const WEEK = ["یکشنبه", "دوشنبه", "سه‌شنبه", "چهارشنبه", "پنجشنبه", "جمعه", "شنبه"];
 
@@ -32,6 +35,8 @@ export default function Today({ st, all }: { st: Store; all: Client[] }) {
         <h1>{calls ? <>امروز <em className="leaf">{fa(calls)}</em> تماس منتظر توست</> : "امروز کسی منتظر تماس نیست"}</h1>
         <p className="pn-hero-sub">{fa(all.length)} مشتری در دفتر، {fa(Object.values(st.leads).filter((l) => l.status === "new" || l.status === "talking").length)} سفارش باز</p>
       </div>
+
+      <PendingReceipts />
 
       <div className="pn-grid">
         <Block title="مناسبت‌های دو هفته‌ی پیش رو" empty="در دو هفته‌ی آینده تولد یا سالگردی ثبت نشده. تاریخ‌ها را در صفحه‌ی هر مشتری بنویس." lead>
@@ -67,6 +72,40 @@ export default function Today({ st, all }: { st: Store; all: Client[] }) {
       </div>
     </div>
   );
+}
+
+// a customer's card-to-card receipt, from «حساب من»: pending until you record the real document in the
+// ledger by hand and mark it done here. Never touches a balance on its own.
+function PendingReceipts() {
+  const [rows, setRows] = useState<Receipt[] | null>(null);
+  const [busy, setBusy] = useState<string | null>(null);
+  const load = () => receipts().then(r => setRows(r.filter(x => x.status === "pending"))).catch(() => setRows([]));
+  useEffect(() => { load(); }, []);
+  const done = async (id: string) => { setBusy(id); try { await receiptDone(id); await load(); } finally { setBusy(null); } };
+  if (!rows?.length) return null;
+  return (
+    <div className="pn-card pn-block lead">
+      <h2><i>◆</i>رسیدهای در انتظار (کارت‌به‌کارت)<span className="pn-count">{fa(rows.length)}</span></h2>
+      <ul className="pn-rows">
+        {rows.map(r => (
+          <li key={r.id} className="pn-row pn-receipt">
+            <div className="pn-row-main pn-receipt-main">
+              <b>{r.partyName || "بدون نام"}</b>
+              <span>{[r.amount ? toman(r.amount) + " تومان" : "", r.date, ago(new Date(r.ts).toISOString())].filter(Boolean).join(" · ")}</span>
+              <ReceiptPhoto blob={r.blob} />
+            </div>
+            <button type="button" className="btn btn-ink" disabled={busy === r.id} onClick={() => done(r.id)}>{busy === r.id ? "…" : "ثبت شد"}</button>
+          </li>
+        ))}
+      </ul>
+      <p className="pn-empty pn-receipt-note">بعد از ثبت سند واقعی در دفتر، «ثبت شد» را بزن تا از این فهرست برود.</p>
+    </div>
+  );
+}
+function ReceiptPhoto({ blob }: { blob: string }) {
+  const [url, setUrl] = useState<string | null>(null);
+  useEffect(() => { let dead = false; receiptPhotoUrl(blob).then(u => !dead && setUrl(u)).catch(() => {}); return () => { dead = true; }; }, [blob]);
+  return url ? <img className="pn-receipt-photo" src={url} alt="عکس رسید" /> : <span>در حال آوردن عکس…</span>;
 }
 
 function Block({ title, empty, children, lead, more }: { title: string; empty: string; children: React.ReactNode[]; lead?: boolean; more?: [string, string] }) {

@@ -6,8 +6,8 @@ export const SERVER = process.env.NEXT_PUBLIC_SYNC_URL || "https://leon-gold.lia
 
 export type Line = { desc: string; qty: number; weight: number; carat: number; ret?: boolean; totalG?: number; amount?: number };
 export type Entry = { ts: string; date?: string; label: string; u: "g" | "r"; d: number; run: number; lines?: Line[] };
-export type Order = { ref: string; date: string; due: string; status: string; statusLabel: string; deposit: number; items: { desc: string; qty: number; weight: number; carat: number }[] };
-export type Work = { ref: string; date: string; due: string; status: string; statusLabel: string; desc: string; qty: number; weight: number; carat: number };
+export type Order = { ref: string; date: string; due: string; status: string; statusLabel: string; deposit: number; items: { desc: string; qty: number; weight: number; carat: number; photo?: string }[] };
+export type Work = { ref: string; date: string; due: string; status: string; statusLabel: string; desc: string; qty: number; weight: number; carat: number; photo?: string };
 export type Account = { id: string; name: string; shop: string; kind: "customer" | "supplier" | "both"; bal: { g: number; r: number }; ent: Entry[]; orders: Order[]; work: Work[] };
 export type Me = { accounts: Account[]; updated?: string; demo?: boolean };
 
@@ -38,6 +38,36 @@ export async function me(): Promise<Me> {
   catch (e) { if (e instanceof ApiError && (e.status === 401 || e.status === 403)) setToken(null); throw e; }
 }
 export async function logout() { try { await api("/api/portal/logout", {}); } catch {} setToken(null); }
+
+// ---------- a line item's product photo, or a receipt's own photo: fetched with this party's token, never a public URL ----------
+export async function photoUrl(id: string): Promise<string> {
+  const t = getToken(), headers: Record<string, string> = {};
+  if (t) headers.Authorization = "Bearer " + t;
+  const r = await fetch(SERVER + "/api/portal/photo/" + encodeURIComponent(id), { headers, cache: "no-store" });
+  if (!r.ok) throw new ApiError(r.status === 401 ? "login" : "not_found", r.status);
+  return URL.createObjectURL(await r.blob());
+}
+
+// ---------- the customer's card-to-card receipt: a photo (shrunk here, before it ever leaves the phone), an optional amount and date ----------
+// mirrors the ledger's own shrink(): longest side capped, re-encoded as a smaller JPEG
+export function shrinkPhoto(file: File, max = 1280, quality = 0.82): Promise<string> {
+  return new Promise((res, rej) => {
+    const url = URL.createObjectURL(file), img = new Image();
+    img.onload = () => {
+      URL.revokeObjectURL(url);
+      const s = Math.min(1, max / Math.max(img.naturalWidth, img.naturalHeight));
+      const c = document.createElement("canvas");
+      c.width = Math.round(img.naturalWidth * s); c.height = Math.round(img.naturalHeight * s);
+      const ctx = c.getContext("2d");
+      if (!ctx) return rej(new Error("canvas"));
+      ctx.drawImage(img, 0, 0, c.width, c.height);
+      res(c.toDataURL("image/jpeg", quality));
+    };
+    img.onerror = () => { URL.revokeObjectURL(url); rej(new Error("img")); };
+    img.src = url;
+  });
+}
+export const sendReceipt = (image: string, amount?: number, date?: string) => api<{ ok: true }>("/api/portal/receipt", { image, amount, date });
 
 // ---------- the owner's side: a one-time sign-in link for a party, or signing them out everywhere ----------
 // Called with the owner's sync token (the CRM panel's sign-in), never the party's.

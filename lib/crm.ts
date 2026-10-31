@@ -56,6 +56,19 @@ export async function logout() {
   setSession(null);
 }
 
+// ---------- a customer's card-to-card receipt: pending until the owner records the real document in the ledger by hand ----------
+export type Receipt = { id: string; party: string; partyName: string; blob: string; amount: number | null; date: string; ts: number; status: "pending" | "done" };
+export const receipts = () => api<{ receipts: Receipt[] }>("/api/portal/receipts").then(r => r.receipts);
+export const receiptDone = (id: string) => api<{ ok: true }>("/api/portal/receipt/" + encodeURIComponent(id) + "/done", { method: "POST", json: {} });
+// the owner's own ledger session reads any blob by id (product photos and these receipts alike); never a public URL
+export async function receiptPhotoUrl(blob: string): Promise<string> {
+  const s = getSession(), headers: Record<string, string> = {};
+  if (s) headers.Authorization = "Bearer " + s.token;
+  const r = await fetch(SERVER + "/api/blob/" + encodeURIComponent(blob), { headers, cache: "no-store" });
+  if (!r.ok) throw new LoginNeeded();
+  return URL.createObjectURL(await r.blob());
+}
+
 // ---------- pull and push ----------
 type Change = { c: string; id: string; d: unknown };
 const COLS: Record<string, keyof Omit<Store, "rev">> = { parties: "parties", invoices: "invoices", crm_people: "people", crm_leads: "leads", settlements: "settlements", products: "products", expenses: "expenses" };
