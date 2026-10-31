@@ -78,7 +78,7 @@ function start(cv: HTMLCanvasElement, hero: HTMLElement): () => void {
   const size = () => { const w = Math.round(cv.clientWidth * dpr), h = Math.round(cv.clientHeight * dpr); if (cv.width !== w || cv.height !== h) { cv.width = w; cv.height = h; } gl.viewport(0, 0, w, h); };
   // the hero is pinned for two screens (Motion.tsx): that is the 0 to 1 the colours travel
   const scrollOf = () => Math.min(1, Math.max(0, scrollY / (2 * innerHeight)));
-  let t0 = performance.now(), last = t0, rise = 0, vel = 0, prev = scrollOf(), raf = 0, onScreen = true;
+  const t0 = performance.now(); let last = t0, rise = 0, vel = 0, prev = scrollOf(), raf = 0, onScreen = true;
 
   const draw = (now: number) => {
     const dt = Math.min(.05, (now - last) / 1000); last = now;
