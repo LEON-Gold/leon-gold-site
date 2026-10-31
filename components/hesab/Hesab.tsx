@@ -13,10 +13,10 @@ type Role = "customer" | "supplier";
 type Phase = "boot" | "form" | "in";
 const ERR: Record<string, string> = {
   bad_login: "نام کاربری یا رمز درست نیست.",
-  portal_off: "«حساب من» برای این حساب فعلاً بسته است. از طریق واتس‌اپ با لئون گلد در تماس باشید.",
+  portal_off: "«حساب من» برای این حساب فعلاً بسته است. در تلگرام با لئون گلد در تماس باشید.",
   too_many: "چند بار پشت سر هم اشتباه شد. ربع ساعت دیگر دوباره امتحان کنید.",
   offline: "به سرور وصل نشدیم. اینترنت را بررسی کنید و دوباره بزنید.",
-  no_account: "این حساب در دفتر لئون گلد پیدا نشد. از طریق واتس‌اپ به ما خبر بدهید.",
+  no_account: "این حساب در دفتر لئون گلد پیدا نشد. در تلگرام به ما خبر بدهید.",
   login: "ورودتان تمام شده. دوباره وارد شوید.",
   bad_old: "رمز فعلی درست نیست.",
   bad_password: "رمز تازه باید دست‌کم ۶ حرف یا رقم باشد.",
@@ -24,7 +24,7 @@ const ERR: Record<string, string> = {
   too_large: "عکس خیلی بزرگ است. عکس کوچک‌تری انتخاب کن یا دوباره از دوربین بگیر.",
 };
 const errText = (e: unknown) => (e instanceof ApiError && ERR[e.code]) || "مشکلی پیش آمد. دوباره امتحان کنید.";
-const wa = (text: string) => SHOP.whatsapp + "?text=" + encodeURIComponent(text);
+const tg = SHOP.telegram;
 const Corners = () => <><i className="corner c1" aria-hidden /><i className="corner c2" aria-hidden /><i className="corner c3" aria-hidden /><i className="corner c4" aria-hidden /></>;
 
 // a line item's own photo, fetched with this party's token; quietly absent if it fails, never a broken image
@@ -106,7 +106,7 @@ function SignIn({ err, setErr, onIn }: { err: string; setErr: (s: string) => voi
       </label>
       {err && <p className="hs-err" id="hs-err" role="alert">{err}</p>}
       <button className="btn btn-gold hs-wide" disabled={busy}>{busy ? "در حال ورود…" : "ورود"}</button>
-      <p className="hs-sent">نام کاربری و رمز را لئون گلد برایتان فرستاده است. اگر ندارید یا فراموش کرده‌اید، <a href={wa("سلام، لطفاً نام کاربری و رمز «حساب من» را برایم بفرستید.")} target="_blank" rel="noopener">در واتس‌اپ بخواهید</a>.</p>
+      <p className="hs-sent">نام کاربری و رمز را لئون گلد برایتان فرستاده است. اگر ندارید یا فراموش کرده‌اید، <a href={tg} target="_blank" rel="noopener">در تلگرام بخواهید</a>.</p>
     </form>
   );
 }
@@ -177,7 +177,7 @@ function Panel({ data, role, onOut, onReload }: { data: Me; role: Role; onOut: (
         <footer className="hs-foot">
           <p>{data.updated ? `آخرین ثبت در دفتر: ${jdate(data.updated)}، ساعت ${jtime(data.updated)}` : ""}{onReload && <> · <button type="button" className="hs-link" onClick={onReload}>تازه کردن</button></>}</p>
           {data.username && <div className="hs-acct"><p>نام کاربری: <b dir="ltr">{data.username}</b></p><Password /></div>}
-          <p>رقمی با حساب شما نمی‌خواند؟ <a href={wa(`سلام، درباره‌ی حسابم در «حساب من» سؤال دارم (${a.name}).`)} target="_blank" rel="noopener">در واتس‌اپ بگویید</a>؛ اشتباه از طرفین قابل برگشت است.</p>
+          <p>رقمی با حساب شما نمی‌خواند؟ <a href={tg} target="_blank" rel="noopener">در تلگرام بگویید</a>؛ اشتباه از طرفین قابل برگشت است.</p>
         </footer>
       </main>
     </div>
@@ -230,7 +230,7 @@ function Orders({ a }: { a: Account }) {
     <section className="hs-sec" aria-labelledby="hs-o">
       <div className="hs-sec-head">
         <h2 className="hs-h" id="hs-o">سفارش‌های شما</h2>
-        <a className="hs-link" href={wa(`سلام، ${a.name} هستم؛ می‌خواهم یک سفارش ساخت ثبت کنم.`)} target="_blank" rel="noopener">سفارش تازه</a>
+        <a className="hs-link" href={tg} target="_blank" rel="noopener">سفارش تازه</a>
       </div>
       {!a.orders.length ? <p className="hs-empty">هنوز سفارشی برایتان ثبت نشده. هر وقت سفارش ساخت بدهید، مرحله‌به‌مرحله همین‌جا دیده می‌شود.</p> : (
         <ul className="hs-list">
@@ -265,7 +265,7 @@ function WorkList({ a }: { a: Account }) {
               <p className="hs-meta num">{spec(w)}</p>
               <p className="hs-meta">{w.due ? "موعد " + w.due : "بدون موعد"} · {w.statusLabel}{late(w.due, w.status) && <span className="hs-late">از موعد گذشته</span>}</p>
               {w.status !== "ready" && (
-                <a className="btn btn-ink hs-ready" href={wa(`سلام، ${a.name} هستم. کار #${w.ref} (${w.desc}${w.weight ? "، " + gram(w.weight) + " گرم" : ""}) آماده‌ی تحویل است.`)} target="_blank" rel="noopener">اعلام آماده بودن</a>
+                <a className="btn btn-ink hs-ready" href={tg} target="_blank" rel="noopener">اعلام آماده بودن</a>
               )}
             </li>
           ))}

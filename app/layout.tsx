@@ -6,7 +6,7 @@ import "./site.css";
 
 export const metadata: Metadata = {
   title: "لئون گلد · خرید طلا و جواهرات ۱۸ عیار در تهران",
-  description: "خرید طلا و جواهرات ۱۸ عیار از لئون گلد در تهران: انگشتر، گردنبند، دستبند و گوشواره‌ی طلا با قیمت زنده‌ی اتحادیه، محاسبه‌ی قیمت طلا با اجرت، سفارش در واتس‌اپ و فروش عمده به همکاران.",
+  description: "خرید طلا و جواهرات ۱۸ عیار از لئون گلد در تهران: انگشتر، گردنبند، دستبند و گوشواره‌ی طلا با قیمت زنده‌ی اتحادیه، محاسبه‌ی قیمت طلا با اجرت، سفارش در تلگرام و فروش عمده به همکاران.",
   icons: { icon: "/leaf.png", apple: "/leaf.png" },
   // the share card for WhatsApp and Telegram links; SITE_URL is the real domain once it exists
   metadataBase: new URL(process.env.SITE_URL || "https://leon-gold.github.io/leon-gold-app/site/"),

@@ -11,7 +11,7 @@ export const STORE_LD = {
       "@type": "JewelryStore", "@id": SITE + "#store", url: SITE, name: SHOP.name, alternateName: "Leon Gold",
       description: "طلا و جواهرات ۱۸ عیار در تهران؛ انگشتر، گردنبند، دستبند و گوشواره‌ی طلا با قیمت روز اتحادیه، و فروش عمده به همکاران.",
       image: SITE + "og.jpg", logo: SITE + "leaf.png",
-      telephone: SHOP.phoneHref.replace("tel:", ""), sameAs: [SHOP.instagram],
+      telephone: SHOP.phoneHref.replace("tel:", ""), sameAs: [SHOP.instagram, SHOP.telegram],
       address: { "@type": "PostalAddress", addressLocality: SHOP.city, addressCountry: "IR" },
       areaServed: { "@type": "City", name: SHOP.city },
       currenciesAccepted: "IRR",

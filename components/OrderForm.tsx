@@ -1,5 +1,6 @@
 "use client";
-// Order request. Until the CRM panel's API exists, it hands the filled request to WhatsApp so nothing is lost.
+// Order request. Until the CRM panel's API exists, it goes to the shop's Telegram so nothing is lost. Telegram cannot
+// fill in a message to a person, so the request is copied first and the visitor pastes it into the chat.
 import { useState } from "react";
 import { COLLECTION, SHOP } from "@/lib/content";
 
@@ -9,6 +10,7 @@ export default function OrderForm() {
   const [what, setWhat] = useState(COLLECTION[0].name);
   const [note, setNote] = useState("");
   const [err, setErr] = useState("");
+  const [sent, setSent] = useState(false);
 
   const send = (e: React.FormEvent) => {
     e.preventDefault();
@@ -17,7 +19,10 @@ export default function OrderForm() {
     if (digits.length < 10) return setErr("شماره‌ی تماس کامل نیست.");
     setErr("");
     const text = `سفارش از سایت لئون گلد\nنام: ${name.trim()}\nتلفن: ${phone.trim()}\nکار: ${what}${note.trim() ? "\nتوضیح: " + note.trim() : ""}`;
-    window.open(SHOP.whatsapp + "?text=" + encodeURIComponent(text), "_blank", "noopener");
+    // opened now, while the tap still counts (Safari blocks a window opened after an await)
+    window.open(SHOP.telegram, "_blank", "noopener");
+    navigator.clipboard?.writeText(text).catch(() => {});
+    setSent(true);
   };
 
   return (
@@ -32,7 +37,8 @@ export default function OrderForm() {
       </label>
       <label className="wide"><span>توضیح (وزن تقریبی، اندازه، بودجه)</span><textarea value={note} onChange={(e) => setNote(e.target.value)} rows={3} /></label>
       {err && <p className="order-err" role="alert">{err}</p>}
-      <button className="btn btn-gold" type="submit">فرستادن سفارش</button>
+      {sent && <p className="order-ok" role="status">متن سفارش کپی شد. در گفت‌وگوی تلگرام لئون گلد که باز شد، آن را بچسبانید و بفرستید.</p>}
+      <button className="btn btn-gold" type="submit">فرستادن سفارش در تلگرام</button>
     </form>
   );
 }

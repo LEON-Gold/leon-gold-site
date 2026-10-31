@@ -142,7 +142,7 @@ export default function Home() {
             <h2 id="ws-h"><i aria-hidden>◆</i>همکار عمده‌اید؟</h2>
             <p>خرید و فروش به گرم ۷۵۰، آبشده و ساخته. برای فهرست کارهای عمده و اجرت همکاری پیام بدهید؛ حساب هر همکار در دفتر لئون جدا نگه داشته می‌شود.</p>
             <div className="ws-cta">
-              <a className="btn btn-ink" href={SHOP.whatsapp}>پیام در واتس‌اپ</a>
+              <a className="btn btn-ink" href={SHOP.telegram} target="_blank" rel="noopener">پیام در تلگرام</a>
               <a className="btn-text" href={SHOP.phoneHref}>یا تماس: <span className="num" dir="ltr">{SHOP.phone}</span></a>
             </div>
           </div>
@@ -160,7 +160,7 @@ export default function Home() {
             <div><small>تلفن</small><a className="num" href={SHOP.phoneHref} dir="ltr">{SHOP.phone}</a></div>
             <div><small>شهر</small><span>{SHOP.city}</span></div>
             <div><small>ساعت کاری</small><span>{SHOP.hours}</span></div>
-            <div><small>شبکه‌ها</small><span><a href={SHOP.instagram} dir="ltr">@{SHOP.instagramId}</a> · <a href={SHOP.whatsapp}>واتس‌اپ</a></span></div>
+            <div><small>شبکه‌ها</small><span><a href={SHOP.instagram} dir="ltr">@{SHOP.instagramId}</a> · <a href={SHOP.telegram} target="_blank" rel="noopener">تلگرام</a></span></div>
           </div>
         </section>
       </main>

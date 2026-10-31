@@ -269,6 +269,7 @@ section { position: relative; padding: clamp(88px, 11vw, 150px) var(--m); }
 .order-form input:focus, .order-form select:focus, .order-form textarea:focus { outline: none; border-color: var(--gold); box-shadow: 0 0 0 3px rgba(197,154,80,.18); }
 .order-form .btn { grid-column: 1 / -1; justify-self: start; margin-top: 6px; }
 .order-err { grid-column: 1 / -1; color: #b3392a; font-size: 14px; }
+.order-ok { grid-column: 1 / -1; color: var(--emerald); font-size: 14px; line-height: 1.8; }
 .order-info { position: relative; display: grid; gap: 22px; color: var(--cream); }
 .order-info div { display: grid; gap: 2px; padding-bottom: 18px; border-bottom: 1px solid rgba(197,154,80,.3); }
 .order-info small { color: var(--gold); font-size: 14px; }

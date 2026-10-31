@@ -1,11 +1,12 @@
-// Page content. The shop has no landline: the owner's mobile is the phone and the WhatsApp number. No street address or founding year on the site, by the owner's choice.
+// Page content. The shop has no landline: the owner's mobile is the phone; messages go to Telegram (owner, 2026-10-31). No street address or founding year on the site, by the owner's choice.
 
 export const SHOP = {
   name: "لئون گلد",
   city: "تهران",
   phone: "۰۹۱۲ ۹۳۷ ۴۵۵۲",
   phoneHref: "tel:+989129374552",
-  whatsapp: "https://wa.me/989129374552",
+  telegram: "https://t.me/alieshghinejad",
+  telegramId: "alieshghinejad",
   instagram: "https://instagram.com/___leongold___",
   instagramId: "___leongold___",
   hours: "شنبه تا چهارشنبه، ۱۱ تا ۱۸",
