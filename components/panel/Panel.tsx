@@ -132,7 +132,7 @@ function Login({ onIn }: { onIn: () => void }) {
     setBusy(false);
   };
   return (
-    <Door name="پنل مدیریت" latin="LEON GOLD · ADMIN" fine="فقط برای مدیر لئون گلد؛ این صفحه در جست‌وجو دیده نمی‌شود.">
+    <Door name="پنل مدیریت" latin="LEON GOLD · ADMIN" fine={<>فقط برای مدیر لئون گلد؛ این صفحه در جست‌وجو دیده نمی‌شود. <a className="btn-text" href="help/">راهنمای اولین ورود</a></>}>
       <form className="door-form" onSubmit={send} noValidate>
         <p className="door-note">با همان نام کاربری و رمزی وارد شو که «دفتر لئون» را با آن همگام کرده‌ای.</p>
         <label><span>نام کاربری</span><input value={u} onChange={(e) => setU(e.target.value)} autoComplete="username" autoCapitalize="none" dir="ltr" /></label>

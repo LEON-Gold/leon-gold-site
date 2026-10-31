@@ -31,7 +31,7 @@ function OwnerLogin({ onIn }: { onIn: () => void }) {
     setBusy(false);
   };
   return (
-    <Door name="لینک ورود مشتری" latin="LEON GOLD · SIGN-IN LINKS" fine="فقط برای مدیر لئون گلد؛ همان ورود «پنل مدیریت».">
+    <Door name="لینک ورود مشتری" latin="LEON GOLD · SIGN-IN LINKS" fine={<>فقط برای مدیر لئون گلد؛ همان ورود «پنل مدیریت». <a className="btn-text" href="../panel/help/">راهنمای اولین ورود</a></>}>
       <form className="hs-form" onSubmit={send} noValidate>
         <p className="hs-sent">با نام کاربری و رمز «دفتر لئون» وارد شو؛ بعد برای هر مشتری یا تأمین‌کننده یک لینک ورود یک‌بارمصرف می‌سازی.</p>
         <label className="hs-field"><span>نام کاربری</span><input value={u} onChange={e => setU(e.target.value)} autoComplete="username" autoCapitalize="none" dir="ltr" /></label>
