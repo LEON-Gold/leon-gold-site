@@ -9,7 +9,7 @@ export type Entry = { ts: string; date?: string; label: string; u: "g" | "r"; d:
 export type Order = { ref: string; date: string; due: string; status: string; statusLabel: string; deposit: number; items: { desc: string; qty: number; weight: number; carat: number; photo?: string }[] };
 export type Work = { ref: string; date: string; due: string; status: string; statusLabel: string; desc: string; qty: number; weight: number; carat: number; photo?: string };
 export type Account = { id: string; name: string; shop: string; kind: "customer" | "supplier" | "both"; bal: { g: number; r: number }; ent: Entry[]; orders: Order[]; work: Work[] };
-export type Me = { accounts: Account[]; updated?: string; demo?: boolean };
+export type Me = { accounts: Account[]; updated?: string; demo?: boolean; username?: string };
 
 // ---------- session: the token only, in this browser ----------
 const KEY = "leon-hesab";
@@ -30,8 +30,9 @@ async function api<T>(path: string, json?: unknown): Promise<T> {
   return j as T;
 }
 
-export const startSms = (phone: string) => api<{ ok: true; wait: number }>("/api/portal/start", { phone });
-export async function verifySms(phone: string, code: string) { setToken((await api<{ token: string }>("/api/portal/verify", { phone, code })).token); }
+export async function login(u: string, p: string) { setToken((await api<{ token: string }>("/api/portal/login", { u, p })).token); }
+// the party replaces the starting password Leon gave it; its other devices are signed out, this one stays in
+export const changePassword = (old: string, nu: string) => api<{ ok: true }>("/api/portal/password", { old, new: nu });
 export async function redeem(k: string) { setToken((await api<{ token: string }>("/api/portal/redeem", { k })).token); }
 export async function me(): Promise<Me> {
   try { return await api<Me>("/api/portal/me"); }

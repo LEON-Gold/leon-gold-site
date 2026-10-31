@@ -203,3 +203,12 @@
 .hs-foot .hs-link { padding: 0; }
 .hs-brand { padding-block: 6px; margin-block: -6px; }
 
+/* the party's own password, in the footer: a link, then a small paper form */
+.hs-acct { display: grid; gap: 6px; justify-items: start; }
+.hs-acct > p b { color: var(--gold-lt); unicode-bidi: isolate; }
+.hs-pass { width: 100%; box-sizing: border-box; display: grid; gap: 12px; padding: 22px 18px 18px; color: var(--ink); }
+.hs-pass .hs-h { font-size: 20px; }
+.hs-pass .hs-link { color: var(--gold-ink); text-decoration-color: rgba(156,116,51,.4); }
+.hs-pass .hs-row { align-items: center; }
+.hs-ok { color: var(--cr); font-size: 14px; line-height: 1.7; }
+.hs-sent a { color: var(--gold-ink); }

@@ -1,34 +1,29 @@
 "use client";
-// «حساب من»: sign-in (SMS code or the owner's one-time link), then the party's assay slip (gold and rial balance),
-// their orders (customers), the work given to them (suppliers) and the statement, newest first.
+// «حساب من»: sign-in (the username and password Leon gave the party, or the owner's one-time link), then the party's
+// assay slip (gold and rial balance), their orders (customers), the work given to them (suppliers) and the statement, newest first.
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { SHOP } from "@/lib/content";
 import Door from "@/components/Door";
 import {
-  ApiError, SAMPLE, dayNum, faDigits, getToken, gram, jdate, jtime, latin, logout, me, photoUrl, redeem, rial, sendReceipt, shrinkPhoto, side, startSms, today, toman, verifySms,
+  ApiError, SAMPLE, dayNum, faDigits, getToken, gram, jdate, jtime, latin, login, changePassword, logout, me, photoUrl, redeem, rial, sendReceipt, shrinkPhoto, side, today, toman,
   type Account, type Entry, type Me,
 } from "@/lib/hesab";
 
 type Role = "customer" | "supplier";
-type Phase = "boot" | "phone" | "code" | "in";
+type Phase = "boot" | "form" | "in";
 const ERR: Record<string, string> = {
-  bad_phone: "شماره‌ی موبایل درست نیست. مثل ۰۹۱۲۱۲۳۴۵۶۷ بنویسید.",
-  too_many: "چند بار پشت سر هم امتحان شد. چند دقیقه‌ی دیگر دوباره بزنید.",
-  expired: "این کد دیگر کار نمی‌کند. یک کد تازه بگیرید.",
-  sms_failed: "پیامک فرستاده نشد. چند لحظه‌ی دیگر دوباره بزنید.",
+  bad_login: "نام کاربری یا رمز درست نیست.",
+  portal_off: "«حساب من» برای این حساب فعلاً بسته است. از طریق واتس‌اپ با لئون گلد در تماس باشید.",
+  too_many: "چند بار پشت سر هم اشتباه شد. ربع ساعت دیگر دوباره امتحان کنید.",
   offline: "به سرور وصل نشدیم. اینترنت را بررسی کنید و دوباره بزنید.",
-  no_account: "این شماره هنوز در دفتر لئون گلد حسابی ندارد. از طریق واتس‌اپ به ما خبر بدهید.",
+  no_account: "این حساب در دفتر لئون گلد پیدا نشد. از طریق واتس‌اپ به ما خبر بدهید.",
   login: "ورودتان تمام شده. دوباره وارد شوید.",
+  bad_old: "رمز فعلی درست نیست.",
+  bad_password: "رمز تازه باید دست‌کم ۶ حرف یا رقم باشد.",
   bad_type: "این فایل عکس نیست. یک عکس از رسید را انتخاب کن.",
   too_large: "عکس خیلی بزرگ است. عکس کوچک‌تری انتخاب کن یا دوباره از دوربین بگیر.",
 };
-const errText = (e: unknown) => {
-  if (e instanceof ApiError) {
-    if (e.code === "bad_code") { const n = Number(e.extra.left); return n > 0 ? `کد درست نیست. ${faDigits(n)} بار دیگر می‌توانید امتحان کنید.` : ERR.expired; }
-    return ERR[e.code] || "مشکلی پیش آمد. دوباره امتحان کنید.";
-  }
-  return "مشکلی پیش آمد. دوباره امتحان کنید.";
-};
+const errText = (e: unknown) => (e instanceof ApiError && ERR[e.code]) || "مشکلی پیش آمد. دوباره امتحان کنید.";
 const wa = (text: string) => SHOP.whatsapp + "?text=" + encodeURIComponent(text);
 const Corners = () => <><i className="corner c1" aria-hidden /><i className="corner c2" aria-hidden /><i className="corner c3" aria-hidden /><i className="corner c4" aria-hidden /></>;
 
@@ -47,12 +42,11 @@ export default function Hesab() {
   const [phase, setPhase] = useState<Phase>("boot");
   const [role, setRole] = useState<Role>("customer");
   const [data, setData] = useState<Me | null>(null);
-  const [smsOff, setSmsOff] = useState(false);
   const [err, setErr] = useState("");
 
   const load = useCallback(async () => {
     try { setData(await me()); setPhase("in"); }
-    catch (e) { setErr(e instanceof ApiError && e.status === 401 ? "" : errText(e)); setPhase("phone"); }
+    catch (e) { setErr(e instanceof ApiError && e.status === 401 ? "" : errText(e)); setPhase("form"); }
   }, []);
 
   useEffect(() => {
@@ -63,13 +57,13 @@ export default function Hesab() {
       if (h === "#demo") { setData(SAMPLE); setPhase("in"); return; }
       if (k) {
         try { await redeem(k); }
-        catch (e) { setErr(e instanceof ApiError && e.code === "expired" ? "این لینک ورود قبلاً استفاده شده یا وقتش گذشته. لینک تازه را از لئون گلد بخواهید." : errText(e)); setPhase("phone"); return; }
+        catch (e) { setErr(e instanceof ApiError && e.code === "expired" ? "این لینک ورود قبلاً استفاده شده یا وقتش گذشته. لینک تازه را از لئون گلد بخواهید." : errText(e)); setPhase("form"); return; }
       }
-      if (k || getToken()) await load(); else setPhase("phone");
+      if (k || getToken()) await load(); else setPhase("form");
     })();
   }, [load]);
 
-  const out = async () => { if (!data?.demo) await logout(); if (location.hash) history.replaceState(null, "", location.pathname); setData(null); setErr(""); setPhase("phone"); };
+  const out = async () => { if (!data?.demo) await logout(); if (location.hash) history.replaceState(null, "", location.pathname); setData(null); setErr(""); setPhase("form"); };
   const demo = () => { history.replaceState(null, "", "#demo"); setData(SAMPLE); setPhase("in"); };
 
   if (phase === "in" && data) return <Panel data={data} role={role} onOut={out} onReload={data.demo ? undefined : load} />;
@@ -84,68 +78,64 @@ export default function Hesab() {
           ? "مانده‌ی حساب طلایی و ریالی، فاکتورها و وضعیت سفارش‌هایتان، همان که در دفتر لئون ثبت شده."
           : "مانده‌ی حساب طلایی‌تان با لئون، سندهای تحویل و کارهایی که به شما سپرده شده، به ترتیب موعد."}</p>
         {phase === "boot" ? <p className="hs-wait" aria-live="polite">در حال باز کردن…</p>
-          : smsOff ? <SmsOff role={role} />
-          : <SignIn role={role} phase={phase} setPhase={setPhase} err={err} setErr={setErr} onSmsOff={() => setSmsOff(true)} onIn={load} />}
+          : <SignIn err={err} setErr={setErr} onIn={load} />}
         <button type="button" className="hs-demo" onClick={demo}>دیدن نمونه‌ی پنل</button>
     </Door>
   );
 }
 
-function SmsOff({ role }: { role: Role }) {
+function SignIn({ err, setErr, onIn }: { err: string; setErr: (s: string) => void; onIn: () => Promise<void> }) {
+  const [u, setU] = useState("");
+  const [p, setP] = useState("");
+  const [busy, setBusy] = useState(false);
+  const send = async (e: React.FormEvent) => {
+    e.preventDefault(); if (busy) return;
+    if (!u.trim() || !p) return setErr("نام کاربری و رمز را بنویسید.");
+    setBusy(true); setErr("");
+    try { await login(u, p); await onIn(); }
+    catch (x) { setErr(errText(x)); }
+    finally { setBusy(false); }
+  };
   return (
-    <div className="hs-note" role="status">
-      <p>ورود با پیامک به‌زودی فعال می‌شود. تا آن موقع لینک ورود را از ما بخواهید؛ با همان لینک وارد حسابتان می‌شوید.</p>
-      <a className="btn btn-gold hs-wide" href={wa(role === "customer" ? "سلام، لطفاً لینک ورود به «حساب من» را برایم بفرستید." : "سلام، تأمین‌کننده‌ی لئون هستم؛ لطفاً لینک ورود به «حساب من» را بفرستید.")} target="_blank" rel="noopener">درخواست لینک در واتس‌اپ</a>
-    </div>
+    <form className="hs-form" onSubmit={send} noValidate>
+      <label className="hs-field"><span>نام کاربری</span>
+        <input value={u} onChange={e => setU(e.target.value)} autoComplete="username" autoCapitalize="none" spellCheck={false} dir="ltr" aria-describedby={err ? "hs-err" : undefined} />
+      </label>
+      <label className="hs-field"><span>رمز</span>
+        <input type="password" value={p} onChange={e => setP(e.target.value)} autoComplete="current-password" dir="ltr" aria-describedby={err ? "hs-err" : undefined} />
+      </label>
+      {err && <p className="hs-err" id="hs-err" role="alert">{err}</p>}
+      <button className="btn btn-gold hs-wide" disabled={busy}>{busy ? "در حال ورود…" : "ورود"}</button>
+      <p className="hs-sent">نام کاربری و رمز را لئون گلد برایتان فرستاده است. اگر ندارید یا فراموش کرده‌اید، <a href={wa("سلام، لطفاً نام کاربری و رمز «حساب من» را برایم بفرستید.")} target="_blank" rel="noopener">در واتس‌اپ بخواهید</a>.</p>
+    </form>
   );
 }
 
-function SignIn({ role, phase, setPhase, err, setErr, onSmsOff, onIn }: {
-  role: Role; phase: Phase; setPhase: (p: Phase) => void; err: string; setErr: (s: string) => void; onSmsOff: () => void; onIn: () => Promise<void>;
-}) {
-  const [phone, setPhone] = useState("");
-  const [code, setCode] = useState("");
+// the starting password Leon gave is replaced by the party's own; only shown when the party signed in with a username
+function Password() {
+  const [open, setOpen] = useState(false);
+  const [old, setOld] = useState("");
+  const [nu, setNu] = useState("");
+  const [nu2, setNu2] = useState("");
+  const [msg, setMsg] = useState<{ ok: boolean; t: string } | null>(null);
   const [busy, setBusy] = useState(false);
-  const [wait, setWait] = useState(0);
-  useEffect(() => { if (wait <= 0) return; const t = setTimeout(() => setWait(w => w - 1), 1000); return () => clearTimeout(t); }, [wait]);
-
-  const send = async (e?: React.FormEvent) => {
-    e?.preventDefault(); if (busy) return;
-    setBusy(true); setErr("");
-    try { const r = await startSms(phone); setWait(r.wait); setCode(""); setPhase("code"); }
-    catch (x) { if (x instanceof ApiError && x.code === "sms_off") onSmsOff(); else setErr(errText(x)); }
+  const send = async (e: React.FormEvent) => {
+    e.preventDefault(); if (busy) return;
+    if (nu !== nu2) return setMsg({ ok: false, t: "رمز تازه و تکرارش یکی نیستند." });
+    setBusy(true); setMsg(null);
+    try { await changePassword(old, nu); setOld(""); setNu(""); setNu2(""); setMsg({ ok: true, t: "رمز عوض شد. از این به بعد با رمز تازه وارد شوید." }); }
+    catch (x) { setMsg({ ok: false, t: errText(x) }); }
     finally { setBusy(false); }
   };
-  const check = async (c = code) => {
-    if (busy || latin(c).replace(/\D/g, "").length !== 5) return;
-    setBusy(true); setErr("");
-    try { await verifySms(phone, c); await onIn(); }
-    catch (x) { setErr(errText(x)); setCode(""); }
-    finally { setBusy(false); }
-  };
-
-  if (phase === "code") return (
-    <form className="hs-form" onSubmit={e => { e.preventDefault(); check(); }}>
-      <p className="hs-sent">اگر <b className="num" dir="ltr">{faDigits(latin(phone))}</b> در دفتر لئون ثبت باشد، یک کد پنج‌رقمی برایش پیامک شد.</p>
-      <label className="hs-field"><span>کد پیامک</span>
-        <input className="num hs-code" value={code} autoFocus inputMode="numeric" autoComplete="one-time-code" maxLength={5} dir="ltr" aria-describedby={err ? "hs-err" : undefined}
-          onChange={e => { const v = latin(e.target.value).replace(/\D/g, "").slice(0, 5); setCode(v); if (v.length === 5) check(v); }} />
-      </label>
-      {err && <p className="hs-err" id="hs-err" role="alert">{err}</p>}
-      <button className="btn btn-gold hs-wide" disabled={busy || code.length !== 5}>{busy ? "در حال بررسی…" : "ورود"}</button>
-      <div className="hs-row">
-        <button type="button" className="hs-link" onClick={() => { setPhase("phone"); setErr(""); }}>شماره را عوض کنید</button>
-        <button type="button" className="hs-link" disabled={wait > 0 || busy} onClick={() => send()}>{wait > 0 ? `ارسال دوباره تا ${faDigits(wait)} ثانیه` : "ارسال دوباره‌ی کد"}</button>
-      </div>
-    </form>
-  );
+  if (!open) return <button type="button" className="hs-link" onClick={() => setOpen(true)}>تغییر رمز</button>;
   return (
-    <form className="hs-form" onSubmit={send}>
-      <label className="hs-field"><span>{role === "customer" ? "شماره‌ی موبایلی که به لئون داده‌اید" : "شماره‌ی موبایل کارگاه یا فروشگاه"}</span>
-        <input className="num" type="tel" value={phone} onChange={e => setPhone(e.target.value)} placeholder="۰۹۱۲ ۱۲۳ ۴۵۶۷" inputMode="tel" autoComplete="tel" dir="ltr" required aria-describedby={err ? "hs-err" : undefined} />
-      </label>
-      {err && <p className="hs-err" id="hs-err" role="alert">{err}</p>}
-      <button className="btn btn-gold hs-wide" disabled={busy}>{busy ? "در حال ارسال…" : "دریافت کد ورود"}</button>
+    <form className="hs-pass paper" onSubmit={send} noValidate>
+      <h2 className="hs-h">تغییر رمز</h2>
+      <label className="hs-field"><span>رمز فعلی</span><input type="password" value={old} onChange={e => setOld(e.target.value)} autoComplete="current-password" dir="ltr" /></label>
+      <label className="hs-field"><span>رمز تازه (دست‌کم ۶ حرف یا رقم)</span><input type="password" value={nu} onChange={e => setNu(e.target.value)} autoComplete="new-password" dir="ltr" /></label>
+      <label className="hs-field"><span>تکرار رمز تازه</span><input type="password" value={nu2} onChange={e => setNu2(e.target.value)} autoComplete="new-password" dir="ltr" /></label>
+      {msg && <p className={msg.ok ? "hs-ok" : "hs-err"} role={msg.ok ? "status" : "alert"}>{msg.t}</p>}
+      <div className="hs-row"><button className="btn btn-gold" disabled={busy}>{busy ? "در حال ذخیره…" : "ذخیره‌ی رمز تازه"}</button><button type="button" className="hs-link" onClick={() => { setOpen(false); setMsg(null); }}>بستن</button></div>
     </form>
   );
 }
@@ -186,6 +176,7 @@ function Panel({ data, role, onOut, onReload }: { data: Me; role: Role; onOut: (
         <Statement ent={a.ent} />
         <footer className="hs-foot">
           <p>{data.updated ? `آخرین ثبت در دفتر: ${jdate(data.updated)}، ساعت ${jtime(data.updated)}` : ""}{onReload && <> · <button type="button" className="hs-link" onClick={onReload}>تازه کردن</button></>}</p>
+          {data.username && <div className="hs-acct"><p>نام کاربری: <b dir="ltr">{data.username}</b></p><Password /></div>}
           <p>رقمی با حساب شما نمی‌خواند؟ <a href={wa(`سلام، درباره‌ی حسابم در «حساب من» سؤال دارم (${a.name}).`)} target="_blank" rel="noopener">در واتس‌اپ بگویید</a>؛ اشتباه از طرفین قابل برگشت است.</p>
         </footer>
       </main>
