@@ -8,6 +8,8 @@ import Jewel from "@/components/Jewel";
 import Hallmark from "@/components/Hallmark";
 import Exhibits from "@/components/Exhibits";
 import Ruler from "@/components/Ruler";
+import HeroGL from "@/components/HeroGL";
+import Titles from "@/components/Titles";
 import { STORE_LD } from "@/lib/seo";
 import { COLLECTION, EXHIBITS, HERO, LEDGER, MELT, SHOP, STEPS, WORKBOX } from "@/lib/content";
 
@@ -26,9 +28,11 @@ export default function Home() {
       <Header ledger={LEDGER} />
       <Motion />
       <Ruler />
+      <Titles />
       <main id="top">
         {/* the vault: rosettes turning behind the jewel, the name struck in gold leaf */}
         <section className="hero" aria-labelledby="hero-h">
+          <HeroGL />
           <Rosette className="hero-rose r1" draw />
           <div className="hero-light" aria-hidden />
           <Rosette className="hero-rose r2" />
