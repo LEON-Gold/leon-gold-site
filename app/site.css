@@ -84,10 +84,15 @@ section { position: relative; padding: clamp(88px, 11vw, 150px) var(--m); }
 .hero-in { position: relative; z-index: 1; display: grid; justify-items: center; align-content: center; text-align: center; gap: 10px; padding-bottom: 48px; }
 .hero-jewel { animation: float 7s ease-in-out infinite; perspective: 900px; }
 .jw { position: relative; transform-style: preserve-3d; will-change: transform; }
-/* the jewel fades in from the first paint, not after the scripts load: it is the page's largest paint.
-   It also starts big and settles to size, the vault-opens-on-the-jewel look, played once by CSS so no later
-   script can snap it back through that state a second time. */
-@media (prefers-reduced-motion: no-preference) { .jw { animation: jw-in 1.6s cubic-bezier(.16, 1, .3, 1) .15s both; } }
+/* the jewel fades in from the first paint, not after the scripts load: it is the page's largest paint, and it
+   starts big and settles to size, the vault-opens-on-the-jewel look, played once. The scale lives on .hero-jewel,
+   one element up from .jw: GSAP later owns .jw's own transform for the scroll-driven turn, and a CSS-animated
+   scale on that same element only gets read once (when GSAP first renders it) and then stays frozen there. */
+@keyframes jewel-in { from { scale: 1.9; } }
+@media (prefers-reduced-motion: no-preference) {
+  .hero-jewel { animation: float 7s ease-in-out infinite, jewel-in 1.6s cubic-bezier(.16, 1, .3, 1) .15s both; }
+  .jw { animation: jw-in 1.6s cubic-bezier(.16, 1, .3, 1) .15s both; }
+}
 /* the rosette circles behind it open the same way: each plays its own one-time CSS entrance (not GSAP, which used
    to run its own fade on r1 at the same time as this and read as the rings opening more than once) */
 @keyframes r1-in { from { opacity: .01; scale: .86; } }
