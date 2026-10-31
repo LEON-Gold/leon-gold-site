@@ -59,7 +59,6 @@ export async function logout() {
 // ---------- a customer's card-to-card receipt: pending until the owner records the real document in the ledger by hand ----------
 export type Receipt = { id: string; party: string; partyName: string; blob: string; amount: number | null; date: string; ts: number; status: "pending" | "done" };
 export const receipts = () => api<{ receipts: Receipt[] }>("/api/portal/receipts").then(r => r.receipts);
-export const receiptDone = (id: string) => api<{ ok: true }>("/api/portal/receipt/" + encodeURIComponent(id) + "/done", { method: "POST", json: {} });
 // the owner's own ledger session reads any blob by id (product photos and these receipts alike); never a public URL
 export async function receiptPhotoUrl(blob: string): Promise<string> {
   const s = getSession(), headers: Record<string, string> = {};

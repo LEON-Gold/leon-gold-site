@@ -69,23 +69,6 @@ export function shrinkPhoto(file: File, max = 1280, quality = 0.82): Promise<str
 }
 export const sendReceipt = (image: string, amount?: number, date?: string) => api<{ ok: true }>("/api/portal/receipt", { image, amount, date });
 
-// ---------- the owner's side: a one-time sign-in link for a party, or signing them out everywhere ----------
-// Called with the owner's sync token (the CRM panel's sign-in), never the party's.
-async function ownerApi<T>(token: string, path: string, partyId: string): Promise<T> {
-  let r: Response;
-  try { r = await fetch(SERVER + path, { method: "POST", headers: { Authorization: "Bearer " + token, "Content-Type": "application/json" }, body: JSON.stringify({ partyId }), cache: "no-store" }); }
-  catch { throw new ApiError("offline", 0); }
-  const j = await r.json().catch(() => ({}));
-  if (!r.ok) throw new ApiError(j.error || "server", r.status, j);
-  return j as T;
-}
-// the link is built on this page's own address, so it follows the site when it moves to the shop's domain
-export async function invite(token: string, partyId: string) {
-  const r = await ownerApi<{ k: string; days: number }>(token, "/api/portal/invite", partyId);
-  return { link: location.origin + location.pathname + "#k=" + r.k, days: r.days };
-}
-export const revoke = (token: string, partyId: string) => ownerApi<{ ok: true }>(token, "/api/portal/revoke", partyId);
-
 // ---------- Persian numbers and dates ----------
 const FA = "۰۱۲۳۴۵۶۷۸۹";
 export const faDigits = (s: string | number) => String(s).replace(/\d/g, d => FA[+d]);

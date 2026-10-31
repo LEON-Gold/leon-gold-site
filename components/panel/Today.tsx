@@ -3,7 +3,7 @@
 // new requests, and good customers who have not bought for half a year.
 import { useEffect, useState } from "react";
 import {
-  Client, LEAD_STATUS, Receipt, Store, ago, dayNo, daysUntil, fa, jParts, mdLabel, MONTHS, receiptDone, receiptPhotoUrl, receipts, today, toman, waLink,
+  Client, LEAD_STATUS, Receipt, Store, ago, dayNo, daysUntil, fa, jParts, mdLabel, MONTHS, receiptPhotoUrl, receipts, today, toman, waLink,
 } from "@/lib/crm";
 
 const WEEK = ["یکشنبه", "دوشنبه", "سه‌شنبه", "چهارشنبه", "پنجشنبه", "جمعه", "شنبه"];
@@ -75,13 +75,10 @@ export default function Today({ st, all }: { st: Store; all: Client[] }) {
 }
 
 // a customer's card-to-card receipt, from «حساب من»: pending until you record the real document in the
-// ledger by hand and mark it done here. Never touches a balance on its own.
+// ledger and close it there (the ledger's «کاربران»). Read-only here; never touches a balance on its own.
 function PendingReceipts() {
   const [rows, setRows] = useState<Receipt[] | null>(null);
-  const [busy, setBusy] = useState<string | null>(null);
-  const load = () => receipts().then(r => setRows(r.filter(x => x.status === "pending"))).catch(() => setRows([]));
-  useEffect(() => { load(); }, []);
-  const done = async (id: string) => { setBusy(id); try { await receiptDone(id); await load(); } finally { setBusy(null); } };
+  useEffect(() => { receipts().then(r => setRows(r.filter(x => x.status === "pending"))).catch(() => setRows([])); }, []);
   if (!rows?.length) return null;
   return (
     <div className="pn-card pn-block lead">
@@ -94,11 +91,10 @@ function PendingReceipts() {
               <span>{[r.amount ? toman(r.amount) + " تومان" : "", r.date, ago(new Date(r.ts).toISOString())].filter(Boolean).join(" · ")}</span>
               <ReceiptPhoto blob={r.blob} />
             </div>
-            <button type="button" className="btn btn-ink" disabled={busy === r.id} onClick={() => done(r.id)}>{busy === r.id ? "…" : "ثبت شد"}</button>
           </li>
         ))}
       </ul>
-      <p className="pn-empty pn-receipt-note">بعد از ثبت سند واقعی در دفتر، «ثبت شد» را بزن تا از این فهرست برود.</p>
+      <p className="pn-empty pn-receipt-note">سند واقعی را در دفتر بنویس و رسید را در «کاربران»ِ دفتر ببند تا از این فهرست برود.</p>
     </div>
   );
 }
