@@ -17,6 +17,18 @@ export const SHOP = {
   ],
 };
 
+// «آیین‌نامه‌ی خرید و فروش» in «حساب من». The first clauses are the ones printed under every ledger invoice (owner,
+// 2026-11-01); the owner will add the rest of the trade's rules and conditions here.
+export const RULES: { title: string; items?: string[]; text?: string }[] = [
+  { title: "شرایط فاکتورها", items: [
+    "۰/۵ تا ۱ درصد ضرر به ازای هر هفته دیرکرد در فاکتور اعمال می‌گردد، مگر در شرایط استثناء.",
+    "اشتباه از طرفین قابل برگشت است.",
+    "مرجوعی حداکثر تا یک‌ماه دریافت می‌گردد، در غیر این‌صورت شامل ۳٪ ضرر می‌باشد، مگر تعویض صورت گیرد.",
+    "در صورت فروش نرفتن اجناس، ما خود را موظف به تعویض با دیگر اجناس می‌دانیم.",
+  ] },
+  { title: "کالای امانی (همکاران)", text: "کلیه مندرجات قبض جهت بازاریابی به رسم امانت تحویل می‌گردد. تحویل‌گیرنده شرعاً و قانوناً متعهد و ملزم است هر آنچه از اقلام اجناس را بابت خود یا دیگری فاکتور نماید، بجای آن را علاوه بر اجرت، نقد به «لئون گلد» بپردازد و مابقی اجناس را عندالمطالبه مسترد نماید؛ چون اجناس مذبور نزد او امانت بوده و دین است بر ذمه‌ی او. در این خصوص هرگونه کوتاهی و بی‌احتیاطی که به عمل آید، تحویل‌گیرنده ضامن و پاسخگو و حتی ملزم به پرداخت با دیگر اموال خویش در صورت ضرر می‌باشد." },
+];
+
 // The ledger app: on the GitHub preview it is the app one level above the site; on real hosting it is /daftar/.
 export const LEDGER = process.env.PREVIEW_BASE ? process.env.PREVIEW_BASE.replace(/\/site\/?$/, "/") : "/daftar/";
 

@@ -4,6 +4,7 @@
 // settled and its description, and an order button that lands in the management panel as a new lead.
 import { useEffect, useMemo, useState } from "react";
 import { SHOP } from "@/lib/content";
+import { openRules } from "./Extras";
 import { usePrice } from "@/lib/price";
 import { faDigits, gram, mediaUrl, orderItem, SAMPLE_VITRIN, toman, vitrin, ApiError, type VItem } from "@/lib/hesab";
 
@@ -13,6 +14,10 @@ export function priceOf(it: VItem, gp: number) {
   const gold = it.weight * (it.carat / 750) * gp, ajr = gold * it.ajrat / 100, prof = (gold + ajr) * it.profit / 100, tax = (ajr + prof) * 0.1;
   return { gold, ajr, prof, tax, total: gold + ajr + prof + tax };
 }
+
+// in hand with a count / can be ordered / not available
+const stockOf = (it: VItem) => it.stock || (it.sold ? "none" : "order");
+export const stockText = (it: VItem) => stockOf(it) === "qty" ? (it.qty > 0 ? `${faDigits(it.qty)} عدد در فروشگاه` : "موجود در فروشگاه") : stockOf(it) === "order" ? "موجود (قابل سفارش)" : "ناموجود";
 
 function Media({ m, className, controls }: { m: { id: string; type: "image" | "video" }; className?: string; controls?: boolean }) {
   const [url, setUrl] = useState<string | null>(null);
@@ -65,7 +70,7 @@ export default function Vitrin({ demo }: { demo?: boolean }) {
             {shown.map(it => (
               <li key={it.id}>
                 <button type="button" className="hs-vcard paper" onClick={() => show(it)}>
-                  <span className="hs-vcard-pic"><Cover it={it} className="hs-vimg" />{it.media.some(m => m.type === "video") && <i className="hs-vplay" aria-label="فیلم دارد">▶</i>}{it.sold && <em className="hs-vsold">فروخته شد</em>}</span>
+                  <span className="hs-vcard-pic"><Cover it={it} className="hs-vimg" />{it.media.some(m => m.type === "video") && <i className="hs-vplay" aria-label="فیلم دارد">▶</i>}{stockOf(it) === "none" ? <em className="hs-vsold">ناموجود</em> : <em className={"hs-vstock " + stockOf(it)}>{stockOf(it) === "qty" ? "آماده‌ی تحویل" : "قابل سفارش"}</em>}</span>
                   <b>{it.name}</b>
                   <span className="num">{gram(it.weight)} گرم · عیار {faDigits(it.carat)}</span>
                   {feed?.gp ? <strong className="num">≈ {toman(priceOf(it, feed.gp).total)} <small>تومان</small></strong> : <strong>قیمت با نرخ روز</strong>}
@@ -100,7 +105,7 @@ function Product({ it, gp, demo, onBack }: { it: VItem; gp: number; demo?: boole
           </div>
         ) : <div className="hs-gal-it"><span className="hs-gal-m hs-pic-none" aria-hidden><img src="/leaf.webp" alt="" /></span></div>}
         {media.length > 1 && <p className="hs-gal-dots" aria-hidden>{media.map((m, i) => <i key={m.id} className={i === at ? "on" : ""} />)}</p>}
-        {it.sold && <em className="hs-vsold">فروخته شد</em>}
+        {stockOf(it) === "none" && <em className="hs-vsold">ناموجود</em>}
       </div>
       <header className="hs-prod-h">
         <p className="hs-prod-k">{[it.cat, it.code && "کد " + faDigits(it.code)].filter(Boolean).join(" · ")}</p>
@@ -122,24 +127,29 @@ function Product({ it, gp, demo, onBack }: { it: VItem; gp: number; demo?: boole
           <div><dt>وزن</dt><dd className="num">{gram(it.weight)} گرم</dd></div>
           <div><dt>عیار</dt><dd className="num">{faDigits(it.carat)}</dd></div>
           <div><dt>اجرت</dt><dd className="num">{faDigits(it.ajrat)}٪</dd></div>
-          <div><dt>وضعیت</dt><dd>{it.sold ? "فروخته شد؛ مشابهش را سفارش بدهید" : "موجود"}</dd></div>
+          <div><dt>موجودی</dt><dd>{stockText(it)}</dd></div>
         </dl>
-        {(it.settle.length > 0 || it.settleNote) && <div className="hs-prod-settle"><h2>نحوه‌ی تسویه</h2>
+        {(it.settle.length > 0 || it.settleNote) && <div className="hs-prod-settle"><h2>مدت تسویه</h2>
           {it.settle.length > 0 && <p className="hs-chips">{it.settle.map(s => <span key={s}>{s}</span>)}</p>}
           {it.settleNote && <p>{it.settleNote}</p>}</div>}
         {it.desc && <div className="hs-prod-desc"><h2>توضیحات</h2><p>{it.desc}</p></div>}
       </section>
       <section className="hs-prod-order paper" aria-label="سفارش">
-        {state === "done" ? (
+        {stockOf(it) === "none" ? <>
+          <h2>فعلاً ناموجود</h2>
+          <p className="hs-prod-fine">این کار در حال حاضر نه در فروشگاه هست و نه سفارش گرفته می‌شود. برای کار مشابه در تلگرام بپرسید.</p>
+          <a className="btn btn-ink hs-prod-tg" href={SHOP.telegram} target="_blank" rel="noopener">پرسیدن در تلگرام</a>
+        </> : state === "done" ? (
           <p className="hs-ok">✦ سفارش «{it.name}» ثبت شد. لئون گلد به‌زودی با شما تماس می‌گیرد. ✦</p>
         ) : <>
-          <h2>{it.sold ? "سفارش مشابه این کار" : "سفارش این کار"}</h2>
+          <h2>{stockOf(it) === "qty" ? "خرید این کار" : "سفارش این کار"}</h2>
           <label className="hs-field"><span>توضیح (اختیاری): سایز، رنگ طلا، زمان تحویل…</span>
             <textarea value={note} onChange={e => setNote(e.target.value)} rows={3} maxLength={500} />
           </label>
           {state === "err" && <p className="hs-err" role="alert">سفارش ثبت نشد. اینترنت را بررسی کنید و دوباره بزنید.</p>}
           {state === "many" && <p className="hs-err" role="alert">امروز چند سفارش ثبت کرده‌اید؛ برای بیشتر در تلگرام پیام بدهید.</p>}
           <button type="button" className="btn btn-gold" disabled={state === "busy"} onClick={order}>{state === "busy" ? "در حال ثبت…" : "ثبت سفارش"}</button>
+          <p className="hs-prod-fine">با ثبت سفارش، <button type="button" className="hs-link hs-inline" onClick={openRules}>آیین‌نامه‌ی خرید و فروش لئون گلد</button> را می‌پذیرید.</p>
           <a className="hs-link" href={SHOP.telegram} target="_blank" rel="noopener">یا در تلگرام بپرسید</a>
         </>}
       </section>

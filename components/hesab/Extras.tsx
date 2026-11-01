@@ -4,7 +4,7 @@
 // them, and the iPhone's «Add to Home Screen» hint. Nothing here writes to the ledger.
 import { useEffect, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
-import { SHOP } from "@/lib/content";
+import { RULES, SHOP } from "@/lib/content";
 import { usePrice, MITHQAL, toman as tomanOf } from "@/lib/price";
 import { faDigits, gram, jdate, latin, myReceipts, photoUrl, toman, type Entry, type Line, type MyReceipt } from "@/lib/hesab";
 
@@ -139,6 +139,30 @@ export function MyReceipts() {
       </ul>
     </section>
   );
+}
+
+// ---------- the rules of buying and selling with Leon: a sheet opened from anywhere by openRules() ----------
+export const openRules = () => dispatchEvent(new Event("hs-rules"));
+export function Rules() {
+  const [on, setOn] = useState(false);
+  useEffect(() => { const o = () => setOn(true); addEventListener("hs-rules", o); return () => removeEventListener("hs-rules", o); }, []);
+  useEffect(() => { if (!on) return; const k = (x: KeyboardEvent) => { if (x.key === "Escape") setOn(false); }; addEventListener("keydown", k); document.body.classList.add("hs-sheet-open");
+    return () => { removeEventListener("keydown", k); document.body.classList.remove("hs-sheet-open"); }; }, [on]);
+  if (!on) return null;
+  return createPortal(
+    <div className="hs-sheet-bg" onClick={x => { if (x.target === x.currentTarget) setOn(false); }}>
+      <article className="hs-inv hs-rules paper" role="dialog" aria-modal="true" aria-labelledby="hs-rules-h">
+        <header className="hs-inv-head"><div><p className="hs-inv-shop leaf">لئون گلد</p><h2 id="hs-rules-h" className="hs-rules-t">آیین‌نامه‌ی خرید و فروش کالا</h2></div></header>
+        {RULES.map(r => (
+          <section key={r.title} className="hs-rules-s">
+            <h3>{r.title}</h3>
+            {r.items && <ol>{r.items.map(t => <li key={t}>{t}</li>)}</ol>}
+            {r.text && <p>{r.text}</p>}
+          </section>
+        ))}
+        <div className="hs-row hs-inv-act"><button type="button" className="btn btn-gold" onClick={() => print()}>ذخیره‌ی PDF یا چاپ</button><button type="button" className="hs-link" onClick={() => setOn(false)}>بستن</button></div>
+      </article>
+    </div>, document.body);
 }
 
 // ---------- iPhone: keep «حساب من» on the home screen ----------

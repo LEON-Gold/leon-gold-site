@@ -4,7 +4,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { SHOP } from "@/lib/content";
 import Door from "@/components/Door";
-import { HomeHint, InvoiceSheet, MyReceipts, PriceCard, Quick, Summary, dueText } from "./Extras";
+import { HomeHint, InvoiceSheet, MyReceipts, PriceCard, Quick, Rules, Summary, dueText, openRules } from "./Extras";
 import { EntryIcon, JewelBox, Journey, MemberCard, PayCard, Seal, Spark, TabBar, monthGroups, type Tab } from "./Home";
 import Vitrin from "./Vitrin";
 import {
@@ -195,6 +195,7 @@ function Panel({ data, role, onOut, onReload }: { data: Me; role: Role; onOut: (
           <footer className="hs-foot">
             <p>{data.updated ? `آخرین ثبت در دفتر: ${jdate(data.updated)}، ساعت ${jtime(data.updated)}` : ""}{onReload && <> · <button type="button" className="hs-link" onClick={onReload}>تازه کردن</button></>}</p>
             {data.username && <div className="hs-acct"><p>نام کاربری: <b dir="ltr">{data.username}</b></p><Password /></div>}
+            <p><button type="button" className="hs-link" onClick={openRules}>آیین‌نامه‌ی خرید و فروش لئون گلد</button></p>
             <p>رقمی با حساب شما نمی‌خواند؟ <a href={tg} target="_blank" rel="noopener">در تلگرام بگویید</a>؛ اشتباه از طرفین قابل برگشت است.</p>
           </footer>
         </>}
@@ -204,6 +205,7 @@ function Panel({ data, role, onOut, onReload }: { data: Me; role: Role; onOut: (
         {tab === "stmt" && <>{isCustomer && !data.demo && <MyReceipts />}<Statement ent={a.ent} name={a.name} /></>}
       </main>
       <TabBar tab={tab} setTab={setTab} tabs={tabs} />
+      <Rules />
     </div>
   );
 }

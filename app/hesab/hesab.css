@@ -454,3 +454,16 @@ video.hs-gal-m { object-fit: contain; }
 .hs-prod-order .hs-ok { text-align: center; font-weight: 600; padding: 10px 0; }
 .hs-tabs button { font-size: 11.5px; }
 @media (min-width: 900px) { .hs-gal-m { aspect-ratio: auto; height: min(62vh, 560px); object-fit: contain; } }
+/* stock on a showcase card, and the rules sheet */
+.hs-vstock { position: absolute; top: 10px; inset-inline-start: 10px; font-style: normal; font-size: 11.5px; font-weight: 700; padding: 3px 10px; border-radius: 99px; background: rgba(6,20,14,.78); color: var(--gold-lt); }
+.hs-vstock.qty { background: rgba(13,90,62,.92); color: #fff; }
+.hs-prod-tg { justify-self: start; }
+.hs-link.hs-inline { padding: 0; font-size: inherit; }
+.hs-rules-t { font: 700 20px/1.5 var(--text); color: var(--emerald); }
+.hs-rules-s { display: grid; gap: 8px; padding: 0; } /* the sheet sits in <body>, outside .hs-app, where the site gives every section a page padding */
+.hs-rules-s h3 { font: 700 16px/1.5 var(--text); color: var(--gold-ink); }
+.hs-rules-s ol { margin: 0; padding-inline-start: 22px; display: grid; gap: 8px; }
+.hs-rules-s li, .hs-rules-s p { font-size: 14.5px; line-height: 1.95; text-wrap: pretty; }
+.hs-rules { align-content: start; grid-auto-rows: max-content; }
+.hs-rules-s ol { list-style: persian; }
+.hs-rules-s li::marker { color: var(--gold-ink); font-weight: 700; }
