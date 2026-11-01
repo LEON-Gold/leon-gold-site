@@ -2,7 +2,7 @@
 // The motion layer. The jewel's own big-to-small entrance and the rosette rings behind it are CSS (site.css .jw,
 // .hero-rose), played once from first paint so the largest paint does not wait for this script; by the time this
 // loads they've already settled. Scrolling then turns the jewel once about its upright axis, then the names and
-// the actions rise. The hero holds still (pinned) for that turn. After that, every section's parts rise in turn as
+// the actions rise. The hero holds still (sticky in its tall track, site.css .hero-track) for that turn. After that, every section's parts rise in turn as
 // they enter, the rosettes drift against the scroll, and the plaques tip toward the pointer.
 // A wheel or trackpad scroll is eased by Lenis, slower than the native step, so even a hard flick moves the page
 // (and everything tied to it) in one smooth glide. Touch keeps the phone's own momentum (no Lenis there).
@@ -69,7 +69,7 @@ function start(gsap: G, ScrollTrigger: ST, Lenis: L) {
     // it shrinks into its place above the name, then the names and actions rise
     const words = [".hero-latin", ".hero-name", ".hero-cta .btn"];
     gsap.set(words, { opacity: 0, y: 30 });
-    const heroTl = gsap.timeline({ defaults: { ease: "none" }, scrollTrigger: { trigger: ".hero", start: "top top", end: "+=200%", pin: true, scrub: 1.2, invalidateOnRefresh: true } })
+    const heroTl = gsap.timeline({ defaults: { ease: "none" }, scrollTrigger: { trigger: ".hero-track", start: "top top", end: "bottom bottom", scrub: 1.2, invalidateOnRefresh: true } })
       .to(".hero-cue", { opacity: 0, duration: 0.08 }, 0)
       .fromTo(".hero-jewel", { "--jp": 0 }, { "--jp": 1, duration: 0.6, ease: "power1.inOut" }, 0)
       .fromTo(".jw", { rotationY: 0 }, { rotationY: 360, duration: 0.6, ease: "power1.inOut" }, 0)

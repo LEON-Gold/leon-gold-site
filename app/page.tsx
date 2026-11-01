@@ -31,6 +31,7 @@ export default function Home() {
       <Titles />
       <main id="top">
         {/* the vault: rosettes turning behind the jewel, the name struck in gold leaf */}
+        <div className="hero-track">
         <section className="hero" aria-labelledby="hero-h">
           <HeroGL />
           <Rosette className="hero-rose r1" draw />
@@ -54,6 +55,7 @@ export default function Home() {
           <Hallmark className="hero-mark" />
           <Ticker />
         </section>
+        </div>
 
         <section id="price" className="sec-paper" aria-labelledby="price-h">
           <div className="sec-head" data-rise>

@@ -36,7 +36,7 @@ void main(){
   vA=smoothstep(0.,.15,y)*(1.-smoothstep(.75,1.,y))*(.35+.65*s.w);
 }`;
 const SFRAG = `precision mediump float;varying float vA;
-void main(){float r=length(gl_PointCoord-.5)*2.;float g=pow(max(0.,1.-r),2.);gl_FragColor=vec4(vec3(1.,.72,.32)*g*vA,1.);}`;
+void main(){float r=length(gl_PointCoord-.5)*2.;float g=pow(max(0.,1.-r),2.);float a=g*vA;gl_FragColor=vec4(vec3(1.,.72,.32)*a,a);}`;
 
 export default function HeroGL() {
   const ref = useRef<HTMLCanvasElement>(null);

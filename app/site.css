@@ -562,7 +562,12 @@ body::before { content: ""; position: fixed; inset: 0; z-index: -1; pointer-even
 
 /* ============ the cinematic hero (components/HeroGL.tsx, Titles.tsx) ============ */
 /* liquid metal and rising sparks behind the jewel; fades in once WebGL has drawn, so the CSS hero is the first paint */
-.hero { position: relative; }
+/* the hero holds still for two screens of scroll by CSS (sticky in a tall track), not by GSAP's pin: the pin moved the
+   hero into a wrapper in the page, and every move restarted its CSS entrances (rings, jewel, engraving), so the
+   page seemed to open two or three times */
+.hero-track { height: 300svh; }
+.hero { position: sticky; top: 0; }
+@media (prefers-reduced-motion: reduce) { .hero-track { height: auto; } .hero { position: relative; } }
 .hero-gl { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; opacity: 0; transition: opacity 1.8s var(--ease); }
 .hero-gl.on { opacity: 1; }
 /* section titles: each word rises out of a blur, one after another */
