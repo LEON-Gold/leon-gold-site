@@ -69,6 +69,9 @@ export function shrinkPhoto(file: File, max = 1280, quality = 0.82): Promise<str
   });
 }
 export const sendReceipt = (image: string, amount?: number, date?: string) => api<{ ok: true }>("/api/portal/receipt", { image, amount, date });
+// the receipts this party sent, newest first, each pending until Leon records the real document in the ledger
+export type MyReceipt = { id: string; blob: string; amount: number | null; date: string; ts: number; status: "pending" | "done" };
+export const myReceipts = async () => (await api<{ receipts: MyReceipt[] }>("/api/portal/receipts/mine")).receipts;
 
 // ---------- Persian numbers and dates ----------
 const FA = "۰۱۲۳۴۵۶۷۸۹";

@@ -4,6 +4,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { SHOP } from "@/lib/content";
 import Door from "@/components/Door";
+import { HomeHint, InvoiceSheet, MyReceipts, PriceCard, Quick, Summary, dueText } from "./Extras";
 import {
   ApiError, SAMPLE, dayNum, faDigits, getToken, gram, jdate, jtime, latin, login, changePassword, logout, me, photoUrl, redeem, rial, sendReceipt, shrinkPhoto, side, today, toman,
   type Account, type Entry, type Me,
@@ -170,10 +171,15 @@ function Panel({ data, role, onOut, onReload }: { data: Me; role: Role; onOut: (
             </div>
           )}
         </div>
+        <Quick customer={isCustomer && !data.demo} />
+        <HomeHint />
         <Slip a={a} />
         {isCustomer && !data.demo && <ReceiptUpload />}
+        {isCustomer && !data.demo && <MyReceipts />}
         {blocks}
-        <Statement ent={a.ent} />
+        {isCustomer && <Summary ent={a.ent} />}
+        <PriceCard />
+        <Statement ent={a.ent} name={a.name} />
         <footer className="hs-foot">
           <p>{data.updated ? `آخرین ثبت در دفتر: ${jdate(data.updated)}، ساعت ${jtime(data.updated)}` : ""}{onReload && <> · <button type="button" className="hs-link" onClick={onReload}>تازه کردن</button></>}</p>
           {data.username && <div className="hs-acct"><p>نام کاربری: <b dir="ltr">{data.username}</b></p><Password /></div>}
@@ -240,7 +246,7 @@ function Orders({ a }: { a: Account }) {
                 <b>{o.items.map(i => i.desc).filter(Boolean).join("، ") || "سفارش"}</b>
                 <span className="num hs-ref">#{o.ref}</span>
               </div>
-              <p className="hs-meta">{[o.date && "ثبت " + o.date, o.due && "موعد " + o.due, o.deposit ? "بیعانه " + toman(o.deposit) + " تومان" : ""].filter(Boolean).join(" · ")}
+              <p className="hs-meta">{[o.date && "ثبت " + o.date, o.due && "موعد " + o.due + (dueText(o.due) && o.status !== "done" && o.status !== "cancel" ? " (" + dueText(o.due) + ")" : ""), o.deposit ? "بیعانه " + toman(o.deposit) + " تومان" : ""].filter(Boolean).join(" · ")}
                 {late(o.due, o.status) && <span className="hs-late">از موعد گذشته</span>}</p>
               {o.items.length > 0 && <ul className="hs-lines">{o.items.map((i, n) => <li key={n}><span className="hs-line-main">{i.photo && <Photo id={i.photo} />}{i.desc}</span><span className="num">{spec(i)}</span></li>)}</ul>}
               <Steps status={o.status} />
@@ -279,6 +285,8 @@ function WorkList({ a }: { a: Account }) {
 // and touching no balance until Leon records the real document in the ledger by hand
 function ReceiptUpload() {
   const [open, setOpen] = useState(false);
+  useEffect(() => { const o = () => { setOpen(true); setSent(false); setTimeout(() => document.getElementById("hs-receipt")?.scrollIntoView({ behavior: "smooth", block: "start" }), 50); };
+    addEventListener("hs-receipt", o); return () => removeEventListener("hs-receipt", o); }, []);
   const [file, setFile] = useState<File | null>(null);
   const [preview, setPreview] = useState("");
   const [amount, setAmount] = useState("");
@@ -299,7 +307,7 @@ function ReceiptUpload() {
       const dataUrl = await shrinkPhoto(file);
       const toman1 = latin(amount).replace(/\D/g, "");
       await sendReceipt(dataUrl, toman1 ? +toman1 * 10 : undefined, date.trim() || undefined);
-      setSent(true); pick(null); setAmount(""); setDate("");
+      setSent(true); pick(null); setAmount(""); setDate(""); dispatchEvent(new Event("hs-receipt-sent"));
     } catch (x) { setErr(errText(x)); }
     finally { setBusy(false); }
   };
@@ -308,7 +316,7 @@ function ReceiptUpload() {
     <button type="button" className="btn btn-ink hs-receipt-open" onClick={() => { setOpen(true); setSent(false); }}>ارسال رسید کارت‌به‌کارت</button>
   );
   return (
-    <section className="hs-sec hs-receipt paper" aria-label="ارسال رسید کارت‌به‌کارت">
+    <section id="hs-receipt" className="hs-sec hs-receipt paper" aria-label="ارسال رسید کارت‌به‌کارت">
       <Corners />
       <h2 className="hs-h">رسید کارت‌به‌کارت</h2>
       {sent ? (
@@ -341,8 +349,9 @@ function ReceiptUpload() {
   );
 }
 
-function Statement({ ent }: { ent: Entry[] }) {
+function Statement({ ent, name }: { ent: Entry[]; name: string }) {
   const [u, setU] = useState<"all" | "g" | "r">("all");
+  const [inv, setInv] = useState<Entry | null>(null);
   const [n, setN] = useState(20);
   const rows = useMemo(() => ent.filter(e => u === "all" || e.u === u), [ent, u]);
   const amt = (e: Entry, v: number) => (e.u === "g" ? gram(v) + " گرم" : rial(v) + " ریال");
@@ -367,17 +376,14 @@ function Statement({ ent }: { ent: Entry[] }) {
             );
             return (
               <li key={e.ts + e.label + i}>
-                {e.lines?.length ? (
-                  <details><summary>{body}</summary>
-                    <ul className="hs-lines">{e.lines.map((l, k) => <li key={k}><span>{l.ret ? "برگشتی: " : ""}{l.desc}</span><span className="num">{spec(l)}{l.amount ? " · " + toman(l.amount) + " تومان" : l.totalG ? " · " + gram(l.totalG) + " گرم ۷۵۰" : ""}</span></li>)}</ul>
-                  </details>
-                ) : <div className="hs-st-row">{body}</div>}
+                {e.lines?.length ? <button type="button" className="hs-st-row hs-st-open" onClick={() => setInv(e)} aria-haspopup="dialog">{body}</button> : <div className="hs-st-row">{body}</div>}
               </li>
             );
           })}
         </ol>
       )}
       {rows.length > n && <button type="button" className="hs-link hs-more" onClick={() => setN(n + 40)}>سندهای قدیمی‌تر</button>}
+      {inv && <InvoiceSheet e={inv} name={name} onClose={() => setInv(null)} />}
       <p className="hs-legend"><b className="dr">+</b> بر بدهی شما افزود · <b className="cr">−</b> از آن کم کرد (یا بر طلبتان افزود)</p>
     </section>
   );
