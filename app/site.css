@@ -87,16 +87,21 @@ section { position: relative; padding: clamp(88px, 11vw, 150px) var(--m); }
 .hero > .corner { top: 84px; } .hero > .corner.c3, .hero > .corner.c4 { top: auto; bottom: 74px; }
 .hero > .corner.c1, .hero > .corner.c4 { right: var(--m); } .hero > .corner.c2, .hero > .corner.c3 { left: var(--m); }
 .hero-in { position: relative; z-index: 1; display: grid; justify-items: center; align-content: center; text-align: center; gap: 10px; padding-bottom: 48px; }
-.hero-jewel { animation: float 7s ease-in-out infinite; perspective: 900px; }
+/* the jewel opens the page big, in the middle of the screen (--jp 0); scrolling the pinned hero turns it once while it
+   shrinks to its place above the name (--jp 1, tweened by Motion.tsx). --jy is the drop from its place to the middle,
+   measured by Motion.tsx at once on hydration; until then an estimate. Translate and scale live on .hero-jewel, the
+   float on .jw (its own translate, beside GSAP's transform for the turn) */
+@property --jp { syntax: "<number>"; inherits: false; initial-value: 0; }
+@property --jy { syntax: "<length>"; inherits: false; initial-value: 0px; }
+.hero-jewel { --jy: 19svh; perspective: 900px; translate: 0 calc(var(--jy) * (1 - var(--jp))); scale: calc(1.9 - .9 * var(--jp)); transition: --jy .7s cubic-bezier(.16, 1, .3, 1); }
+@media (prefers-reduced-motion: reduce) { .hero-jewel { --jp: 1; } }
 .jw { position: relative; transform-style: preserve-3d; will-change: transform; }
 /* the jewel fades in from the first paint, not after the scripts load: it is the page's largest paint, and it
    starts big and settles to size, the vault-opens-on-the-jewel look, played once. The scale lives on .hero-jewel,
    one element up from .jw: GSAP later owns .jw's own transform for the scroll-driven turn, and a CSS-animated
    scale on that same element only gets read once (when GSAP first renders it) and then stays frozen there. */
-@keyframes jewel-in { from { scale: 1.9; } }
 @media (prefers-reduced-motion: no-preference) {
-  .hero-jewel { animation: float 7s ease-in-out infinite, jewel-in 1.6s cubic-bezier(.16, 1, .3, 1) .15s both; }
-  .jw { animation: jw-in 1.6s cubic-bezier(.16, 1, .3, 1) .15s both; }
+  .jw { animation: jw-in 1.6s cubic-bezier(.16, 1, .3, 1) .15s both, float 7s ease-in-out 1.8s infinite; }
 }
 /* the rosette circles behind it open the same way: each plays its own one-time CSS entrance (not GSAP, which used
    to run its own fade on r1 at the same time as this and read as the rings opening more than once) */

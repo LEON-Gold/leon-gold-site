@@ -15,14 +15,23 @@ export default function Motion() {
   useEffect(() => {
     const root = document.documentElement;
     root.classList.add("mo-wait");
+    // the jewel waits big in the middle of the hero: measure the drop from its place to there now, not on idle
+    const jewel = document.querySelector<HTMLElement>(".hero-jewel");
+    const measure = () => {
+      const hero = jewel?.closest<HTMLElement>(".hero"), inner = jewel?.offsetParent as HTMLElement | null;
+      if (!jewel || !hero || !inner || hero.getBoundingClientRect().top < -10) return;
+      const h = hero.getBoundingClientRect(), mid = inner.getBoundingClientRect().top + jewel.offsetTop + jewel.offsetHeight / 2;
+      jewel.style.setProperty("--jy", Math.round(h.top + h.height * 0.47 - mid) + "px");
+    };
+    measure(); document.fonts?.ready.then(measure); addEventListener("resize", measure);
     let undo = () => {}, dead = false;
     const idle = new Promise((ok) => ("requestIdleCallback" in window ? requestIdleCallback(ok, { timeout: 700 }) : setTimeout(ok, 200)));
     idle.then(() => Promise.all([import("gsap"), import("gsap/ScrollTrigger"), import("lenis")])).then(([{ gsap }, { ScrollTrigger }, { default: Lenis }]) => {
       if (dead) return;
       root.classList.remove("mo-wait");
       undo = start(gsap, ScrollTrigger, Lenis);
-    }, () => root.classList.remove("mo-wait"));
-    return () => { dead = true; root.classList.remove("mo-wait"); undo(); };
+    }, () => { root.classList.remove("mo-wait"); jewel?.style.setProperty("--jp", "1"); }); // no motion script: the jewel settles in place
+    return () => { dead = true; root.classList.remove("mo-wait"); removeEventListener("resize", measure); undo(); };
   }, []);
   return null;
 }
@@ -56,13 +65,13 @@ function start(gsap: G, ScrollTrigger: ST, Lenis: L) {
     const lamp = (e: PointerEvent) => { const r = hero!.getBoundingClientRect(); hero!.style.setProperty("--mx", e.clientX - r.left + "px"); hero!.style.setProperty("--my", e.clientY - r.top + "px"); };
     hero?.addEventListener("pointermove", lamp);
 
-    // the jewel turns once on the scroll, then the names and actions rise. It no longer grows in from a big,
-    // centred "from" state here: it is already settled where it sits (CSS fade-in, site.css .jw) before this
-    // loads, so a GSAP entrance on top of that CSS one would just play as a second, jarring intro.
+    // the jewel waits big in the middle (site.css .hero-jewel, from the first paint); the scroll turns it once while
+    // it shrinks into its place above the name, then the names and actions rise
     const words = [".hero-latin", ".hero-name", ".hero-cta .btn"];
     gsap.set(words, { opacity: 0, y: 30 });
     const heroTl = gsap.timeline({ defaults: { ease: "none" }, scrollTrigger: { trigger: ".hero", start: "top top", end: "+=200%", pin: true, scrub: 1.2, invalidateOnRefresh: true } })
       .to(".hero-cue", { opacity: 0, duration: 0.08 }, 0)
+      .fromTo(".hero-jewel", { "--jp": 0 }, { "--jp": 1, duration: 0.6, ease: "power1.inOut" }, 0)
       .fromTo(".jw", { rotationY: 0 }, { rotationY: 360, duration: 0.6, ease: "power1.inOut" }, 0)
       .to(words, { opacity: 1, y: 0, duration: 0.2, stagger: 0.07, ease: "power2.out" }, 0.55)
       .to({}, { duration: 0.1 });
