@@ -97,16 +97,23 @@ export function Seal() {
 }
 
 // ---------- a quiet way to pay what is owed: the shop's card number to copy, then the receipt ----------
+const group = (s: string, n: number) => s.replace(new RegExp(`(.{${n}})(?=.)`, "g"), "$1 ");
 export function PayCard({ a }: { a: Account }) {
-  const [copied, setCopied] = useState(false);
+  const [copied, setCopied] = useState("");
   if (!(a.bal.r > 0.5)) return null;
-  const card = SHOP.card;
-  const copy = async () => { try { await navigator.clipboard.writeText(latin(card).replace(/\D/g, "")); setCopied(true); setTimeout(() => setCopied(false), 2000); } catch {} };
+  const copy = async (k: string, v: string) => { try { await navigator.clipboard.writeText(v); setCopied(k); setTimeout(() => setCopied(""), 2000); } catch {} };
   return (
     <section className="hs-pay paper" aria-label="پرداخت">
       <p className="hs-pay-k">مانده‌ی پرداخت</p>
       <p className="hs-pay-v num">{toman(a.bal.r)} <small>تومان</small></p>
-      {card && <div className="hs-pay-card"><span className="num" dir="ltr">{faDigits(card)}</span><button type="button" onClick={copy}>{copied ? "کپی شد ✓" : "کپی شماره کارت"}</button></div>}
+      <p className="hs-pay-how">به یکی از این حساب‌ها واریز کنید، بعد رسیدش را بفرستید:</p>
+      {SHOP.cards.map(c => (
+        <div key={c.card} className="hs-bank">
+          <p className="hs-bank-t"><b>بانک {c.bank}</b><span>به نام {c.name}</span></p>
+          <div className="hs-bank-row"><span className="num" dir="ltr">{faDigits(group(c.card, 4))}</span><button type="button" onClick={() => copy(c.card, c.card)}>{copied === c.card ? "کپی شد ✓" : "کپی کارت"}</button></div>
+          <div className="hs-bank-row sh"><span dir="ltr">{group(c.sheba, 4)}</span><button type="button" onClick={() => copy(c.sheba, c.sheba)}>{copied === c.sheba ? "کپی شد ✓" : "کپی شبا"}</button></div>
+        </div>
+      ))}
       <button type="button" className="btn btn-gold" onClick={() => dispatchEvent(new Event("hs-receipt"))}>واریز کردم؛ ارسال رسید</button>
     </section>
   );
