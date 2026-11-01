@@ -8,7 +8,7 @@ export type Line = { desc: string; qty: number; weight: number; carat: number; r
 export type Entry = { ts: string; date?: string; label: string; u: "g" | "r"; d: number; run: number; lines?: Line[] };
 export type Order = { ref: string; date: string; due: string; status: string; statusLabel: string; deposit: number; items: { desc: string; qty: number; weight: number; carat: number; photo?: string }[] };
 export type Work = { ref: string; date: string; due: string; status: string; statusLabel: string; desc: string; qty: number; weight: number; carat: number; photo?: string };
-export type Account = { id: string; name: string; shop: string; kind: "customer" | "supplier" | "both"; bal: { g: number; r: number }; ent: Entry[]; orders: Order[]; work: Work[] };
+export type Account = { id: string; name: string; shop: string; phone?: string; kind: "customer" | "supplier" | "both"; bal: { g: number; r: number }; ent: Entry[]; orders: Order[]; work: Work[] };
 export type Me = { accounts: Account[]; updated?: string; demo?: boolean; username?: string };
 
 // ---------- session: the token only, in this browser ----------
@@ -31,8 +31,10 @@ async function api<T>(path: string, json?: unknown): Promise<T> {
 }
 
 export async function login(u: string, p: string) { setToken((await api<{ token: string }>("/api/portal/login", { u, p })).token); }
-// the party replaces the starting password Leon gave it; its other devices are signed out, this one stays in
-export const changePassword = (old: string, nu: string) => api<{ ok: true }>("/api/portal/password", { old, new: nu });
+// the party replaces the starting username or password Leon gave it, with its current password; a new password signs
+// its other devices out, this one stays in
+export const changeLogin = (old: string, c: { username?: string; password?: string }) =>
+  api<{ ok: true; username: string }>("/api/portal/password", { old, ...(c.username != null ? { username: c.username } : {}), ...(c.password != null ? { new: c.password } : {}) });
 export async function redeem(k: string) { setToken((await api<{ token: string }>("/api/portal/redeem", { k })).token); }
 export async function me(): Promise<Me> {
   try { return await api<Me>("/api/portal/me"); }
@@ -112,7 +114,7 @@ export const SAMPLE: Me = {
   updated: new Date().toISOString(),
   accounts: [
     {
-      id: "demo-c", name: "مشتری نمونه", shop: "", kind: "both", bal: { g: -1.25, r: 18500000 },
+      id: "demo-c", name: "مشتری نمونه", shop: "", phone: "09120000000", kind: "both", bal: { g: -1.25, r: 18500000 },
       ent: [
         { ts: "2026-10-20T10:00:00Z", date: "۱۴۰۵/۰۷/۲۸", label: "دریافت لئون از شما", u: "r", d: -6500000, run: 18500000 },
         { ts: "2026-10-14T10:00:00Z", date: "۱۴۰۵/۰۷/۲۲", label: "فاکتور خرده ۱۲۴", u: "r", d: 25000000, run: 25000000,

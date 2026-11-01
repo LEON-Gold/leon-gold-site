@@ -48,7 +48,7 @@ const Ico = ({ d }: { d: string }) => <svg viewBox="0 0 24 24" width="22" height
 export function PriceCard() {
   const { feed, failed } = usePrice();
   return (
-    <section className="hs-price paper" aria-label="قیمت امروز طلا">
+    <section className="hs-price paper" id="hs-price" aria-label="قیمت امروز طلا">
       <div><small>هر گرم طلای ۱۸ عیار</small><b className="num">{feed ? tomanOf(feed.gp) : failed ? "—" : "…"}</b><span>تومان</span></div>
       <div><small>هر مثقال</small><b className="num">{feed ? tomanOf(feed.gp * MITHQAL) : failed ? "—" : "…"}</b><span>تومان</span></div>
       <p>{feed?.time ? `تابلوی اتحادیه، ساعت ${faDigits(feed.time)}` : "تابلوی اتحادیه‌ی طلا و جواهر تهران"} · <a href="../#price">محاسبه‌ی قیمت یک کار</a></p>

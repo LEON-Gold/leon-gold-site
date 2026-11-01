@@ -8,7 +8,7 @@ import { SHOP } from "@/lib/content";
 import { faDigits, gram, jdate, latin, photoUrl, toman, type Account, type Entry, type Order } from "@/lib/hesab";
 import { daysLeft } from "./Extras";
 
-export type Tab = "home" | "vitrin" | "orders" | "box" | "stmt";
+export type Tab = "home" | "vitrin" | "orders" | "box" | "stmt" | "profile";
 const MONTHS = ["فروردین", "اردیبهشت", "خرداد", "تیر", "مرداد", "شهریور", "مهر", "آبان", "آذر", "دی", "بهمن", "اسفند"];
 const dateOf = (e: { date?: string; ts: string }) => latin(e.date || jdate(e.ts));
 
@@ -26,6 +26,7 @@ export function Pic({ id, className }: { id?: string; className?: string }) {
 
 // ---------- the tab bar ----------
 const ICONS: Record<Tab, string> = {
+  profile: "M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM4 21a8 8 0 0 1 16 0",
   home: "M4 11 12 4l8 7v9h-5v-6H9v6H4z",
   vitrin: "M3 9l2-5h14l2 5M3 9h18v11H3zM3 9l3 3 3-3 3 3 3-3 3 3 3-3",
   orders: "M5 7h14l-1 13H6zM9 7a3 3 0 0 1 6 0",
@@ -104,7 +105,7 @@ export function PayCard({ a }: { a: Account }) {
   if (!(a.bal.r > 0.5)) return null;
   const copy = async (k: string, v: string) => { try { await navigator.clipboard.writeText(v); setCopied(k); setTimeout(() => setCopied(""), 2000); } catch {} };
   return (
-    <section className="hs-pay paper" aria-label="پرداخت">
+    <section className="hs-pay paper" id="hs-pay" aria-label="پرداخت">
       <p className="hs-pay-k">مانده‌ی پرداخت</p>
       <p className="hs-pay-v num">{toman(a.bal.r)} <small>تومان</small></p>
       <p className="hs-pay-how">به یکی از این حساب‌ها واریز کنید، بعد رسیدش را بفرستید:</p>

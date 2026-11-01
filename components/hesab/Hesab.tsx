@@ -7,8 +7,9 @@ import Door from "@/components/Door";
 import { HomeHint, InvoiceSheet, MyReceipts, PriceCard, Quick, Rules, Summary, dueText, openRules } from "./Extras";
 import { EntryIcon, JewelBox, Journey, MemberCard, PayCard, Seal, Spark, TabBar, monthGroups, type Tab } from "./Home";
 import Vitrin from "./Vitrin";
+import { Avatar, KIND, Menu, Profile } from "./Menu";
 import {
-  ApiError, SAMPLE, dayNum, faDigits, getToken, gram, jdate, jtime, latin, login, changePassword, logout, me, photoUrl, redeem, rial, sendReceipt, shrinkPhoto, side, today, toman,
+  ApiError, SAMPLE, dayNum, faDigits, getToken, gram, jdate, jtime, latin, login, logout, me, photoUrl, redeem, rial, sendReceipt, shrinkPhoto, side, today, toman,
   type Account, type Entry, type Me,
 } from "@/lib/hesab";
 
@@ -114,42 +115,17 @@ function SignIn({ err, setErr, onIn }: { err: string; setErr: (s: string) => voi
   );
 }
 
-// the starting password Leon gave is replaced by the party's own; only shown when the party signed in with a username
-function Password() {
-  const [open, setOpen] = useState(false);
-  const [old, setOld] = useState("");
-  const [nu, setNu] = useState("");
-  const [nu2, setNu2] = useState("");
-  const [msg, setMsg] = useState<{ ok: boolean; t: string } | null>(null);
-  const [busy, setBusy] = useState(false);
-  const send = async (e: React.FormEvent) => {
-    e.preventDefault(); if (busy) return;
-    if (nu !== nu2) return setMsg({ ok: false, t: "رمز تازه و تکرارش یکی نیستند." });
-    setBusy(true); setMsg(null);
-    try { await changePassword(old, nu); setOld(""); setNu(""); setNu2(""); setMsg({ ok: true, t: "رمز عوض شد. از این به بعد با رمز تازه وارد شوید." }); }
-    catch (x) { setMsg({ ok: false, t: errText(x) }); }
-    finally { setBusy(false); }
-  };
-  if (!open) return <button type="button" className="hs-link" onClick={() => setOpen(true)}>تغییر رمز</button>;
-  return (
-    <form className="hs-pass paper" onSubmit={send} noValidate>
-      <h2 className="hs-h">تغییر رمز</h2>
-      <label className="hs-field"><span>رمز فعلی</span><input type="password" value={old} onChange={e => setOld(e.target.value)} autoComplete="current-password" dir="ltr" /></label>
-      <label className="hs-field"><span>رمز تازه (دست‌کم ۶ حرف یا رقم)</span><input type="password" value={nu} onChange={e => setNu(e.target.value)} autoComplete="new-password" dir="ltr" /></label>
-      <label className="hs-field"><span>تکرار رمز تازه</span><input type="password" value={nu2} onChange={e => setNu2(e.target.value)} autoComplete="new-password" dir="ltr" /></label>
-      {msg && <p className={msg.ok ? "hs-ok" : "hs-err"} role={msg.ok ? "status" : "alert"}>{msg.t}</p>}
-      <div className="hs-row"><button className="btn btn-gold" disabled={busy}>{busy ? "در حال ذخیره…" : "ذخیره‌ی رمز تازه"}</button><button type="button" className="hs-link" onClick={() => { setOpen(false); setMsg(null); }}>بستن</button></div>
-    </form>
-  );
-}
-
 // ---------------- signed in ----------------
-const KIND: Record<Account["kind"], string> = { customer: "مشتری", supplier: "تأمین‌کننده", both: "مشتری و تأمین‌کننده" };
 
 function Panel({ data, role, onOut, onReload }: { data: Me; role: Role; onOut: () => void; onReload?: () => void }) {
   const [ai, setAi] = useState(0);
   const [tab, setTabS] = useState<Tab>("home");
+  const [menu, setMenu] = useState(false);
+  const [username, setUsername] = useState(data.username);
   const setTab = (t: Tab) => { setTabS(t); scrollTo({ top: 0 }); };
+  // from the menu: a section, or a card on one (the bank cards, today's price)
+  const go = useCallback((t: Tab, id?: string) => { setMenu(false); setTab(t); if (id) setTimeout(() => document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" }), 80); }, []);
+  const closeMenu = useCallback(() => setMenu(false), []);
   const a = data.accounts[Math.min(ai, data.accounts.length - 1)];
   const isCustomer = a.kind !== "supplier", isSupplier = a.kind !== "customer";
   // for a party that is both, the side they picked at the door comes first
@@ -166,9 +142,10 @@ function Panel({ data, role, onOut, onReload }: { data: Me; role: Role; onOut: (
   return (
     <div className="hs-app has-tabs">
       <header className="hs-bar">
+        <button type="button" className="hs-burger" onClick={() => setMenu(true)} aria-label="منو" aria-expanded={menu} aria-haspopup="dialog"><i /><i /><i /></button>
         <a className="hs-brand" href="../"><img src="/leaf.png" alt="" width={28} height={28} /><span className="leaf">لئون گلد</span></a>
         <span className="hs-bar-t">حساب من</span>
-        <button type="button" className="hs-out" onClick={onOut}>{data.demo ? "بستن نمونه" : "خروج"}</button>
+        <Avatar name={a.name} current={tab === "profile"} onClick={() => setTab("profile")} />
       </header>
       {data.demo && <p className="hs-demo-band" role="note">این یک حساب نمونه است، با رقم‌های ساختگی؛ فقط برای دیدن شکل پنل.</p>}
       <main className="hs-main">
@@ -194,17 +171,19 @@ function Panel({ data, role, onOut, onReload }: { data: Me; role: Role; onOut: (
           <PriceCard />
           <footer className="hs-foot">
             <p>{data.updated ? `آخرین ثبت در دفتر: ${jdate(data.updated)}، ساعت ${jtime(data.updated)}` : ""}{onReload && <> · <button type="button" className="hs-link" onClick={onReload}>تازه کردن</button></>}</p>
-            {data.username && <div className="hs-acct"><p>نام کاربری: <b dir="ltr">{data.username}</b></p><Password /></div>}
+            {username && <p>نام کاربری: <b dir="ltr">{username}</b> · <button type="button" className="hs-link" onClick={() => setTab("profile")}>تغییر نام کاربری یا رمز</button></p>}
             <p><button type="button" className="hs-link" onClick={openRules}>آیین‌نامه‌ی خرید و فروش لئون گلد</button></p>
             <p>رقمی با حساب شما نمی‌خواند؟ <a href={tg} target="_blank" rel="noopener">در تلگرام بگویید</a>؛ اشتباه از طرفین قابل برگشت است.</p>
           </footer>
         </>}
+        {tab === "profile" && <Profile a={a} data={{ ...data, username }} onUsername={setUsername} />}
         {tab === "vitrin" && <Vitrin demo={data.demo} />}
         {tab === "orders" && blocks}
         {tab === "box" && <><JewelBox a={a} /><Summary ent={a.ent} /></>}
         {tab === "stmt" && <>{isCustomer && !data.demo && <MyReceipts />}<Statement ent={a.ent} name={a.name} /></>}
       </main>
       <TabBar tab={tab} setTab={setTab} tabs={tabs} />
+      <Menu open={menu} onClose={closeMenu} a={a} data={{ ...data, username }} tab={tab} go={go} onReload={onReload} onOut={onOut} />
       <Rules />
     </div>
   );
