@@ -8,7 +8,7 @@ import { SHOP } from "@/lib/content";
 import { faDigits, gram, jdate, latin, photoUrl, toman, type Account, type Entry, type Order } from "@/lib/hesab";
 import { daysLeft } from "./Extras";
 
-export type Tab = "home" | "orders" | "box" | "stmt";
+export type Tab = "home" | "vitrin" | "orders" | "box" | "stmt";
 const MONTHS = ["فروردین", "اردیبهشت", "خرداد", "تیر", "مرداد", "شهریور", "مهر", "آبان", "آذر", "دی", "بهمن", "اسفند"];
 const dateOf = (e: { date?: string; ts: string }) => latin(e.date || jdate(e.ts));
 
@@ -27,6 +27,7 @@ export function Pic({ id, className }: { id?: string; className?: string }) {
 // ---------- the tab bar ----------
 const ICONS: Record<Tab, string> = {
   home: "M4 11 12 4l8 7v9h-5v-6H9v6H4z",
+  vitrin: "M3 9l2-5h14l2 5M3 9h18v11H3zM3 9l3 3 3-3 3 3 3-3 3 3 3-3",
   orders: "M5 7h14l-1 13H6zM9 7a3 3 0 0 1 6 0",
   box: "M4 9h16v11H4zM3 5h18v4H3zM12 5v15",
   stmt: "M6 3h12v18l-3-2-3 2-3-2-3 2zM9 8h6M9 12h6M9 16h3",

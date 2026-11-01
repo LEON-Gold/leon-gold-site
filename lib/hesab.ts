@@ -70,6 +70,23 @@ export function shrinkPhoto(file: File, max = 1280, quality = 0.82): Promise<str
 }
 export const sendReceipt = (image: string, amount?: number, date?: string) => api<{ ok: true }>("/api/portal/receipt", { image, amount, date });
 // the receipts this party sent, newest first, each pending until Leon records the real document in the ledger
+// ---------- «ویترین»: the pieces on show (the owner puts them in the ledger), their photos and films, and an order ----------
+export type VItem = { id: string; code: string; name: string; cat: string; desc: string; weight: number; carat: number; ajrat: number; profit: number; settle: string[]; settleNote?: string; sold: boolean; media: { id: string; type: "image" | "video" }[] };
+export const vitrin = async () => (await api<{ items: VItem[] }>("/api/portal/vitrin")).items;
+export const orderItem = (id: string, note: string) => api<{ ok: true }>("/api/portal/vitrin/order", { id, note });
+export async function mediaUrl(id: string): Promise<string> {
+  const t = getToken(), headers: Record<string, string> = {};
+  if (t) headers.Authorization = "Bearer " + t;
+  const r = await fetch(SERVER + "/api/portal/media/" + encodeURIComponent(id), { headers });
+  if (!r.ok) throw new ApiError(r.status === 401 ? "login" : "not_found", r.status);
+  return URL.createObjectURL(await r.blob());
+}
+// the sample account's showcase: no photos (a gold leaf stands in), made-up pieces
+export const SAMPLE_VITRIN: VItem[] = [
+  { id: "s1", code: "R12", name: "انگشتر سولیتر", cat: "انگشتر", desc: "نمونه: یک نگین درخشان روی رکاب ظریف.", weight: 3.45, carat: 750, ajrat: 18, profit: 7, settle: ["نقد", "کارت‌به‌کارت"], sold: false, media: [] },
+  { id: "s2", code: "N4", name: "گردنبند پلاک گرد", cat: "گردنبند", desc: "نمونه: پلاک گرد با نقش پیچ.", weight: 6.2, carat: 750, ajrat: 15, profit: 7, settle: ["نقد", "طلا با طلا (آبشده یا ساخته)"], sold: false, media: [] },
+  { id: "s3", code: "E7", name: "گوشواره آویز", cat: "گوشواره", desc: "نمونه: قطره‌ی طلا روی زنجیر کوتاه.", weight: 2.8, carat: 750, ajrat: 20, profit: 7, settle: ["کارت‌به‌کارت"], sold: true, media: [] },
+];
 export type MyReceipt = { id: string; blob: string; amount: number | null; date: string; ts: number; status: "pending" | "done" };
 export const myReceipts = async () => (await api<{ receipts: MyReceipt[] }>("/api/portal/receipts/mine")).receipts;
 

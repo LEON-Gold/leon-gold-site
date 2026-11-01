@@ -6,6 +6,7 @@ import { SHOP } from "@/lib/content";
 import Door from "@/components/Door";
 import { HomeHint, InvoiceSheet, MyReceipts, PriceCard, Quick, Summary, dueText } from "./Extras";
 import { EntryIcon, JewelBox, Journey, MemberCard, PayCard, Seal, Spark, TabBar, monthGroups, type Tab } from "./Home";
+import Vitrin from "./Vitrin";
 import {
   ApiError, SAMPLE, dayNum, faDigits, getToken, gram, jdate, jtime, latin, login, changePassword, logout, me, photoUrl, redeem, rial, sendReceipt, shrinkPhoto, side, today, toman,
   type Account, type Entry, type Me,
@@ -158,7 +159,7 @@ function Panel({ data, role, onOut, onReload }: { data: Me; role: Role; onOut: (
   const open = a.orders.filter(o => o.status !== "done" && o.status !== "cancel");
   const settled = side(a.bal.g, "g") === "z" && side(a.bal.r, "r") === "z" && a.ent.length > 0;
   const tabs: [Tab, string, number?][] = isCustomer
-    ? [["home", "خانه"], ["orders", "سفارش‌ها", open.length], ["box", "صندوقچه"], ["stmt", "صورتحساب"]]
+    ? [["home", "خانه"], ["vitrin", "ویترین"], ["orders", "سفارش‌ها", open.length], ["box", "صندوقچه"], ["stmt", "صورتحساب"]]
     : [["home", "خانه"], ["orders", "کارها", a.work.length], ["stmt", "صورتحساب"]];
   const hour = new Date().getHours(), hello = hour < 12 ? "صبح بخیر" : hour < 17 ? "روز بخیر" : "عصر بخیر";
 
@@ -197,6 +198,7 @@ function Panel({ data, role, onOut, onReload }: { data: Me; role: Role; onOut: (
             <p>رقمی با حساب شما نمی‌خواند؟ <a href={tg} target="_blank" rel="noopener">در تلگرام بگویید</a>؛ اشتباه از طرفین قابل برگشت است.</p>
           </footer>
         </>}
+        {tab === "vitrin" && <Vitrin demo={data.demo} />}
         {tab === "orders" && blocks}
         {tab === "box" && <><JewelBox a={a} /><Summary ent={a.ent} /></>}
         {tab === "stmt" && <>{isCustomer && !data.demo && <MyReceipts />}<Statement ent={a.ent} name={a.name} /></>}

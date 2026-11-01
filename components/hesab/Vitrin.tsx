@@ -1,0 +1,148 @@
+"use client";
+// «ویترین» in «حساب من»: the pieces the owner put on show in the ledger, by category; each opens on its own page with
+// its photos and films, weight, karat, wage, today's estimated price (the union board's rate this hour), how it can be
+// settled and its description, and an order button that lands in the management panel as a new lead.
+import { useEffect, useMemo, useState } from "react";
+import { SHOP } from "@/lib/content";
+import { usePrice } from "@/lib/price";
+import { faDigits, gram, mediaUrl, orderItem, SAMPLE_VITRIN, toman, vitrin, ApiError, type VItem } from "@/lib/hesab";
+
+// today's price of a piece, the way the site's own calculator does it: gold at the hour's rate (by its 750-equivalent
+// weight), plus the wage, plus the profit, plus 10% tax on the wage and the profit
+export function priceOf(it: VItem, gp: number) {
+  const gold = it.weight * (it.carat / 750) * gp, ajr = gold * it.ajrat / 100, prof = (gold + ajr) * it.profit / 100, tax = (ajr + prof) * 0.1;
+  return { gold, ajr, prof, tax, total: gold + ajr + prof + tax };
+}
+
+function Media({ m, className, controls }: { m: { id: string; type: "image" | "video" }; className?: string; controls?: boolean }) {
+  const [url, setUrl] = useState<string | null>(null);
+  useEffect(() => {
+    let u = "", dead = false;
+    mediaUrl(m.id).then(r => { if (dead) return; u = r; setUrl(r); }).catch(() => {});
+    return () => { dead = true; if (u) URL.revokeObjectURL(u); };
+  }, [m.id]);
+  if (!url) return <span className={(className || "") + " hs-pic-none"} aria-hidden><img src="/leaf.webp" alt="" /></span>;
+  return m.type === "video"
+    ? <video className={className} src={url} playsInline muted={!controls} loop={!controls} autoPlay={!controls} controls={controls} preload="metadata" />
+    : <img className={className} src={url} alt="" />;
+}
+const Cover = ({ it, className }: { it: VItem; className: string }) => {
+  const m = it.media.find(x => x.type === "image") || it.media[0];
+  return m ? <Media m={m} className={className} /> : <span className={className + " hs-pic-none"} aria-hidden><img src="/leaf.webp" alt="" /></span>;
+};
+
+export default function Vitrin({ demo }: { demo?: boolean }) {
+  const [items, setItems] = useState<VItem[] | null>(null);
+  const [err, setErr] = useState(false);
+  const [cat, setCat] = useState("all");
+  const [open, setOpen] = useState<VItem | null>(null);
+  const { feed } = usePrice();
+  useEffect(() => {
+    if (demo) { setItems(SAMPLE_VITRIN); return; }
+    vitrin().then(setItems, () => setErr(true));
+  }, [demo]);
+  const cats = useMemo(() => [...new Set((items || []).map(i => i.cat).filter(Boolean))], [items]);
+  const shown = (items || []).filter(i => cat === "all" || i.cat === cat);
+  const show = (it: VItem | null) => { setOpen(it); scrollTo({ top: 0 }); };
+
+  if (open) return <Product it={open} gp={feed?.gp || 0} demo={demo} onBack={() => show(null)} />;
+  return (
+    <section className="hs-sec hs-vit" aria-labelledby="hs-vit">
+      <div className="hs-box-head">
+        <h2 className="hs-h" id="hs-vit">ویترین لئون گلد</h2>
+        <p>کارهای موجود، با قیمت تقریبیِ همین ساعت{feed?.time ? ` (نرخ اتحادیه، ساعت ${faDigits(feed.time)})` : ""}.</p>
+      </div>
+      {cats.length > 1 && (
+        <div className="hs-vcats" role="tablist" aria-label="دسته‌ها">
+          {["all", ...cats].map(c => <button key={c} type="button" role="tab" aria-selected={cat === c} onClick={() => setCat(c)}>{c === "all" ? "همه" : c}</button>)}
+        </div>
+      )}
+      {err ? <p className="hs-empty">ویترین باز نشد. اینترنت را بررسی کنید و دوباره سر بزنید.</p>
+        : !items ? <p className="hs-empty">در حال آوردن ویترین…</p>
+        : !shown.length ? <p className="hs-empty">فعلاً کاری در ویترین نیست. به‌زودی کارهای تازه اینجا می‌آید.</p>
+        : (
+          <ul className="hs-vgrid">
+            {shown.map(it => (
+              <li key={it.id}>
+                <button type="button" className="hs-vcard paper" onClick={() => show(it)}>
+                  <span className="hs-vcard-pic"><Cover it={it} className="hs-vimg" />{it.media.some(m => m.type === "video") && <i className="hs-vplay" aria-label="فیلم دارد">▶</i>}{it.sold && <em className="hs-vsold">فروخته شد</em>}</span>
+                  <b>{it.name}</b>
+                  <span className="num">{gram(it.weight)} گرم · عیار {faDigits(it.carat)}</span>
+                  {feed?.gp ? <strong className="num">≈ {toman(priceOf(it, feed.gp).total)} <small>تومان</small></strong> : <strong>قیمت با نرخ روز</strong>}
+                </button>
+              </li>
+            ))}
+          </ul>
+        )}
+    </section>
+  );
+}
+
+function Product({ it, gp, demo, onBack }: { it: VItem; gp: number; demo?: boolean; onBack: () => void }) {
+  const [at, setAt] = useState(0);
+  const [note, setNote] = useState("");
+  const [state, setState] = useState<"" | "busy" | "done" | "err" | "many">("");
+  const p = gp ? priceOf(it, gp) : null;
+  const order = async () => {
+    if (demo) { setState("done"); return; }
+    setState("busy");
+    try { await orderItem(it.id, note.trim()); setState("done"); }
+    catch (e) { setState(e instanceof ApiError && e.code === "too_many" ? "many" : "err"); }
+  };
+  const media = it.media.length ? it.media : [];
+  return (
+    <article className="hs-prod" aria-label={it.name}>
+      <button type="button" className="hs-link hs-prod-back" onClick={onBack}>→ ویترین</button>
+      <div className="hs-gal paper">
+        {media.length ? (
+          <div className="hs-gal-track" onScroll={e => { const el = e.currentTarget; setAt(Math.round(Math.abs(el.scrollLeft) / el.clientWidth)); }}>
+            {media.map(m => <div key={m.id} className="hs-gal-it"><Media m={m} className="hs-gal-m" controls={m.type === "video"} /></div>)}
+          </div>
+        ) : <div className="hs-gal-it"><span className="hs-gal-m hs-pic-none" aria-hidden><img src="/leaf.webp" alt="" /></span></div>}
+        {media.length > 1 && <p className="hs-gal-dots" aria-hidden>{media.map((m, i) => <i key={m.id} className={i === at ? "on" : ""} />)}</p>}
+        {it.sold && <em className="hs-vsold">فروخته شد</em>}
+      </div>
+      <header className="hs-prod-h">
+        <p className="hs-prod-k">{[it.cat, it.code && "کد " + faDigits(it.code)].filter(Boolean).join(" · ")}</p>
+        <h1>{it.name}</h1>
+      </header>
+      <section className="hs-prod-price paper" aria-label="قیمت تقریبی امروز">
+        <p className="hs-prod-pk">قیمت تقریبی با نرخ همین ساعت</p>
+        <p className="hs-prod-pv num">{p ? toman(p.total) : "…"} <small>تومان</small></p>
+        {p && <dl className="hs-prod-break">
+          <div><dt>طلا ({gram(it.weight)} گرم، عیار {faDigits(it.carat)})</dt><dd className="num">{toman(p.gold)}</dd></div>
+          <div><dt>اجرت ({faDigits(it.ajrat)}٪)</dt><dd className="num">{toman(p.ajr)}</dd></div>
+          <div><dt>سود ({faDigits(it.profit)}٪)</dt><dd className="num">{toman(p.prof)}</dd></div>
+          <div><dt>مالیات بر اجرت و سود (۱۰٪)</dt><dd className="num">{toman(p.tax)}</dd></div>
+        </dl>}
+        <p className="hs-prod-fine">قیمت نهایی با نرخ لحظه‌ی خرید حساب می‌شود.</p>
+      </section>
+      <section className="hs-prod-spec paper" aria-label="مشخصات">
+        <dl>
+          <div><dt>وزن</dt><dd className="num">{gram(it.weight)} گرم</dd></div>
+          <div><dt>عیار</dt><dd className="num">{faDigits(it.carat)}</dd></div>
+          <div><dt>اجرت</dt><dd className="num">{faDigits(it.ajrat)}٪</dd></div>
+          <div><dt>وضعیت</dt><dd>{it.sold ? "فروخته شد؛ مشابهش را سفارش بدهید" : "موجود"}</dd></div>
+        </dl>
+        {(it.settle.length > 0 || it.settleNote) && <div className="hs-prod-settle"><h2>نحوه‌ی تسویه</h2>
+          {it.settle.length > 0 && <p className="hs-chips">{it.settle.map(s => <span key={s}>{s}</span>)}</p>}
+          {it.settleNote && <p>{it.settleNote}</p>}</div>}
+        {it.desc && <div className="hs-prod-desc"><h2>توضیحات</h2><p>{it.desc}</p></div>}
+      </section>
+      <section className="hs-prod-order paper" aria-label="سفارش">
+        {state === "done" ? (
+          <p className="hs-ok">✦ سفارش «{it.name}» ثبت شد. لئون گلد به‌زودی با شما تماس می‌گیرد. ✦</p>
+        ) : <>
+          <h2>{it.sold ? "سفارش مشابه این کار" : "سفارش این کار"}</h2>
+          <label className="hs-field"><span>توضیح (اختیاری): سایز، رنگ طلا، زمان تحویل…</span>
+            <textarea value={note} onChange={e => setNote(e.target.value)} rows={3} maxLength={500} />
+          </label>
+          {state === "err" && <p className="hs-err" role="alert">سفارش ثبت نشد. اینترنت را بررسی کنید و دوباره بزنید.</p>}
+          {state === "many" && <p className="hs-err" role="alert">امروز چند سفارش ثبت کرده‌اید؛ برای بیشتر در تلگرام پیام بدهید.</p>}
+          <button type="button" className="btn btn-gold" disabled={state === "busy"} onClick={order}>{state === "busy" ? "در حال ثبت…" : "ثبت سفارش"}</button>
+          <a className="hs-link" href={SHOP.telegram} target="_blank" rel="noopener">یا در تلگرام بپرسید</a>
+        </>}
+      </section>
+    </article>
+  );
+}
