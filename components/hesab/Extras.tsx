@@ -22,6 +22,8 @@ const j2d = (jy: number, jm: number, jd: number) => { const r = jalCal(jy); retu
 const dayOf = (s: string) => { const m = /^(\d{4})\/(\d{1,2})\/(\d{1,2})$/.exec(latin(s || "").trim()); return m ? j2d(+m[1], +m[2], +m[3]) : 0; };
 const todayDay = () => { const n = new Date(); return g2d(n.getFullYear(), n.getMonth() + 1, n.getDate()); };
 
+/** whole days from today to a Persian date; null when there is none */
+export function daysLeft(due: string) { const d = dayOf(due); return d ? d - todayDay() : null; }
 /** «۵ روز تا موعد», «امروز موعد است», or nothing when there is no date */
 export function dueText(due: string) {
   const d = dayOf(due); if (!d) return "";

@@ -5,6 +5,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { SHOP } from "@/lib/content";
 import Door from "@/components/Door";
 import { HomeHint, InvoiceSheet, MyReceipts, PriceCard, Quick, Summary, dueText } from "./Extras";
+import { EntryIcon, JewelBox, Journey, MemberCard, PayCard, Seal, Spark, TabBar, monthGroups, type Tab } from "./Home";
 import {
   ApiError, SAMPLE, dayNum, faDigits, getToken, gram, jdate, jtime, latin, login, changePassword, logout, me, photoUrl, redeem, rial, sendReceipt, shrinkPhoto, side, today, toman,
   type Account, type Entry, type Me,
@@ -146,15 +147,23 @@ const KIND: Record<Account["kind"], string> = { customer: "مشتری", supplier
 
 function Panel({ data, role, onOut, onReload }: { data: Me; role: Role; onOut: () => void; onReload?: () => void }) {
   const [ai, setAi] = useState(0);
+  const [tab, setTabS] = useState<Tab>("home");
+  const setTab = (t: Tab) => { setTabS(t); scrollTo({ top: 0 }); };
   const a = data.accounts[Math.min(ai, data.accounts.length - 1)];
   const isCustomer = a.kind !== "supplier", isSupplier = a.kind !== "customer";
   // for a party that is both, the side they picked at the door comes first
   const supplierFirst = isSupplier && (!isCustomer || role === "supplier");
   const blocks = [isCustomer && <Orders key="o" a={a} />, isSupplier && <WorkList key="w" a={a} />].filter(Boolean);
   if (supplierFirst) blocks.reverse();
+  const open = a.orders.filter(o => o.status !== "done" && o.status !== "cancel");
+  const settled = side(a.bal.g, "g") === "z" && side(a.bal.r, "r") === "z" && a.ent.length > 0;
+  const tabs: [Tab, string, number?][] = isCustomer
+    ? [["home", "خانه"], ["orders", "سفارش‌ها", open.length], ["box", "صندوقچه"], ["stmt", "صورتحساب"]]
+    : [["home", "خانه"], ["orders", "کارها", a.work.length], ["stmt", "صورتحساب"]];
+  const hour = new Date().getHours(), hello = hour < 12 ? "صبح بخیر" : hour < 17 ? "روز بخیر" : "عصر بخیر";
 
   return (
-    <div className="hs-app">
+    <div className="hs-app has-tabs">
       <header className="hs-bar">
         <a className="hs-brand" href="../"><img src="/leaf.png" alt="" width={28} height={28} /><span className="leaf">لئون گلد</span></a>
         <span className="hs-bar-t">حساب من</span>
@@ -162,30 +171,37 @@ function Panel({ data, role, onOut, onReload }: { data: Me; role: Role; onOut: (
       </header>
       {data.demo && <p className="hs-demo-band" role="note">این یک حساب نمونه است، با رقم‌های ساختگی؛ فقط برای دیدن شکل پنل.</p>}
       <main className="hs-main">
-        <div className="hs-who">
-          <h1>{a.name}</h1>
-          <p>{a.shop ? a.shop + " · " : ""}<span className="hs-kind">{KIND[a.kind]}</span></p>
-          {data.accounts.length > 1 && (
-            <div className="hs-seg hs-acc" role="tablist" aria-label="حساب‌ها">
-              {data.accounts.map((x, i) => <button key={x.id} type="button" role="tab" aria-selected={i === ai} onClick={() => setAi(i)}>{x.shop || x.name}</button>)}
-            </div>
-          )}
-        </div>
-        <Quick customer={isCustomer && !data.demo} />
-        <HomeHint />
-        <Slip a={a} />
-        {isCustomer && !data.demo && <ReceiptUpload />}
-        {isCustomer && !data.demo && <MyReceipts />}
-        {blocks}
-        {isCustomer && <Summary ent={a.ent} />}
-        <PriceCard />
-        <Statement ent={a.ent} name={a.name} />
-        <footer className="hs-foot">
-          <p>{data.updated ? `آخرین ثبت در دفتر: ${jdate(data.updated)}، ساعت ${jtime(data.updated)}` : ""}{onReload && <> · <button type="button" className="hs-link" onClick={onReload}>تازه کردن</button></>}</p>
-          {data.username && <div className="hs-acct"><p>نام کاربری: <b dir="ltr">{data.username}</b></p><Password /></div>}
-          <p>رقمی با حساب شما نمی‌خواند؟ <a href={tg} target="_blank" rel="noopener">در تلگرام بگویید</a>؛ اشتباه از طرفین قابل برگشت است.</p>
-        </footer>
+        {tab === "home" && <>
+          <div className="hs-who">
+            <p className="hs-hello">{hello}</p>
+            <h1>{a.name}</h1>
+            <p>{a.shop ? a.shop + " · " : ""}<span className="hs-kind">{KIND[a.kind]}</span></p>
+            {data.accounts.length > 1 && (
+              <div className="hs-seg hs-acc" role="tablist" aria-label="حساب‌ها">
+                {data.accounts.map((x, i) => <button key={x.id} type="button" role="tab" aria-selected={i === ai} onClick={() => setAi(i)}>{x.shop || x.name}</button>)}
+              </div>
+            )}
+          </div>
+          {isCustomer && <MemberCard a={a} />}
+          {isCustomer && open.map(o => <Journey key={o.ref} o={o} />)}
+          <Quick customer={isCustomer && !data.demo} />
+          <HomeHint />
+          <Slip a={a} />
+          {settled && <Seal />}
+          {isCustomer && !data.demo && <PayCard a={a} />}
+          {isCustomer && !data.demo && <ReceiptUpload opener={!(a.bal.r > 0.5)} />}
+          <PriceCard />
+          <footer className="hs-foot">
+            <p>{data.updated ? `آخرین ثبت در دفتر: ${jdate(data.updated)}، ساعت ${jtime(data.updated)}` : ""}{onReload && <> · <button type="button" className="hs-link" onClick={onReload}>تازه کردن</button></>}</p>
+            {data.username && <div className="hs-acct"><p>نام کاربری: <b dir="ltr">{data.username}</b></p><Password /></div>}
+            <p>رقمی با حساب شما نمی‌خواند؟ <a href={tg} target="_blank" rel="noopener">در تلگرام بگویید</a>؛ اشتباه از طرفین قابل برگشت است.</p>
+          </footer>
+        </>}
+        {tab === "orders" && blocks}
+        {tab === "box" && <><JewelBox a={a} /><Summary ent={a.ent} /></>}
+        {tab === "stmt" && <>{isCustomer && !data.demo && <MyReceipts />}<Statement ent={a.ent} name={a.name} /></>}
       </main>
+      <TabBar tab={tab} setTab={setTab} tabs={tabs} />
     </div>
   );
 }
@@ -283,7 +299,7 @@ function WorkList({ a }: { a: Account }) {
 
 // a photo of a card-to-card transfer receipt: shrunk on the phone before it ever leaves it, stored PENDING
 // and touching no balance until Leon records the real document in the ledger by hand
-function ReceiptUpload() {
+function ReceiptUpload({ opener = true }: { opener?: boolean }) {
   const [open, setOpen] = useState(false);
   useEffect(() => { const o = () => { setOpen(true); setSent(false); setTimeout(() => document.getElementById("hs-receipt")?.scrollIntoView({ behavior: "smooth", block: "start" }), 50); };
     addEventListener("hs-receipt", o); return () => removeEventListener("hs-receipt", o); }, []);
@@ -312,7 +328,7 @@ function ReceiptUpload() {
     finally { setBusy(false); }
   };
 
-  if (!open) return (
+  if (!open) return !opener ? null : (
     <button type="button" className="btn btn-ink hs-receipt-open" onClick={() => { setOpen(true); setSent(false); }}>ارسال رسید کارت‌به‌کارت</button>
   );
   return (
@@ -363,13 +379,16 @@ function Statement({ ent, name }: { ent: Entry[]; name: string }) {
           {([["all", "همه"], ["g", "طلایی"], ["r", "ریالی"]] as const).map(([k, t]) => <button key={k} type="button" role="radio" aria-checked={u === k} onClick={() => { setU(k); setN(20); }}>{t}</button>)}
         </div>
       </div>
-      {!rows.length ? <p className="hs-empty">هنوز سندی ثبت نشده.</p> : (
+      <Spark ent={ent} u={u === "g" ? "g" : u === "r" ? "r" : ent.some(e => e.u === "r") ? "r" : "g"} />
+      {!rows.length ? <p className="hs-empty">هنوز سندی ثبت نشده.</p> : monthGroups(rows.slice(0, n)).map(g => (
+        <div key={g.key} className="hs-month-g">
+        <h3 className="hs-month">{g.title}</h3>
         <ol className="hs-stmt paper">
-          {rows.slice(0, n).map((e, i) => {
+          {g.rows.map((e, i) => {
             const body = (
               <>
                 <span className="hs-st-d num">{e.date || jdate(e.ts)}</span>
-                <span className="hs-st-l">{faDigits(e.label)}</span>
+                <span className="hs-st-l"><EntryIcon e={e} />{faDigits(e.label)}</span>
                 <span className={"hs-st-a num " + side(e.d, e.u)}><bdi>{({ cr: "−", dr: "+", z: "" } as const)[side(e.d, e.u)]}{e.u === "g" ? gram(e.d) : rial(e.d)}</bdi><small>{e.u === "g" ? "گرم" : "ریال"}</small></span>
                 <span className="hs-st-r num">مانده {amt(e, e.run)} <em>{side(e.run, e.u) === "z" ? "تسویه" : side(e.run, e.u) === "dr" ? "بدهکار" : "بستانکار"}</em></span>
               </>
@@ -381,7 +400,8 @@ function Statement({ ent, name }: { ent: Entry[]; name: string }) {
             );
           })}
         </ol>
-      )}
+        </div>
+      ))}
       {rows.length > n && <button type="button" className="hs-link hs-more" onClick={() => setN(n + 40)}>سندهای قدیمی‌تر</button>}
       {inv && <InvoiceSheet e={inv} name={name} onClose={() => setInv(null)} />}
       <p className="hs-legend"><b className="dr">+</b> بر بدهی شما افزود · <b className="cr">−</b> از آن کم کرد (یا بر طلبتان افزود)</p>

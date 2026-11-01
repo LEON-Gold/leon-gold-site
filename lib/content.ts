@@ -10,6 +10,8 @@ export const SHOP = {
   instagram: "https://instagram.com/___leongold___",
   instagramId: "___leongold___",
   hours: "شنبه تا چهارشنبه، ۱۱ تا ۱۸",
+  // the shop's card number for a card-to-card payment, shown in «حساب من» only to a customer who owes; empty until the owner gives it
+  card: "",
 };
 
 // The ledger app: on the GitHub preview it is the app one level above the site; on real hosting it is /daftar/.
