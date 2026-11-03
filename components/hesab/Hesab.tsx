@@ -166,12 +166,12 @@ function Panel({ data, role, onOut, onReload }: { data: Me; role: Role; onOut: (
           </div>
           {isCustomer && <MemberCard a={a} />}
           {isCustomer && open.map(o => <Journey key={o.ref} o={o} />)}
-          <Quick customer={isCustomer && !data.demo} />
+          <Quick customer={isCustomer} />
           <HomeHint />
           <Slip a={a} />
           {settled && <Seal />}
-          {isCustomer && !data.demo && <PayCard a={a} />}
-          {isCustomer && !data.demo && <ReceiptUpload opener={!(a.bal.r > 0.5)} />}
+          {isCustomer && <PayCard a={a} />}
+          {isCustomer && <ReceiptUpload opener={!(a.bal.r > 0.5)} demo={data.demo} />}
           <PriceCard />
           <footer className="hs-foot">
             <p>{data.updated ? `آخرین ثبت در دفتر: ${jdate(data.updated)}، ساعت ${jtime(data.updated)}` : ""}{onReload && <> · <button type="button" className="hs-link" onClick={onReload}>تازه کردن</button></>}</p>
@@ -184,7 +184,7 @@ function Panel({ data, role, onOut, onReload }: { data: Me; role: Role; onOut: (
         {tab === "vitrin" && <Vitrin demo={data.demo} />}
         {tab === "orders" && blocks}
         {tab === "box" && <><JewelBox a={a} /><Summary ent={a.ent} /></>}
-        {tab === "stmt" && <>{isCustomer && !data.demo && <MyReceipts />}<Statement ent={a.ent} name={a.name} /></>}
+        {tab === "stmt" && <>{isCustomer && <MyReceipts demo={data.demo} />}<Statement ent={a.ent} name={a.name} /></>}
       </main>
       <TabBar tab={tab} setTab={setTab} tabs={tabs} />
       <Menu open={menu} onClose={closeMenu} a={a} data={{ ...data, username }} tab={tab} go={go} onReload={onReload} onOut={onOut} />
@@ -286,7 +286,7 @@ function WorkList({ a }: { a: Account }) {
 
 // a photo of a card-to-card transfer receipt: shrunk on the phone before it ever leaves it, stored PENDING
 // and touching no balance until Leon records the real document in the ledger by hand
-function ReceiptUpload({ opener = true }: { opener?: boolean }) {
+function ReceiptUpload({ opener = true, demo }: { opener?: boolean; demo?: boolean }) {
   const [open, setOpen] = useState(false);
   useEffect(() => { const o = () => { setOpen(true); setSent(false); setTimeout(() => document.getElementById("hs-receipt")?.scrollIntoView({ behavior: "smooth", block: "start" }), 50); };
     addEventListener("hs-receipt", o); return () => removeEventListener("hs-receipt", o); }, []);
@@ -306,6 +306,7 @@ function ReceiptUpload({ opener = true }: { opener?: boolean }) {
   const send = async () => {
     if (!file || busy) return;
     setBusy(true); setErr("");
+    if (demo) { setSent(true); pick(null); setBusy(false); return; }
     try {
       const dataUrl = await shrinkPhoto(file);
       const toman1 = latin(amount).replace(/\D/g, "");
@@ -324,7 +325,7 @@ function ReceiptUpload({ opener = true }: { opener?: boolean }) {
       <h2 className="hs-h">رسید کارت‌به‌کارت</h2>
       {sent ? (
         <>
-          <p className="hs-sent">رسید فرستاده شد؛ لئون آن را می‌بیند و بعد از ثبت سند واقعی در دفتر، حسابتان به‌روز می‌شود.</p>
+          <p className="hs-sent">{demo ? "در حساب نمونه رسید فرستاده نمی‌شود؛ در حساب واقعی، لئون آن را می‌بیند و بعد از ثبت سند واقعی در دفتر، حسابتان به‌روز می‌شود." : "رسید فرستاده شد؛ لئون آن را می‌بیند و بعد از ثبت سند واقعی در دفتر، حسابتان به‌روز می‌شود."}</p>
           <button type="button" className="hs-link" onClick={() => setOpen(false)}>بستن</button>
         </>
       ) : (

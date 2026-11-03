@@ -53,7 +53,7 @@ export function Menu({ open, onClose, a, data, tab, go, onReload, onOut }: {
   }, [open, onClose]);
   if (!open) return null;
 
-  const isCustomer = a.kind !== "supplier", isSupplier = a.kind !== "customer" || a.work.length > 0, live = !data.demo;
+  const isCustomer = a.kind !== "supplier", isSupplier = a.kind !== "customer" || a.work.length > 0;
   const openOrders = a.orders.filter(o => o.status !== "done" && o.status !== "cancel").length;
   const tabItem = (k: Tab, t: string, n?: number): Item => ({ k, t, n, on: tab === k, go: () => go(k) });
   const groups: [string, Item[]][] = [
@@ -62,7 +62,7 @@ export function Menu({ open, onClose, a, data, tab, go, onReload, onOut }: {
       ...(isCustomer ? [tabItem("vitrin", "ویترین لئون گلد"), tabItem("orders", "سفارش‌های من", openOrders)] : []),
       ...(isSupplier ? [{ ...tabItem("orders", "کارهای سپرده به من", a.work.length), k: "orders" }] : []),
     ].filter((x, i, l) => l.findIndex(y => y.t === x.t) === i)],
-    ...(isCustomer && live ? [["پرداخت", [
+    ...(isCustomer ? [["پرداخت", [
       { k: "card", t: "شماره کارت‌های لئون گلد", go: () => go("home", "hs-pay") },
       { k: "receipt", t: "ارسال رسید کارت‌به‌کارت", go: () => { go("home"); setTimeout(() => dispatchEvent(new Event("hs-receipt")), 80); } },
     ]] as [string, Item[]]] : []),

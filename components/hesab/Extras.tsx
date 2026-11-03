@@ -113,15 +113,20 @@ export function InvoiceSheet({ e, name, onClose }: { e: Entry; name: string; onC
 }
 
 // ---------- the receipts this customer sent, and whether Leon has recorded each ----------
-export function MyReceipts() {
-  const [list, setList] = useState<MyReceipt[] | null>(null);
+const SAMPLE_RECEIPTS: MyReceipt[] = [
+  { id: "d1", blob: "", amount: 6500000, date: "۱۴۰۵/۰۷/۲۸", ts: Date.parse("2026-10-20T09:00:00Z"), status: "done" },
+  { id: "d2", blob: "", amount: 3000000, date: "", ts: Date.parse("2026-10-30T09:00:00Z"), status: "pending" },
+];
+export function MyReceipts({ demo }: { demo?: boolean }) {
+  const [list, setList] = useState<MyReceipt[] | null>(demo ? SAMPLE_RECEIPTS : null);
   const [shown, setShown] = useState<Record<string, string>>({});
   useEffect(() => {
+    if (demo) return;
     let live = true;
     const load = () => myReceipts().then(r => { if (live) setList(r); }, () => { if (live) setList(null); });
     load(); addEventListener("hs-receipt-sent", load);
     return () => { live = false; removeEventListener("hs-receipt-sent", load); };
-  }, []);
+  }, [demo]);
   if (!list?.length) return null;
   const see = async (r: MyReceipt) => { if (shown[r.id]) return; try { const u = await photoUrl(r.blob); setShown(s => ({ ...s, [r.id]: u })); } catch {} };
   return (
@@ -133,7 +138,7 @@ export function MyReceipts() {
             <div className="hs-item-top"><b className="num">{r.amount != null ? toman(r.amount) + " تومان" : "مبلغ ننوشته"}</b>
               <span className={"hs-rc-st " + (r.status === "done" ? "done" : "")}>{r.status === "done" ? "در دفتر ثبت شد" : "در انتظار ثبت"}</span></div>
             <p className="hs-meta num">{r.date ? "واریز " + faDigits(r.date) + " · " : ""}فرستاده {jdate(new Date(r.ts).toISOString())}</p>
-            {shown[r.id] ? <img className="hs-photo" src={shown[r.id]} alt="عکس رسید" /> : <button type="button" className="hs-link" onClick={() => see(r)}>دیدن عکس</button>}
+            {shown[r.id] ? <img className="hs-photo" src={shown[r.id]} alt="عکس رسید" /> : r.blob ? <button type="button" className="hs-link" onClick={() => see(r)}>دیدن عکس</button> : null}
           </li>
         ))}
       </ul>
