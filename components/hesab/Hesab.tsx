@@ -14,7 +14,6 @@ import {
   type Account, type Entry, type Me,
 } from "@/lib/hesab";
 
-type Role = "customer" | "supplier";
 type Phase = "boot" | "form" | "in";
 const ERR: Record<string, string> = {
   bad_login: "نام کاربری یا رمز درست نیست.",
@@ -45,7 +44,6 @@ function Photo({ id }: { id: string }) {
 
 export default function Hesab() {
   const [phase, setPhase] = useState<Phase>("boot");
-  const [role, setRole] = useState<Role>("customer");
   const [data, setData] = useState<Me | null>(null);
   const [err, setErr] = useState("");
 
@@ -71,17 +69,10 @@ export default function Hesab() {
   const out = async () => { if (!data?.demo) { await dropDevice(); await logout(); } if (location.hash) history.replaceState(null, "", location.pathname); setData(null); setErr(""); setPhase("form"); };
   const demo = () => { history.replaceState(null, "", "#demo"); setData(SAMPLE); setPhase("in"); };
 
-  if (phase === "in" && data) return <Panel data={data} role={role} onOut={out} onReload={data.demo ? undefined : load} />;
+  if (phase === "in" && data) return <Panel data={data} onOut={out} onReload={data.demo ? undefined : load} />;
   return (
     <Door name="حساب من" latin="LEON GOLD · MY ACCOUNT" fine="فقط حساب خودتان را می‌بینید و در این صفحه چیزی تغییر نمی‌کند.">
-        <div className="hs-seg" role="radiogroup" aria-label="شما">
-          {(["customer", "supplier"] as Role[]).map(r => (
-            <button key={r} type="button" role="radio" aria-checked={role === r} onClick={() => setRole(r)}>{r === "customer" ? "مشتری هستم" : "تأمین‌کننده هستم"}</button>
-          ))}
-        </div>
-        <p className="hs-lede">{role === "customer"
-          ? "مانده‌ی حساب طلایی و ریالی، فاکتورها و وضعیت سفارش‌هایتان، همان که در دفتر لئون ثبت شده."
-          : "مانده‌ی حساب طلایی‌تان با لئون، سندهای تحویل و کارهایی که به شما سپرده شده، به ترتیب موعد."}</p>
+        <p className="hs-lede">مانده‌ی حساب طلایی و ریالی، فاکتورها، سفارش‌ها و کارهای سپرده به شما؛ همان که در دفتر لئون ثبت شده.</p>
         {phase === "boot" ? <p className="hs-wait" aria-live="polite">در حال باز کردن…</p>
           : <SignIn err={err} setErr={setErr} onIn={load} />}
         <button type="button" className="hs-demo" onClick={demo}>دیدن نمونه‌ی پنل</button>
@@ -118,7 +109,7 @@ function SignIn({ err, setErr, onIn }: { err: string; setErr: (s: string) => voi
 
 // ---------------- signed in ----------------
 
-function Panel({ data, role, onOut, onReload }: { data: Me; role: Role; onOut: () => void; onReload?: () => void }) {
+function Panel({ data, onOut, onReload }: { data: Me; onOut: () => void; onReload?: () => void }) {
   const [ai, setAi] = useState(0);
   // a tapped notification opens on its section (?t=orders), then the address is cleaned
   const [tab, setTabS] = useState<Tab>(() => { const t = typeof location === "undefined" ? "" : new URLSearchParams(location.search).get("t") || ""; return (["vitrin", "orders", "box", "stmt", "profile"].includes(t) ? t : "home") as Tab; });
@@ -132,8 +123,8 @@ function Panel({ data, role, onOut, onReload }: { data: Me; role: Role; onOut: (
   useHomeApp(useCallback((t: string) => setTabS(t as Tab), []));
   const a = data.accounts[Math.min(ai, data.accounts.length - 1)];
   const isCustomer = a.kind !== "supplier", isSupplier = a.kind !== "customer" || a.work.length > 0; // any party the owner picked as an order's maker
-  // for a party that is both, the side they picked at the door comes first
-  const supplierFirst = isSupplier && (!isCustomer || role === "supplier");
+  // a supplier only sees its work first; a party that is both sees its own orders, then its work
+  const supplierFirst = isSupplier && !isCustomer;
   const blocks = [isCustomer && <Orders key="o" a={a} />, isSupplier && <WorkList key="w" a={a} />].filter(Boolean);
   if (supplierFirst) blocks.reverse();
   const open = a.orders.filter(o => o.status !== "done" && o.status !== "cancel");
