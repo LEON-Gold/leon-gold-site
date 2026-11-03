@@ -6,6 +6,7 @@ import { SHOP } from "@/lib/content";
 import { ApiError, changeLogin, faDigits, gram, jdate, jtime, rial, side, type Account, type Me } from "@/lib/hesab";
 import { openRules } from "./Extras";
 import { MemberCard, type Tab } from "./Home";
+import { Notify } from "./Notify";
 
 export const KIND: Record<Account["kind"], string> = { customer: "مشتری", supplier: "تأمین‌کننده", both: "مشتری و تأمین‌کننده" };
 const initial = (s: string) => (s.trim().replace(/^(آقای|خانم|جناب)\s+/, "")[0] || "ل");
@@ -25,6 +26,7 @@ const P: Record<string, string> = {
   phone: "M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2",
   site: "M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18zM3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18",
   reload: "M20 11a8 8 0 1 0-2.3 5.7M20 4v7h-7",
+  bell: "M6 16V11a6 6 0 0 1 12 0v5l2 2H4zM10 20a2 2 0 0 0 4 0",
   out: "M15 4h4v16h-4M10 8l-4 4 4 4M6 12h11",
 };
 const Ico = ({ k }: { k: string }) => <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden><path d={P[k]} /></svg>;
@@ -55,7 +57,7 @@ export function Menu({ open, onClose, a, data, tab, go, onReload, onOut }: {
   const openOrders = a.orders.filter(o => o.status !== "done" && o.status !== "cancel").length;
   const tabItem = (k: Tab, t: string, n?: number): Item => ({ k, t, n, on: tab === k, go: () => go(k) });
   const groups: [string, Item[]][] = [
-    ["حساب من", [tabItem("home", "خانه"), tabItem("stmt", "صورتحساب و فاکتورها"), ...(isCustomer ? [tabItem("box", "صندوقچه‌ی جواهرات")] : [])]],
+    ["حساب من", [tabItem("home", "خانه"), tabItem("stmt", "صورتحساب و فاکتورها"), ...(isCustomer ? [tabItem("box", "صندوقچه‌ی جواهرات")] : []), { k: "bell", t: "اعلان‌ها", go: () => go("profile", "hs-notify") }]],
     ["خرید و سفارش", [
       ...(isCustomer ? [tabItem("vitrin", "ویترین لئون گلد"), tabItem("orders", "سفارش‌های من", openOrders)] : []),
       ...(isSupplier ? [{ ...tabItem("orders", "کارهای سپرده به من", a.work.length), k: "orders" }] : []),
@@ -138,6 +140,7 @@ export function Profile({ a, data, onUsername }: { a: Account; data: Me; onUsern
       {data.demo ? <Login username="demo.user" demo onUsername={() => {}} />
         : data.username ? <Login username={data.username} onUsername={onUsername} />
         : <p className="hs-prof-fine">شما با لینک یک‌باره وارد شده‌اید. برای داشتن نام کاربری و رمز، از لئون گلد بخواهید.</p>}
+      <Notify demo={data.demo} />
     </section>
   );
 }

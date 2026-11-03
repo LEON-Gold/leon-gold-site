@@ -8,6 +8,7 @@ import { HomeHint, InvoiceSheet, MyReceipts, PriceCard, Quick, Rules, Summary, d
 import { EntryIcon, JewelBox, Journey, MemberCard, PayCard, Seal, Spark, TabBar, monthGroups, type Tab } from "./Home";
 import Vitrin from "./Vitrin";
 import { Avatar, KIND, Menu, Profile } from "./Menu";
+import { dropDevice, useHomeApp } from "./Notify";
 import {
   ApiError, SAMPLE, dayNum, faDigits, getToken, gram, jdate, jtime, latin, login, logout, me, photoUrl, redeem, rial, sendReceipt, shrinkPhoto, side, today, toman,
   type Account, type Entry, type Me,
@@ -67,7 +68,7 @@ export default function Hesab() {
     })();
   }, [load]);
 
-  const out = async () => { if (!data?.demo) await logout(); if (location.hash) history.replaceState(null, "", location.pathname); setData(null); setErr(""); setPhase("form"); };
+  const out = async () => { if (!data?.demo) { await dropDevice(); await logout(); } if (location.hash) history.replaceState(null, "", location.pathname); setData(null); setErr(""); setPhase("form"); };
   const demo = () => { history.replaceState(null, "", "#demo"); setData(SAMPLE); setPhase("in"); };
 
   if (phase === "in" && data) return <Panel data={data} role={role} onOut={out} onReload={data.demo ? undefined : load} />;
@@ -119,13 +120,16 @@ function SignIn({ err, setErr, onIn }: { err: string; setErr: (s: string) => voi
 
 function Panel({ data, role, onOut, onReload }: { data: Me; role: Role; onOut: () => void; onReload?: () => void }) {
   const [ai, setAi] = useState(0);
-  const [tab, setTabS] = useState<Tab>("home");
+  // a tapped notification opens on its section (?t=orders), then the address is cleaned
+  const [tab, setTabS] = useState<Tab>(() => { const t = typeof location === "undefined" ? "" : new URLSearchParams(location.search).get("t") || ""; return (["vitrin", "orders", "box", "stmt", "profile"].includes(t) ? t : "home") as Tab; });
+  useEffect(() => { if (location.search) history.replaceState(null, "", location.pathname + location.hash); }, []);
   const [menu, setMenu] = useState(false);
   const [username, setUsername] = useState(data.username);
   const setTab = (t: Tab) => { setTabS(t); scrollTo({ top: 0 }); };
   // from the menu: a section, or a card on one (the bank cards, today's price)
   const go = useCallback((t: Tab, id?: string) => { setMenu(false); setTab(t); if (id) setTimeout(() => document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" }), 80); }, []);
   const closeMenu = useCallback(() => setMenu(false), []);
+  useHomeApp(useCallback((t: string) => setTabS(t as Tab), []));
   const a = data.accounts[Math.min(ai, data.accounts.length - 1)];
   const isCustomer = a.kind !== "supplier", isSupplier = a.kind !== "customer" || a.work.length > 0; // any party the owner picked as an order's maker
   // for a party that is both, the side they picked at the door comes first
