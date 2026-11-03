@@ -535,3 +535,4 @@ html.hs-locked, html.hs-locked body { overflow: hidden; }
 .hs-notify .hs-row { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 18px; }
 .hs-on { color: var(--cr); font-weight: 700; }
 .hs-steps-a2hs { margin: 0; padding-inline-start: 22px; display: grid; gap: 6px; font-size: 14.5px; line-height: 1.9; }
+.hs-why { font: 12px/1.5 ui-monospace, monospace; color: #6d6450; overflow-wrap: anywhere; }

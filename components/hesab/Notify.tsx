@@ -36,11 +36,14 @@ export async function dropDevice() {
   } catch {}
 }
 
+// the technical reason, small, so a screenshot of it tells what went wrong
+const why = (e: unknown) => e instanceof ApiError ? "server " + e.status + " " + e.code : e instanceof Error ? e.name + ": " + e.message : String(e);
+
 type St = "load" | "add" | "none" | "denied" | "off" | "on";
 export function Notify({ demo }: { demo?: boolean }) {
   const [st, setSt] = useState<St>("load");
   const [busy, setBusy] = useState(false);
-  const [msg, setMsg] = useState<{ ok: boolean; t: string } | null>(null);
+  const [msg, setMsg] = useState<{ ok: boolean; t: string; why?: string } | null>(null);
   useEffect(() => {
     (async () => {
       if (!supported()) return setSt(ios() && !standalone() ? "add" : "none");
@@ -61,7 +64,7 @@ export function Notify({ demo }: { demo?: boolean }) {
       const s = (await r.pushManager.getSubscription()) || await r.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: keyBytes(await pushKey()) });
       await pushSub(s.toJSON());
       setSt("on"); setMsg({ ok: true, t: "اعلان‌ها روشن شد. از این به بعد خبرهای تازه روی همین گوشی می‌آید." });
-    } catch (e) { setMsg({ ok: false, t: e instanceof ApiError && e.code === "offline" ? "به سرور وصل نشدیم. اینترنت را بررسی کنید." : "روشن نشد. یک بار دیگر بزنید." }); }
+    } catch (e) { setMsg({ ok: false, t: e instanceof ApiError && e.code === "offline" ? "به سرور وصل نشدیم. اینترنت را بررسی کنید." : "روشن نشد. یک بار دیگر بزنید.", why: why(e) }); }
     finally { setBusy(false); }
   };
   const off = async () => {
@@ -71,8 +74,8 @@ export function Notify({ demo }: { demo?: boolean }) {
   };
   const test = async () => {
     if (busy) return; setBusy(true); setMsg(null);
-    try { if (!demo) { const r = await pushTest(); if (!r.ok) throw new Error(); } setMsg({ ok: true, t: "یک اعلان آزمایشی فرستاده شد؛ تا چند ثانیه‌ی دیگر می‌رسد." }); }
-    catch { setMsg({ ok: false, t: "اعلان آزمایشی فرستاده نشد. اعلان‌ها را یک بار خاموش و دوباره روشن کنید." }); }
+    try { if (!demo) { const r = await pushTest(); if (!r.ok) { setMsg({ ok: false, t: "اعلان آزمایشی فرستاده نشد.", why: r.results.map(x => x.host + " " + (x.status || "") + " " + x.reason).join(" | ") }); return; } } setMsg({ ok: true, t: "یک اعلان آزمایشی فرستاده شد؛ تا چند ثانیه‌ی دیگر می‌رسد." }); }
+    catch (e) { setMsg({ ok: false, t: e instanceof ApiError && e.code === "no_sub" ? "این گوشی روی سرور ثبت نیست. «خاموش کردن» و بعد «روشن کردن اعلان‌ها» را بزنید." : "اعلان آزمایشی فرستاده نشد.", why: why(e) }); }
     finally { setBusy(false); }
   };
 
@@ -93,6 +96,7 @@ export function Notify({ demo }: { demo?: boolean }) {
             <button type="button" className="hs-link" disabled={busy} onClick={test}>اعلان آزمایشی</button>
             <button type="button" className="hs-link" disabled={busy} onClick={off}>خاموش کردن</button></div>}
       {msg && <p className={msg.ok ? "hs-ok" : "hs-err"} role={msg.ok ? "status" : "alert"}>{msg.t}</p>}
+      {msg?.why && <p className="hs-why" dir="ltr">{msg.why}</p>}
     </section>
   );
 }

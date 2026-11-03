@@ -137,4 +137,4 @@ export const SAMPLE: Me = {
 export const pushKey = async () => (await api<{ key: string }>("/api/portal/push/key")).key;
 export const pushSub = (s: PushSubscriptionJSON) => api<{ ok: true }>("/api/portal/push/sub", { endpoint: s.endpoint, keys: s.keys });
 export const pushUnsub = (endpoint: string) => api<{ ok: true }>("/api/portal/push/unsub", { endpoint });
-export const pushTest = () => api<{ ok: boolean; sent: number }>("/api/portal/push/test", {});
+export const pushTest = () => api<{ ok: boolean; sent: number; results: { host: string; status: number; reason: string }[] }>("/api/portal/push/test", {});
