@@ -72,7 +72,6 @@ export default function Hesab() {
   if (phase === "in" && data) return <Panel data={data} onOut={out} onReload={data.demo ? undefined : load} />;
   return (
     <Door name="حساب من" latin="LEON GOLD · MY ACCOUNT" fine="فقط حساب خودتان را می‌بینید و در این صفحه چیزی تغییر نمی‌کند.">
-        <p className="hs-lede">مانده‌ی حساب طلایی و ریالی، فاکتورها، سفارش‌ها و کارهای سپرده به شما؛ همان که در دفتر لئون ثبت شده.</p>
         {phase === "boot" ? <p className="hs-wait" aria-live="polite">در حال باز کردن…</p>
           : <SignIn err={err} setErr={setErr} onIn={load} />}
         <button type="button" className="hs-demo" onClick={demo}>دیدن نمونه‌ی پنل</button>
