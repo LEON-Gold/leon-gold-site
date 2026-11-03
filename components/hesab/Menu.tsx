@@ -51,7 +51,7 @@ export function Menu({ open, onClose, a, data, tab, go, onReload, onOut }: {
   }, [open, onClose]);
   if (!open) return null;
 
-  const isCustomer = a.kind !== "supplier", isSupplier = a.kind !== "customer", live = !data.demo;
+  const isCustomer = a.kind !== "supplier", isSupplier = a.kind !== "customer" || a.work.length > 0, live = !data.demo;
   const openOrders = a.orders.filter(o => o.status !== "done" && o.status !== "cancel").length;
   const tabItem = (k: Tab, t: string, n?: number): Item => ({ k, t, n, on: tab === k, go: () => go(k) });
   const groups: [string, Item[]][] = [

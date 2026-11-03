@@ -127,7 +127,7 @@ function Panel({ data, role, onOut, onReload }: { data: Me; role: Role; onOut: (
   const go = useCallback((t: Tab, id?: string) => { setMenu(false); setTab(t); if (id) setTimeout(() => document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" }), 80); }, []);
   const closeMenu = useCallback(() => setMenu(false), []);
   const a = data.accounts[Math.min(ai, data.accounts.length - 1)];
-  const isCustomer = a.kind !== "supplier", isSupplier = a.kind !== "customer";
+  const isCustomer = a.kind !== "supplier", isSupplier = a.kind !== "customer" || a.work.length > 0; // any party the owner picked as an order's maker
   // for a party that is both, the side they picked at the door comes first
   const supplierFirst = isSupplier && (!isCustomer || role === "supplier");
   const blocks = [isCustomer && <Orders key="o" a={a} />, isSupplier && <WorkList key="w" a={a} />].filter(Boolean);
@@ -135,7 +135,7 @@ function Panel({ data, role, onOut, onReload }: { data: Me; role: Role; onOut: (
   const open = a.orders.filter(o => o.status !== "done" && o.status !== "cancel");
   const settled = side(a.bal.g, "g") === "z" && side(a.bal.r, "r") === "z" && a.ent.length > 0;
   const tabs: [Tab, string, number?][] = isCustomer
-    ? [["home", "خانه"], ["vitrin", "ویترین"], ["orders", "سفارش‌ها", open.length], ["box", "صندوقچه"], ["stmt", "صورتحساب"]]
+    ? [["home", "خانه"], ["vitrin", "ویترین"], ["orders", "سفارش‌ها", open.length + (isSupplier ? a.work.length : 0)], ["box", "صندوقچه"], ["stmt", "صورتحساب"]]
     : [["home", "خانه"], ["orders", "کارها", a.work.length], ["stmt", "صورتحساب"]];
   const hour = new Date().getHours(), hello = hour < 12 ? "صبح بخیر" : hour < 17 ? "روز بخیر" : "عصر بخیر";
 
