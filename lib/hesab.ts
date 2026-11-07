@@ -2,7 +2,7 @@
 // sync server's portal API (leon-gold-server/portal.mjs): sign-in by an SMS code to the mobile on their ledger card,
 // or by a one-time link the owner sends. Read-only; nothing here writes ledger data.
 
-export const SERVER = process.env.NEXT_PUBLIC_SYNC_URL || "https://leon-gold.liara.run";
+export const SERVER = process.env.NEXT_PUBLIC_SYNC_URL || "https://api.leongold.net";
 
 export type Line = { desc: string; qty: number; weight: number; carat: number; ret?: boolean; totalG?: number; amount?: number; photo?: string };
 export type Entry = { ts: string; date?: string; label: string; u: "g" | "r"; d: number; run: number; lines?: Line[] };

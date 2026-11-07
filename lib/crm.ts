@@ -2,7 +2,7 @@
 // Customers and invoices are the ledger's and are only read here; the panel writes its own collections
 // (crm_people: what we know about a customer; crm_leads: requests that are not invoices yet), which the ledger keeps but never shows.
 
-export const SERVER = process.env.NEXT_PUBLIC_SYNC_URL || "https://leon-gold.liara.run";
+export const SERVER = process.env.NEXT_PUBLIC_SYNC_URL || "https://api.leongold.net";
 
 export type Party = { id: string; name: string; kind?: string; shop?: string; phone?: string; address?: string; note?: string; ts?: string };
 export type Item = { desc?: string; qty?: number; weight?: number; carat?: number; amount?: number };
