@@ -4,6 +4,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { SHOP } from "@/lib/content";
 import Door from "@/components/Door";
+import { InvoiceSheet as FullInvoice } from "./Invoice";
 import { HomeHint, InvoiceSheet, MyReceipts, PriceCard, Quick, Rules, Summary, dueText, openRules } from "./Extras";
 import { EntryIcon, JewelBox, Journey, MemberCard, PayCard, Seal, Spark, TabBar, monthGroups, type Tab } from "./Home";
 import Vitrin from "./Vitrin";
@@ -371,7 +372,7 @@ function Statement({ ent, name }: { ent: Entry[]; name: string }) {
             );
             return (
               <li key={e.ts + e.label + i}>
-                {e.lines?.length ? <button type="button" className="hs-st-row hs-st-open" onClick={() => setInv(e)} aria-haspopup="dialog">{body}</button> : <div className="hs-st-row">{body}</div>}
+                {e.inv || e.lines?.length ? <button type="button" className="hs-st-row hs-st-open" onClick={() => setInv(e)} aria-haspopup="dialog">{body}</button> : <div className="hs-st-row">{body}</div>}
               </li>
             );
           })}
@@ -379,7 +380,7 @@ function Statement({ ent, name }: { ent: Entry[]; name: string }) {
         </div>
       ))}
       {rows.length > n && <button type="button" className="hs-link hs-more" onClick={() => setN(n + 40)}>سندهای قدیمی‌تر</button>}
-      {inv && <InvoiceSheet e={inv} name={name} onClose={() => setInv(null)} />}
+      {inv && (inv.inv ? <FullInvoice e={inv} name={name} onClose={() => setInv(null)} /> : <InvoiceSheet e={inv} name={name} onClose={() => setInv(null)} />)}
       <p className="hs-legend"><b className="dr">+</b> بر بدهی شما افزود · <b className="cr">−</b> از آن کم کرد (یا بر طلبتان افزود)</p>
     </section>
   );

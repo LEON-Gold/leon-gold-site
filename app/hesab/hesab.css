@@ -535,3 +535,52 @@ html.hs-locked, html.hs-locked body { overflow: hidden; }
 .hs-on { color: var(--cr); font-weight: 700; }
 .hs-steps-a2hs { margin: 0; padding-inline-start: 22px; display: grid; gap: 6px; font-size: 14.5px; line-height: 1.9; }
 .hs-why { font: 12px/1.5 ui-monospace, monospace; color: #6d6450; overflow-wrap: anywhere; }
+
+/* ---------- one invoice in full, laid out like the ledger's printed A4 sheet (components/hesab/Invoice.tsx) ---------- */
+.hs-inv-full { width: min(860px, 100%); padding: 16px 14px 18px; gap: 12px; }
+.iv-fit { position: relative; width: 100%; overflow: hidden; }
+.iv-page { position: absolute; top: 0; right: 0; transform-origin: top right; width: 794px; box-sizing: border-box; padding: 34px 34px 24px; background: #fbf7ec; color: #17231c;
+  border: 1px solid #c59a50; box-shadow: inset 0 0 0 5px #fbf7ec, inset 0 0 0 6px rgba(197,154,80,.55); font: 400 12.5px/1.6 var(--text); display: grid; gap: 12px; }
+.iv-cn { position: absolute; width: 26px; height: 26px; border: 2px solid #c59a50; }
+.iv-cn.tr { top: 12px; right: 12px; border-left: 0; border-bottom: 0; } .iv-cn.tl { top: 12px; left: 12px; border-right: 0; border-bottom: 0; }
+.iv-cn.br { bottom: 12px; right: 12px; border-left: 0; border-top: 0; } .iv-cn.bl { bottom: 12px; left: 12px; border-right: 0; border-top: 0; }
+.iv-hd { display: grid; grid-template-columns: 1fr 1.3fr 1fr; align-items: center; gap: 12px; padding-bottom: 10px; border-bottom: 1px solid rgba(197,154,80,.6); }
+.iv-contact { display: grid; gap: 2px; font-size: 12px; color: #3d4a41; justify-items: start; }
+.iv-brand { text-align: center; }
+.iv-brand h1 { font: 700 30px/1.1 var(--display); letter-spacing: .14em; color: #8a6420; margin: 0; }
+.iv-brand p { margin: 2px 0 0; font: 600 14px/1.4 var(--text); color: #0d3a2a; }
+.iv-brand small { font-size: 9.5px; letter-spacing: .3em; color: #8a6420; }
+.iv-plaque { justify-self: end; display: grid; justify-items: center; gap: 2px; padding: 8px 18px; border: 1px solid #c59a50; border-radius: 10px; background: #0d3a2a; color: #f1dfae; }
+.iv-plaque b { font: 700 20px/1.2 var(--display); } .iv-plaque small { font-size: 11px; color: #e8cf8e; }
+.iv-meta, .iv-cust { display: flex; flex-wrap: wrap; gap: 6px 22px; font-size: 13px; }
+.iv-cust { display: grid; grid-template-columns: repeat(3, 1fr); padding: 8px 12px; border: 1px solid rgba(197,154,80,.45); border-radius: 10px; background: rgba(255,255,255,.5); }
+.iv-cust .w3 { grid-column: 1 / -1; }
+.iv-meta em, .iv-cust em, .iv-free em { font-style: normal; color: #6b7468; margin-inline-end: 6px; }
+.iv-t { width: 100%; border-collapse: collapse; font-size: 12px; border: 1px solid rgba(197,154,80,.55); }
+.iv-t th { background: #0d3a2a; color: #f1dfae; font-weight: 600; padding: 6px 4px; font-size: 11.5px; border: 1px solid rgba(197,154,80,.4); }
+.iv-t td { padding: 5px 4px; text-align: center; border: 1px solid rgba(197,154,80,.3); white-space: nowrap; }
+.iv-t .d { text-align: start; white-space: normal; min-width: 150px; }
+.iv-t tr.ret td { color: #8b2e22; }
+.iv-t tfoot td { font-weight: 700; background: rgba(197,154,80,.14); color: #0d3a2a; }
+.iv-lower { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; align-items: start; }
+.iv-card { border: 1px solid rgba(197,154,80,.55); border-radius: 10px; padding: 10px 12px; background: rgba(255,255,255,.5); display: grid; gap: 3px; }
+.iv-card h2 { margin: 0 0 4px; font: 700 14px/1.4 var(--display); color: #0d3a2a; border-bottom: 1px solid rgba(197,154,80,.4); padding-bottom: 4px; }
+.iv-kv { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; font-size: 12.5px; }
+.iv-kv > span { color: #4b564e; }
+.iv-kv > b { font-weight: 600; }
+.iv-kv.big { font-size: 14px; padding: 3px 0; border-top: 1px dashed rgba(197,154,80,.5); }
+.iv-kv.big > b { font-weight: 800; }
+.iv-bal em { font-style: normal; font-size: .85em; margin-inline-start: 5px; }
+.iv-bal.dr { color: #8b2e22; } .iv-bal.cr { color: #0d5a3e; } .iv-bal.z { color: #4b564e; }
+.iv-notes { font-size: 11.5px; color: #3d4a41; }
+.iv-notes h3 { margin: 0 0 2px; font: 700 13px/1.5 var(--display); color: #0d3a2a; }
+.iv-notes ol { margin: 0; padding-inline-start: 18px; display: grid; gap: 1px; }
+.iv-free { margin: 0 0 6px; font-size: 12.5px; color: #17231c; }
+.iv-decl { margin: 6px 0 0; font-size: 10.5px; line-height: 1.8; text-align: justify; color: #4b564e; }
+.iv-sign { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; margin-top: 6px; }
+.iv-sign div { border-top: 1px solid rgba(197,154,80,.7); padding-top: 6px; text-align: center; font-size: 11.5px; color: #3d4a41; display: grid; min-height: 54px; align-content: start; }
+.iv-sign small { color: #8a6420; font-size: 10px; }
+.iv-foot { margin: 0; display: flex; justify-content: center; gap: 14px; font-size: 10px; color: #8a6420; }
+.iv-foot .en { letter-spacing: .08em; }
+@media (max-width: 640px) { .hs-inv-full { padding: 14px 10px calc(16px + env(safe-area-inset-bottom)); } }
+@media print { .iv-fit { height: auto !important; overflow: visible; } .iv-page { position: static; transform: none !important; } }

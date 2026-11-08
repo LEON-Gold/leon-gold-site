@@ -5,7 +5,19 @@
 export const SERVER = process.env.NEXT_PUBLIC_SYNC_URL || "https://api.leongold.net";
 
 export type Line = { desc: string; qty: number; weight: number; carat: number; ret?: boolean; totalG?: number; amount?: number; photo?: string };
-export type Entry = { ts: string; date?: string; label: string; u: "g" | "r"; d: number; run: number; lines?: Line[] };
+// one invoice as the ledger prints it (leon-gold-server/portal.mjs invDoc): every row and the worked-out settlement and balances
+export type InvRow = { desc: string; qty: number; weight: number; carat: number; ajrat: number; ret?: boolean; photo?: string; w750?: number; ajratG?: number; totalG?: number; pf?: number; gold?: number; ap?: number; amount?: number };
+export type Inv = {
+  kind: "whole" | "retail"; doc: "pd" | "rc" | ""; no: string; date: string; extra: string; time?: string; note: string; gp: number; tax: number;
+  cust: { name: string; shop: string; phone: string; addr: string }; rows: InvRow[];
+  tot: { qty: number; weight: number; w750?: number; ajratG?: number; totalG?: number; gold?: number; ap?: number; amount?: number };
+  gold?: { type: string; weight: number; purity: string; lab: string; ang: string; note: string; g750: number }[]; goldDir?: "cr" | "dr";
+  trade?: { type: string; w: number; gp: number; amount: number; note: string; cin: number; cout: number } | null;
+  hav?: { dir: "in" | "out"; w: number; name: string } | null;
+  set: { mq: number; prev: number; deliv: "dl" | "nd"; recv?: number; cash?: number; late?: number; discG?: number; discR?: number; rprev?: number; pays?: { label: string; v: number }[]; disc?: number };
+  sum: { bal: number; pure?: number; aj?: number; tax?: number; discG?: number; final?: number; all?: number; gx?: number; got?: number; hv?: number; trG?: number; discR?: number; trR?: number; rprev?: number; rbal?: number; hasR?: boolean; gold?: number; ap?: number; paid?: number };
+};
+export type Entry = { ts: string; date?: string; label: string; u: "g" | "r"; d: number; run: number; lines?: Line[]; inv?: Inv };
 export type Order = { ref: string; date: string; due: string; status: string; statusLabel: string; deposit: number; items: { desc: string; qty: number; weight: number; carat: number; photo?: string }[] };
 export type Work = { ref: string; date: string; due: string; status: string; statusLabel: string; desc: string; qty: number; weight: number; carat: number; photo?: string };
 export type Account = { id: string; name: string; shop: string; phone?: string; kind: "customer" | "supplier" | "both"; bal: { g: number; r: number }; ent: Entry[]; orders: Order[]; work: Work[] };
@@ -108,14 +120,17 @@ export const today = () => dayNum(jdate(new Date().toISOString()));
 // the ledger's sign: above zero the party owes Leon (بدهکار), below it Leon owes them (بستانکار)
 export const side = (v: number, u: "g" | "r") => (Math.abs(v) < (u === "g" ? 0.0005 : 0.5) ? "z" : v > 0 ? "dr" : "cr");
 
+const SAMPLE_INV: Inv = {"kind":"whole","doc":"pd","no":"42","date":"۱۴۰۵/۰۷/۳۰","extra":"۱۴۰۵/۰۸/۲۵","cust":{"name":"مشتری نمونه","shop":"گالری نمونه","phone":"09120000000","addr":"تهران، بازار بزرگ"},"gp":78000000,"tax":0,"rows":[{"desc":"النگو تراش","qty":2,"weight":12.4,"carat":750,"ajrat":3,"w750":12.4,"ajratG":0.372,"totalG":12.772,"ret":false},{"desc":"دستبند کارتیه","qty":1,"weight":6.8,"carat":750,"ajrat":5,"w750":6.8,"ajratG":0.34,"totalG":7.14,"ret":false},{"desc":"انگشتر ساده","qty":1,"weight":2.1,"carat":740,"ajrat":0,"w750":2.072,"ajratG":0,"totalG":2.072,"ret":true}],"tot":{"qty":4,"weight":21.3,"w750":21.272,"ajratG":0.712,"totalG":21.984},"gold":[{"type":"آبشده","weight":3,"purity":"۷۴۰","lab":"آزمایشگاه نمونه","ang":"","note":"","g750":2.96}],"goldDir":"cr","trade":{"type":"sell","w":5,"gp":78000000,"amount":390000000,"note":"","cin":200000000,"cout":0},"hav":null,"set":{"mq":337880400,"prev":-1.25,"deliv":"dl","recv":2,"cash":0,"late":0,"discG":0,"discR":0,"rprev":0},"sum":{"pure":21.272,"aj":0.712,"tax":0,"discG":0,"final":21.984,"all":20.734,"gx":2.96,"got":4.96,"hv":0,"trG":-5,"bal":10.774,"discR":0,"trR":190000000,"rprev":0,"rbal":190000000,"hasR":true},"note":"نمونه‌ی فاکتور عمده"};
 // ---------- a sample account for the preview, plainly marked as one; never real people ----------
 export const SAMPLE: Me = {
   demo: true,
   updated: new Date().toISOString(),
   accounts: [
     {
-      id: "demo-c", name: "مشتری نمونه", shop: "", phone: "09120000000", kind: "both", bal: { g: -1.25, r: 18500000 },
+      id: "demo-c", name: "مشتری نمونه", shop: "", phone: "09120000000", kind: "both", bal: { g: 10.774, r: 208500000 },
       ent: [
+        { ts: "2026-10-22T10:00:00Z", date: "۱۴۰۵/۰۷/۳۰", label: "فروش طلا و نقدی · فاکتور عمده ۴۲", u: "r", d: 190000000, run: 208500000, inv: SAMPLE_INV },
+        { ts: "2026-10-22T10:00:00Z", date: "۱۴۰۵/۰۷/۳۰", label: "فاکتور عمده ۴۲", u: "g", d: 12.024, run: 10.774, lines: [{"desc":"النگو تراش","qty":2,"weight":12.4,"carat":750,"totalG":12.772},{"desc":"دستبند کارتیه","qty":1,"weight":6.8,"carat":750,"totalG":7.14},{"desc":"انگشتر ساده","qty":1,"weight":2.1,"carat":740,"totalG":2.072,"ret":true}], inv: SAMPLE_INV },
         { ts: "2026-10-20T10:00:00Z", date: "۱۴۰۵/۰۷/۲۸", label: "دریافت لئون از شما", u: "r", d: -6500000, run: 18500000 },
         { ts: "2026-10-14T10:00:00Z", date: "۱۴۰۵/۰۷/۲۲", label: "فاکتور خرده ۱۲۴", u: "r", d: 25000000, run: 25000000,
           lines: [{ desc: "انگشتر نگین‌دار", qty: 1, weight: 3.42, carat: 18, amount: 25000000 }] },
