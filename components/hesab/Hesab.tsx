@@ -5,9 +5,10 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { SHOP } from "@/lib/content";
 import Door from "@/components/Door";
 import { LedgerInvoice } from "./Invoice";
+import { chrono, monthTitle, num, sideWord, statementPdf, totals } from "./Report";
 import { Onboard, useSigned } from "./Onboard";
 import { HomeHint, InvoiceSheet, MyReceipts, PriceCard, Quick, Rules, Summary, dueText, openRules } from "./Extras";
-import { EntryIcon, JewelBox, Journey, MemberCard, PayCard, Seal, Spark, TabBar, monthGroups, type Tab } from "./Home";
+import { EntryIcon, JewelBox, Journey, MemberCard, PayCard, Seal, TabBar, type Tab } from "./Home";
 import Vitrin from "./Vitrin";
 import { Avatar, KIND, Menu, Profile } from "./Menu";
 import { dropDevice, useHomeApp } from "./Notify";
@@ -178,7 +179,7 @@ function Panel({ data, onOut, onReload }: { data: Me; onOut: () => void; onReloa
         {tab === "vitrin" && <Vitrin demo={data.demo} />}
         {tab === "orders" && blocks}
         {tab === "box" && <><JewelBox a={a} /><Summary ent={a.ent} /></>}
-        {tab === "stmt" && <>{isCustomer && <MyReceipts demo={data.demo} />}<Statement ent={a.ent} name={a.name} /></>}
+        {tab === "stmt" && <>{isCustomer && <MyReceipts demo={data.demo} />}<Statement a={a} /></>}
       </main>
       <TabBar tab={tab} setTab={setTab} tabs={tabs} />
       <Menu open={menu} onClose={closeMenu} a={a} data={{ ...data, username }} tab={tab} go={go} onReload={onReload} onOut={onOut} />
@@ -347,34 +348,59 @@ function ReceiptUpload({ opener = true, demo }: { opener?: boolean; demo?: boole
   );
 }
 
-function Statement({ ent, name }: { ent: Entry[]; name: string }) {
+// the statement from the first document to the last, by month; each row says plainly what it did and the balance after it.
+// «گزارش کامل (PDF)» gives the same on A4 pages with the invoice lines (components/hesab/Report.tsx)
+function Statement({ a }: { a: Account }) {
   const [u, setU] = useState<"all" | "g" | "r">("all");
   const [inv, setInv] = useState<Entry | null>(null);
   const [simple, setSimple] = useState(false);
+  const [pdf, setPdf] = useState(""), [pdfMsg, setPdfMsg] = useState("");
   const closeInv = useCallback(() => { setInv(null); setSimple(false); }, []), failInv = useCallback(() => setSimple(true), []);
-  const [n, setN] = useState(20);
-  const rows = useMemo(() => ent.filter(e => u === "all" || e.u === u), [ent, u]);
-  const amt = (e: Entry, v: number) => (e.u === "g" ? gram(v) + " گرم" : rial(v) + " ریال");
+  const all = useMemo(() => chrono(a.ent), [a.ent]);
+  const rows = useMemo(() => all.filter(e => u === "all" || e.u === u), [all, u]);
+  const groups = useMemo(() => { const g: { key: string; title: string; rows: typeof rows }[] = []; for (const r of rows) { const k = r.day.slice(0, 7) || "-"; if (!g.length || g[g.length - 1].key !== k) g.push({ key: k, title: r.day ? monthTitle(r.day) : "بدون تاریخ", rows: [] }); g[g.length - 1].rows.push(r); } return g; }, [rows]);
+  const units = (u === "all" ? ["g", "r"] : [u]) as ("g" | "r")[];
+  const makePdf = async (share: boolean) => {
+    if (pdf) return; setPdf(share ? "share" : "save"); setPdfMsg("در حال ساخت گزارش…");
+    try { const r = await statementPdf(a, share); setPdfMsg(r === "saved" ? "فایل PDF ذخیره شد." : ""); }
+    catch (e) { setPdfMsg((e as Error)?.name === "AbortError" ? "" : "گزارش ساخته نشد. یک بار دیگر بزنید."); }
+    finally { setPdf(""); }
+  };
   return (
     <section className="hs-sec" aria-labelledby="hs-s">
       <div className="hs-sec-head">
         <h2 className="hs-h" id="hs-s">صورتحساب</h2>
         <div className="hs-seg hs-mini" role="radiogroup" aria-label="کدام حساب">
-          {([["all", "همه"], ["g", "طلایی"], ["r", "ریالی"]] as const).map(([k, t]) => <button key={k} type="button" role="radio" aria-checked={u === k} onClick={() => { setU(k); setN(20); }}>{t}</button>)}
+          {([["all", "همه"], ["g", "طلایی"], ["r", "ریالی"]] as const).map(([k, t]) => <button key={k} type="button" role="radio" aria-checked={u === k} onClick={() => setU(k)}>{t}</button>)}
         </div>
       </div>
-      <Spark ent={ent} u={u === "g" ? "g" : u === "r" ? "r" : ent.some(e => e.u === "r") ? "r" : "g"} />
-      {!rows.length ? <p className="hs-empty">هنوز سندی ثبت نشده.</p> : monthGroups(rows.slice(0, n)).map(g => (
+      <div className="hs-rep paper">
+        {units.map(x => { const t = totals(all, x), bal = x === "g" ? a.bal.g : a.bal.r; return (
+          <div key={x} className="hs-rep-u">
+            <h3>{x === "g" ? "حساب طلایی (گرم ۷۵۰)" : "حساب ریالی"}</h3>
+            <dl className="num">
+              <div><dt>جمع بدهکار</dt><dd className="dr">{faDigits(num(t.debit, x))}</dd></div>
+              <div><dt>جمع بستانکار</dt><dd className="cr">{faDigits(num(t.credit, x))}</dd></div>
+              <div className="big"><dt>مانده</dt><dd className={side(bal, x)}>{faDigits(num(bal, x))} <em>{sideWord(bal, x)}</em></dd></div>
+            </dl>
+          </div>); })}
+        <div className="hs-row hs-rep-act">
+          <button type="button" className="btn btn-gold" disabled={!!pdf} onClick={() => makePdf(false)}>{pdf === "save" ? "در حال ساخت…" : "گزارش کامل (PDF)"}</button>
+          <button type="button" className="hs-link" disabled={!!pdf} onClick={() => makePdf(true)}>{pdf === "share" ? "در حال ساخت…" : "فرستادن"}</button>
+        </div>
+        {pdfMsg && <p className="hs-why" role="status">{pdfMsg}</p>}
+      </div>
+      {!rows.length ? <p className="hs-empty">هنوز سندی ثبت نشده.</p> : groups.map(g => (
         <div key={g.key} className="hs-month-g">
         <h3 className="hs-month">{g.title}</h3>
         <ol className="hs-stmt paper">
           {g.rows.map((e, i) => {
             const body = (
               <>
-                <span className="hs-st-d num">{e.date || jdate(e.ts)}</span>
+                <span className="hs-st-d num"><bdi dir="ltr">{faDigits(e.day || jdate(e.ts))}</bdi></span>
                 <span className="hs-st-l"><EntryIcon e={e} />{faDigits(e.label)}</span>
-                <span className={"hs-st-a num " + side(e.d, e.u)}><bdi>{({ cr: "−", dr: "+", z: "" } as const)[side(e.d, e.u)]}{e.u === "g" ? gram(e.d) : rial(e.d)}</bdi><small>{e.u === "g" ? "گرم" : "ریال"}</small></span>
-                <span className="hs-st-r num">مانده {amt(e, e.run)} <em>{side(e.run, e.u) === "z" ? "تسویه" : side(e.run, e.u) === "dr" ? "بدهکار" : "بستانکار"}</em></span>
+                <span className={"hs-st-a num " + side(e.d, e.u)}>{e.u === "g" ? gram(e.d) : rial(e.d)}<small>{e.u === "g" ? "گرم" : "ریال"} {e.d > 0 ? "بدهکار" : e.d < 0 ? "بستانکار" : ""}</small></span>
+                <span className="hs-st-r num">مانده پس از این سند: {num(e.run, e.u)} {e.u === "g" ? "گرم" : "ریال"} <em>{sideWord(e.run, e.u)}</em></span>
               </>
             );
             return (
@@ -386,9 +412,8 @@ function Statement({ ent, name }: { ent: Entry[]; name: string }) {
         </ol>
         </div>
       ))}
-      {rows.length > n && <button type="button" className="hs-link hs-more" onClick={() => setN(n + 40)}>سندهای قدیمی‌تر</button>}
-      {inv && (inv.sheet && !simple ? <LedgerInvoice e={inv} onClose={closeInv} onFail={failInv} /> : <InvoiceSheet e={inv} name={name} onClose={closeInv} />)}
-      <p className="hs-legend"><b className="dr">+</b> بر بدهی شما افزود · <b className="cr">−</b> از آن کم کرد (یا بر طلبتان افزود)</p>
+      {inv && (inv.sheet && !simple ? <LedgerInvoice e={inv} onClose={closeInv} onFail={failInv} /> : <InvoiceSheet e={inv} name={a.name} onClose={closeInv} />)}
+      <p className="hs-legend"><b className="dr">بدهکار</b> یعنی بدهی شما به لئون گلد بیشتر شد · <b className="cr">بستانکار</b> یعنی از بدهی‌تان کم شد یا طلب‌تان بیشتر شد. سندها از اولین تا آخرین، به ترتیب تاریخ.</p>
     </section>
   );
 }

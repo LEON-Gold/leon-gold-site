@@ -568,3 +568,18 @@ html.hs-locked, html.hs-locked body { overflow: hidden; }
 .hs-info input { font-size: 16px; }
 .hs-skip { justify-self: center; margin-top: 4px; }
 @media (max-width: 520px) { .hs-info-grid { grid-template-columns: 1fr; } }
+
+/* ---------- the statement's head: totals of each account and the full report (components/hesab/Report.tsx) ---------- */
+.hs-rep { padding: 16px 18px; display: grid; gap: 12px; margin-bottom: 18px; }
+.hs-rep-u h3 { margin: 0 0 6px; font: 700 15px/1.5 var(--text); color: var(--emerald); }
+.hs-rep-u dl { margin: 0; display: grid; gap: 4px; }
+.hs-rep-u dl div { display: flex; justify-content: space-between; gap: 10px; font-size: 14px; }
+.hs-rep-u dt { color: var(--muted); }
+.hs-rep-u dd { margin: 0; font-weight: 700; }
+.hs-rep-u dd.dr { color: var(--dr); } .hs-rep-u dd.cr { color: var(--cr); } .hs-rep-u dd.z { color: var(--muted); }
+.hs-rep-u dd em { font-style: normal; font-size: 12.5px; font-weight: 600; }
+.hs-rep-u .big { padding-top: 6px; border-top: 1px dashed rgba(197,154,80,.5); font-size: 15.5px; }
+.hs-rep-u + .hs-rep-u { padding-top: 10px; border-top: 1px solid rgba(197,154,80,.25); }
+.hs-rep-act { align-items: center; }
+.hs-rep-act .btn { min-height: 46px; padding: 0 20px; }
+.hs-st-a small { white-space: nowrap; }
