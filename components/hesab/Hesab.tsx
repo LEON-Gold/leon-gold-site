@@ -399,7 +399,8 @@ function Statement({ a }: { a: Account }) {
               <>
                 <span className="hs-st-d num"><bdi dir="ltr">{faDigits(e.day || jdate(e.ts))}</bdi></span>
                 <span className="hs-st-l"><EntryIcon e={e} />{faDigits(e.label)}</span>
-                <span className={"hs-st-a num " + side(e.d, e.u)}>{e.u === "g" ? gram(e.d) : rial(e.d)}<small>{e.u === "g" ? "گرم" : "ریال"} {e.d > 0 ? "بدهکار" : e.d < 0 ? "بستانکار" : ""}</small></span>
+                {(() => { const g = e.gross ?? e.d, w = e.u === "g" ? "گرم" : "ریال"; return <span className={"hs-st-a num " + side(g, e.u)}>{e.u === "g" ? gram(g) : rial(g)}<small>{w} {g > 0 ? "بدهکار" : g < 0 ? "بستانکار" : ""}</small></span>; })()}
+                {e.gross !== undefined && Math.abs(e.gross - e.d) >= (e.u === "g" ? 0.0005 : 0.5) && <span className="hs-st-r hs-st-pay num">{e.gross - e.d > 0 ? "دریافت در همین فاکتور" : "پرداخت در همین فاکتور"}: {num(e.gross - e.d, e.u)} {e.u === "g" ? "گرم" : "ریال"} <em>{e.gross - e.d > 0 ? "بستانکار" : "بدهکار"}</em></span>}
                 <span className="hs-st-r num">مانده پس از این سند: {num(e.run, e.u)} {e.u === "g" ? "گرم" : "ریال"} <em>{sideWord(e.run, e.u)}</em></span>
               </>
             );

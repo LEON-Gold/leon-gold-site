@@ -8,7 +8,7 @@ export type Line = { desc: string; qty: number; weight: number; carat: number; r
 // one saved invoice for the ledger's own sheet (leon-gold-server/portal.mjs sheetOf; shown by components/hesab/Invoice.tsx)
 export type Sheet = { kind: "whole" | "retail"; doc: string; no: string; date: string; vals: string[]; rows: number; tax: string; gp: number; rets: number[]; disc2: string[]; rprev: [string, string] | null;
   gold: { type: string; weight: number; purity: string; lab: string; ang: string; note: string }[]; goldDir: string; trade: { type: string; mode: string; w: number; gp: number; amount: number; note: string; cin: number; cout: number } | null; hav: { partyId: string; partyName: string; w: number; dir: string } | null };
-export type Entry = { ts: string; date?: string; label: string; u: "g" | "r"; d: number; run: number; lines?: Line[]; sheet?: Sheet };
+export type Entry = { ts: string; date?: string; label: string; u: "g" | "r"; d: number; run: number; lines?: Line[]; sheet?: Sheet; gross?: number };
 export type Order = { ref: string; date: string; due: string; status: string; statusLabel: string; deposit: number; items: { desc: string; qty: number; weight: number; carat: number; photo?: string }[] };
 export type Work = { ref: string; date: string; due: string; status: string; statusLabel: string; desc: string; qty: number; weight: number; carat: number; photo?: string };
 export type Account = { id: string; name: string; shop: string; phone?: string; vip?: boolean; kind: "customer" | "supplier" | "both"; bal: { g: number; r: number }; ent: Entry[]; orders: Order[]; work: Work[] };

@@ -128,7 +128,7 @@ type Piece = { desc: string; weight: number; carat: number; date: string; photo?
 export function JewelBox({ a }: { a: Account }) {
   const pieces = useMemo(() => {
     const out: Piece[] = [];
-    for (const e of a.ent) if (e.lines?.length && /^فاکتور/.test(e.label) && e.d > 0) for (const l of e.lines) if (!l.ret && l.desc) out.push({ desc: l.desc, weight: l.weight, carat: l.carat, date: dateOf(e), photo: l.photo });
+    for (const e of a.ent) if (e.lines?.length && /^فاکتور/.test(e.label) && (e.gross ?? e.d) > 0) for (const l of e.lines) if (!l.ret && l.desc) out.push({ desc: l.desc, weight: l.weight, carat: l.carat, date: dateOf(e), photo: l.photo });
     return out;
   }, [a.ent]);
   const grams = pieces.reduce((s, p) => s + (p.weight || 0), 0);

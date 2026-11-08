@@ -592,3 +592,4 @@ html.hs-locked, html.hs-locked body { overflow: hidden; }
 .hs-a2hs .hs-steps-a2hs { margin: 0; padding-inline-start: 22px; display: grid; gap: 8px; font-size: 15px; line-height: 1.8; list-style: persian; }
 .hs-a2hs .hs-steps-a2hs b { display: inline-grid; place-items: center; min-width: 28px; height: 28px; border-radius: 8px; background: rgba(13,58,42,.1); color: var(--emerald); }
 .hs-a2hs-later { justify-self: center; margin-top: 4px; color: var(--muted); }
+.hs-st-pay { color: var(--cr); }

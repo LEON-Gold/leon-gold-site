@@ -14,13 +14,15 @@ export const entryDate = (e: Entry) => normDate(e.date) || normDate(jdate(e.ts))
 const dayKey = (e: Entry) => (/^مانده اول دوره/.test(e.label) ? -1 : +entryDate(e).replace(/\//g, "") || 0);
 
 export type Row = Entry & { day: string; debit: number; credit: number };
+// an invoice settled in itself: the goods on one side and what was paid or received in it on the other, so it is not a bare zero
+const split = (e: Entry) => { const g = e.gross ?? e.d, pay = g - e.d; return { debit: Math.max(g, 0) + Math.max(-pay, 0), credit: Math.max(-g, 0) + Math.max(pay, 0) }; };
 // oldest first, each with the balance after it in this order
 export function chrono(ent: Entry[]): Row[] {
   const rows = ent.slice().sort((a, b) => dayKey(a) - dayKey(b) || (a.ts < b.ts ? -1 : a.ts > b.ts ? 1 : 0));
   const run = { g: 0, r: 0 };
   return rows.map(e => {
     run[e.u] += e.d;
-    return { ...e, day: entryDate(e), run: e.u === "g" ? Math.round(run.g * 1000) / 1000 : Math.round(run.r), debit: e.d > 0 ? e.d : 0, credit: e.d < 0 ? -e.d : 0 };
+    return { ...e, day: entryDate(e), run: e.u === "g" ? Math.round(run.g * 1000) / 1000 : Math.round(run.r), ...split(e) };
   });
 }
 export const MONTHS = ["فروردین", "اردیبهشت", "خرداد", "تیر", "مرداد", "شهریور", "مهر", "آبان", "آذر", "دی", "بهمن", "اسفند"];

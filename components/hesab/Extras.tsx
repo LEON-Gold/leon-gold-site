@@ -57,13 +57,13 @@ export function PriceCard() {
 }
 
 // ---------- this year's purchases, from the statement's own invoices ----------
-const isSale = (e: Entry) => !!e.lines?.length && /^فاکتور/.test(e.label) && e.d > 0;
+const isSale = (e: Entry) => !!e.lines?.length && /^فاکتور/.test(e.label) && (e.gross ?? e.d) > 0;
 export function Summary({ ent }: { ent: Entry[] }) {
   const s = useMemo(() => {
     const y = latin(jdate(new Date().toISOString())).slice(0, 4);
     const mine = ent.filter(e => isSale(e) && latin(e.date || jdate(e.ts)).startsWith(y));
     const last = ent.find(isSale);
-    return { y, n: mine.length, g: mine.filter(e => e.u === "g").reduce((a, e) => a + e.d, 0), r: mine.filter(e => e.u === "r").reduce((a, e) => a + e.d, 0), last: last ? last.date || jdate(last.ts) : "" };
+    return { y, n: mine.length, g: mine.filter(e => e.u === "g").reduce((a, e) => a + (e.gross ?? e.d), 0), r: mine.filter(e => e.u === "r").reduce((a, e) => a + (e.gross ?? e.d), 0), last: last ? last.date || jdate(last.ts) : "" };
   }, [ent]);
   if (!s.n && !s.last) return null;
   return (
