@@ -26,7 +26,6 @@ function Roll({ value, format }: { value: number; format: (n: number) => string 
   return <>{format(shown)}</>;
 }
 
-const stamp = (day?: string, time?: string) => (day ? `${day}، ساعت ${faDigits(time || "")}` : "");
 
 export function Ticker() {
   const { feed } = usePrice();
@@ -53,7 +52,7 @@ export function Ticker() {
 }
 
 export function PricePanel() {
-  const { feed, failed } = usePrice();
+  const { feed } = usePrice();
   const [w, setW] = useState("۵");
   const [aj, setAj] = useState("۱۲");
   const [pf, setPf] = useState("۷");
@@ -71,7 +70,7 @@ export function PricePanel() {
         <div className="plaque">
           <small>هر گرم طلای ۱۸ عیار</small>
           <b className="num">{gp ? <Roll value={gp / 10} format={(n) => fa(Math.round(n))} /> : "—"}</b>
-          <span>تومان · {gp ? fa(gp) + " ریال" : "در انتظار اتحادیه"}</span>
+          <span>تومان{gp ? " · " + fa(gp) + " ریال" : ""}</span>
         </div>
         <div className="plaque">
           <small>مثقال طلای ۱۸ عیار</small>
@@ -80,21 +79,20 @@ export function PricePanel() {
         </div>
       </div>
 
-      <div className="paper pp-board">
+      {board.length > 0 && <div className="paper pp-board">
         <div className="pp-board-head">
           <h3>تابلوی اتحادیه</h3>
-          <span className="live"><i />{feed ? stamp(feed.day, feed.time) + (feed.src === "tgju" ? " · tgju" : "") : failed ? "در دسترس نیست" : "در حال گرفتن…"}</span>
         </div>
         <div className="pp-rows">
-          {board.length ? board.map((r) => (
+          {board.map((r) => (
             <div className="pp-row" key={r.name}>
               <span>{r.name}</span>
               <span className="num">{r.unit === "usd" ? "$" + fa(r.value) : <Roll value={r.value / 10} format={(n) => fa(Math.round(n))} />}</span>
             </div>
-          )) : <p className="pp-wait">{failed || feed ? "قیمت اتحادیه الان در دسترس نیست؛ چند دقیقه‌ی دیگر دوباره نگاه کن." : "در حال گرفتن قیمت سکه و طلا…"}</p>}
+          ))}
         </div>
-        <p className="pp-note">به تومان، به جز انس که به دلار است. منبع: تابلوی اتحادیه‌ی طلا و جواهر تهران، هر دو دقیقه تازه می‌شود.</p>
-      </div>
+        <p className="pp-note">به تومان، به جز انس که به دلار است.</p>
+      </div>}
 
       <PriceChart />
 
@@ -160,7 +158,7 @@ export function PriceChart() {
       <div className="chart-head">
         <div>
           <h3>گرم ۱۸ عیار، {fa(days.length)} روز کاری اخیر</h3>
-          <p>قیمت پایانی هر روز، به تومان. منبع: tgju</p>
+          <p>قیمت پایانی هر روز، به تومان.</p>
         </div>
         <div className="chart-now">
           <b className="num">{toman(days[h].close)}</b>
