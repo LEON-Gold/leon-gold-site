@@ -583,3 +583,12 @@ html.hs-locked, html.hs-locked body { overflow: hidden; }
 .hs-rep-act { align-items: center; }
 .hs-rep-act .btn { min-height: 46px; padding: 0 20px; }
 .hs-st-a small { white-space: nowrap; }
+
+/* ---------- opened in a phone's browser: add «حساب من» to the home screen first (Extras.tsx HomeHint) ---------- */
+.hs-a2hs-bg { z-index: 95; }
+.hs-a2hs { width: min(460px, 100%); gap: 14px; text-align: start; }
+.hs-a2hs-t { margin: 0; font: 700 21px/1.5 var(--display); color: var(--emerald); }
+.hs-a2hs-p { margin: 0; font-size: 14.5px; line-height: 1.9; color: var(--ink); }
+.hs-a2hs .hs-steps-a2hs { margin: 0; padding-inline-start: 22px; display: grid; gap: 8px; font-size: 15px; line-height: 1.8; list-style: persian; }
+.hs-a2hs .hs-steps-a2hs b { display: inline-grid; place-items: center; min-width: 28px; height: 28px; border-radius: 8px; background: rgba(13,58,42,.1); color: var(--emerald); }
+.hs-a2hs-later { justify-self: center; margin-top: 4px; color: var(--muted); }

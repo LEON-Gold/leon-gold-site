@@ -171,17 +171,36 @@ export function Rules() {
 }
 
 // ---------- iPhone: keep «حساب من» on the home screen ----------
+// opened in a phone's browser (not from the home-screen icon, never on a desktop): «حساب من» asks first to be added to the
+// home screen, which it needs to work fully (notifications, staying signed in); once per visit it can be put off
 export function HomeHint() {
-  const [on, setOn] = useState(false);
+  const [os, setOs] = useState<"" | "ios" | "android">("");
   useEffect(() => {
-    const ios = /iPhone|iPad|iPod/.test(navigator.userAgent), standalone = (navigator as Navigator & { standalone?: boolean }).standalone;
-    let seen = false; try { seen = !!localStorage.getItem("hs-a2hs"); } catch {}
-    if (ios && !standalone && !seen) setOn(true);
+    const ua = navigator.userAgent, ios = /iPhone|iPad|iPod/.test(ua) || (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1), android = /Android/.test(ua);
+    const standalone = matchMedia("(display-mode: standalone)").matches || !!(navigator as Navigator & { standalone?: boolean }).standalone;
+    let later = false; try { later = !!sessionStorage.getItem("hs-a2hs-later"); } catch {}
+    if (!standalone && !later && (ios || android)) setOs(ios ? "ios" : "android");
   }, []);
-  if (!on) return null;
-  const close = () => { setOn(false); try { localStorage.setItem("hs-a2hs", "1"); } catch {} };
-  return (
-    <p className="hs-hint" role="note">برای باز کردن سریع «حساب من»: در سافاری دکمه‌ی اشتراک <b aria-label="اشتراک">⬆︎</b> را بزنید و «افزودن به صفحه‌ی اصلی» (Add to Home Screen) را انتخاب کنید. <button type="button" className="hs-link" onClick={close}>باشه</button></p>
-  );
+  useEffect(() => { if (!os) return; document.body.classList.add("hs-sheet-open"); return () => document.body.classList.remove("hs-sheet-open"); }, [os]);
+  if (!os) return null;
+  const later = () => { setOs(""); try { sessionStorage.setItem("hs-a2hs-later", "1"); } catch {} };
+  return createPortal(
+    <div className="hs-sheet-bg hs-a2hs-bg">
+      <section className="hs-inv hs-a2hs paper" role="dialog" aria-modal="true" aria-labelledby="hs-a2hs-h">
+        <h2 id="hs-a2hs-h" className="hs-a2hs-t">اول «حساب من» را به صفحه‌ی اصلی گوشی اضافه کنید</h2>
+        <p className="hs-a2hs-p">«حساب من» از آیکن صفحه‌ی اصلی کامل کار می‌کند: اعلان‌ها می‌رسند، وارد می‌مانید و مثل یک برنامه باز می‌شود.</p>
+        {os === "ios" ? <ol className="hs-steps-a2hs">
+            <li>پایین صفحه در سافاری دکمه‌ی اشتراک <b aria-label="اشتراک">⬆︎</b> را بزنید.</li>
+            <li>«افزودن به صفحه‌ی اصلی» (Add to Home Screen) را بزنید، بعد «افزودن».</li>
+            <li>از آیکن تازه‌ی «حساب من» روی صفحه‌ی اصلی وارد شوید.</li>
+          </ol>
+          : <ol className="hs-steps-a2hs">
+            <li>بالای صفحه در کروم منوی <b aria-label="منو">⋮</b> را بزنید.</li>
+            <li>«افزودن به صفحه‌ی اصلی» یا «نصب برنامه» (Install app) را بزنید.</li>
+            <li>از آیکن تازه‌ی «حساب من» روی صفحه‌ی اصلی وارد شوید.</li>
+          </ol>}
+        <button type="button" className="hs-link hs-a2hs-later" onClick={later}>فعلاً در مرورگر ادامه می‌دهم</button>
+      </section>
+    </div>, document.body);
 }
 

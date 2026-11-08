@@ -73,14 +73,15 @@ export default function Hesab() {
 
   const out = async () => { if (!data?.demo) { await dropDevice(); await logout(); } if (location.hash) history.replaceState(null, "", location.pathname); setData(null); setErr(""); setPhase("form"); };
 
+  const hint = <HomeHint />;
   if (phase === "in" && data && signed === null) return <Door name="حساب من" latin="LEON GOLD · MY ACCOUNT"><p className="hs-wait" aria-live="polite">در حال باز کردن…</p></Door>;
   if (phase === "in" && data && !signed && !passed) return <Onboard data={data} onDone={info => { if (info) setData({ ...data, info }); setPassed(true); }} />;
-  if (phase === "in" && data) return <Panel data={data} onOut={out} onReload={data.demo ? undefined : load} />;
+  if (phase === "in" && data) return <>{hint}<Panel data={data} onOut={out} onReload={data.demo ? undefined : load} /></>;
   return (
-    <Door name="حساب من" latin="LEON GOLD · MY ACCOUNT" fine="فقط حساب خودتان را می‌بینید و در این صفحه چیزی تغییر نمی‌کند.">
+    <>{hint}<Door name="حساب من" latin="LEON GOLD · MY ACCOUNT" fine="فقط حساب خودتان را می‌بینید و در این صفحه چیزی تغییر نمی‌کند.">
         {phase === "boot" ? <p className="hs-wait" aria-live="polite">در حال باز کردن…</p>
           : <SignIn err={err} setErr={setErr} onIn={load} />}
-    </Door>
+    </Door></>
   );
 }
 
@@ -162,7 +163,6 @@ function Panel({ data, onOut, onReload }: { data: Me; onOut: () => void; onReloa
           {isCustomer && <MemberCard a={a} />}
           {isCustomer && open.map(o => <Journey key={o.ref} o={o} />)}
           <Quick customer={isCustomer} />
-          <HomeHint />
           <Slip a={a} />
           {settled && <Seal />}
           {isCustomer && <PayCard a={a} />}
