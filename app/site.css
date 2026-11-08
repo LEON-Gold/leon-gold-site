@@ -120,7 +120,7 @@ section { position: relative; padding: clamp(88px, 11vw, 150px) var(--m); }
 /* until the motion script has loaded (components/Motion.tsx) the intro's parts wait hidden where GSAP starts them */
 @media (prefers-reduced-motion: no-preference) { .mo-wait :is(.hero-latin, .hero-name, .hero-cta .btn, .hero-cue, .hero .corner) { opacity: 0; } }
 @keyframes jw-in { from { opacity: 0; } }
-.hero-jewel { will-change: transform; }
+/* no will-change here: a layer frozen at its first size went soft when scaled up to 1.9; the jewel itself is a 2x image (leaf-hd.webp) */
 .jw img { display: block; height: clamp(120px, 17vh, 190px); width: auto; }
 .jw-face { position: relative; filter: drop-shadow(0 0 28px rgba(232,207,142,.45)) drop-shadow(0 18px 30px rgba(0,0,0,.55)); }
 .jw-back { position: absolute; inset: 0; transform: translateZ(calc(var(--z) * -1px)); filter: brightness(.55) sepia(.4); }
