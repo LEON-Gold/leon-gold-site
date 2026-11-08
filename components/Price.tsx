@@ -27,6 +27,9 @@ function Roll({ value, format }: { value: number; format: (n: number) => string 
 }
 
 
+const DOTS = "· · ·";
+const BOARD_ROWS = ["طلای ۲۴ عیار", "مظنه تهران", "سکه طرح جدید", "سکه طرح قدیم", "نیم سکه", "ربع سکه", "سکه گرمی", "انس طلا"];
+
 export function Ticker() {
   const { feed } = usePrice();
   const rows: Row[] = feed?.board?.length ? feed.board : feed ? [{ name: "طلا ۱۸ عیار", value: feed.gp, unit: "rial" }] : [];
@@ -57,7 +60,8 @@ export function PricePanel() {
   const [aj, setAj] = useState("۱۲");
   const [pf, setPf] = useState("۷");
   const gp = feed?.gp || 0;
-  const board: Row[] = useMemo(() => (feed?.board?.length ? feed.board.filter((r) => r.name !== "طلا ۱۸ عیار") : []), [feed]);
+  // until the union board answers, its rows stand with dotted places instead of numbers (owner, 2026-11-08)
+  const board: Row[] = useMemo(() => (feed?.board?.length ? feed.board.filter((r) => r.name !== "طلا ۱۸ عیار") : BOARD_ROWS.map((name) => ({ name, value: 0, unit: name === "انس طلا" ? "usd" : "rial" }))), [feed]);
   const est = useMemo(() => {
     const weight = parseNum(w), a = parseNum(aj) / 100, p = parseNum(pf) / 100;
     const gold = weight * gp, ajr = gold * a, prof = (gold + ajr) * p, tax = (ajr + prof) * 0.1;
@@ -69,17 +73,17 @@ export function PricePanel() {
       <div className="pp-plaques">
         <div className="plaque">
           <small>هر گرم طلای ۱۸ عیار</small>
-          <b className="num">{gp ? <Roll value={gp / 10} format={(n) => fa(Math.round(n))} /> : "—"}</b>
+          <b className="num">{gp ? <Roll value={gp / 10} format={(n) => fa(Math.round(n))} /> : DOTS}</b>
           <span>تومان{gp ? " · " + fa(gp) + " ریال" : ""}</span>
         </div>
         <div className="plaque">
           <small>مثقال طلای ۱۸ عیار</small>
-          <b className="num">{gp ? <Roll value={(gp * MITHQAL) / 10} format={(n) => fa(Math.round(n))} /> : "—"}</b>
+          <b className="num">{gp ? <Roll value={(gp * MITHQAL) / 10} format={(n) => fa(Math.round(n))} /> : DOTS}</b>
           <span>تومان · هر مثقال {fa(MITHQAL, 4)} گرم</span>
         </div>
       </div>
 
-      {board.length > 0 && <div className="paper pp-board">
+      <div className="paper pp-board">
         <div className="pp-board-head">
           <h3>تابلوی اتحادیه</h3>
         </div>
@@ -87,12 +91,12 @@ export function PricePanel() {
           {board.map((r) => (
             <div className="pp-row" key={r.name}>
               <span>{r.name}</span>
-              <span className="num">{r.unit === "usd" ? "$" + fa(r.value) : <Roll value={r.value / 10} format={(n) => fa(Math.round(n))} />}</span>
+              <span className="num">{!r.value ? DOTS : r.unit === "usd" ? "$" + fa(r.value) : <Roll value={r.value / 10} format={(n) => fa(Math.round(n))} />}</span>
             </div>
           ))}
         </div>
         <p className="pp-note">به تومان، به جز انس که به دلار است.</p>
-      </div>}
+      </div>
 
       <PriceChart />
 
