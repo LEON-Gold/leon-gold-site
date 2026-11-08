@@ -317,6 +317,13 @@ body.hs-sheet-open { overflow: hidden; }
 .hs-card-name { position: relative; font: 700 clamp(28px, 8vw, 38px)/1.3 var(--display); }
 .hs-card-foot { position: relative; display: flex; justify-content: space-between; align-items: baseline; gap: 10px; font-size: 12.5px; color: #d6ccb0; }
 .hs-card-foot .num { font-family: var(--latin); letter-spacing: .12em; color: var(--gold-lt); }
+/* VIP: onyx plate, a heavier gold frame, and «VIP» struck in gold leaf */
+.hs-card.vip { background: radial-gradient(110% 80% at 85% 0%, #3a2f17, transparent 58%), linear-gradient(150deg, #1a1712, #050504 70%); border: 1.5px solid #d9b45f;
+  box-shadow: inset 0 0 0 5px rgba(0,0,0,.6), inset 0 0 0 6.5px rgba(232,207,142,.55), 0 30px 50px -26px rgba(0,0,0,.95), 0 0 0 1px rgba(232,207,142,.15); }
+.hs-card.vip .hs-card-rose { opacity: .22; filter: sepia(1) saturate(1.6) hue-rotate(-12deg); }
+.hs-card.vip .hs-card-top { color: #e8cf8e; }
+.hs-card-vip { position: absolute; top: 16px; left: 20px; font: 800 30px/1 var(--latin); letter-spacing: .14em; background: linear-gradient(160deg, #fff3cf, #e8cf8e 35%, #b0832f 65%, #f6e3a8); -webkit-background-clip: text; background-clip: text; color: transparent;
+  padding: 6px 12px; border: 1px solid rgba(232,207,142,.6); border-radius: 10px; }
 
 /* the order on its way */
 .hs-trip { padding: 18px 18px 16px; display: grid; gap: 14px; color: var(--ink); }

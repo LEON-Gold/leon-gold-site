@@ -46,17 +46,19 @@ export function TabBar({ tab, setTab, tabs }: { tab: Tab; setTab: (t: Tab) => vo
   );
 }
 
-// ---------- the membership card: a vault plate with the customer's name in gold leaf, and since when ----------
+// ---------- the membership card: a vault plate with the customer's name in gold leaf, and since when; a VIP
+// (the owner marks one on its ledger card) gets the onyx-and-gold card with «VIP» on it ----------
 export function MemberCard({ a }: { a: Account }) {
   const first = a.ent.length ? a.ent[a.ent.length - 1] : null; // the statement comes newest first
   const since = first ? dateOf(first).slice(0, 4) : "";
   return (
-    <section className="hs-card" aria-label="کارت مشتری لئون گلد">
+    <section className={"hs-card" + (a.vip ? " vip" : "")} aria-label={a.vip ? "کارت VIP لئون گلد" : "کارت مشتری لئون گلد"}>
       <div className="hs-card-rose" aria-hidden />
-      <div className="hs-card-top"><img src="/leaf.webp" alt="" width={22} height={40} /><span lang="en" dir="ltr">LEON GOLD · MEMBER</span></div>
+      <div className="hs-card-top"><img src="/leaf.webp" alt="" width={22} height={40} /><span lang="en" dir="ltr">{a.vip ? "LEON GOLD · PRIVÉ" : "LEON GOLD · MEMBER"}</span></div>
+      {a.vip && <b className="hs-card-vip" lang="en" dir="ltr">VIP</b>}
       <p className="hs-card-name leaf">{a.name}</p>
       <div className="hs-card-foot">
-        <span>{since ? `مشتری لئون گلد از ${faDigits(since)}` : "مشتری لئون گلد"}</span>
+        <span>{a.vip ? (since ? `مشتری ویژه‌ی لئون گلد از ${faDigits(since)}` : "مشتری ویژه‌ی لئون گلد") : since ? `مشتری لئون گلد از ${faDigits(since)}` : "مشتری لئون گلد"}</span>
         <span className="num" dir="ltr">№ {a.id.slice(-6).toUpperCase()}</span>
       </div>
     </section>
