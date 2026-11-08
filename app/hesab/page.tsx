@@ -8,6 +8,9 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
   // added to the home screen it opens as its own app, which is what lets an iPhone show its notifications
   appleWebApp: { capable: true, title: "حساب من", statusBarStyle: "black-translucent" },
+  // a square icon on the emerald ground: the iPhone uses it for the home screen and for every notification
+  // (the site's own leaf.png is tall and see-through, so the phone squeezed it onto black)
+  icons: { icon: "/hesab/icon-180.png", apple: "/hesab/icon-180.png" },
 };
 
 export default function Page() {
