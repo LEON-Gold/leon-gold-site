@@ -17,6 +17,12 @@ export function priceOf(it: VItem, gp: number) {
 
 // in hand with a count / can be ordered / not available
 const stockOf = (it: VItem) => it.stock || (it.sold ? "none" : "order");
+// the two filters (owner, 2026-11-09): how soon it can be had, and what kind of piece. A category typed «نیم ست» or
+// «پا بند» in the ledger counts as «نیم‌ست» / «پابند».
+const STOCKS = [["qty", "آماده‌ی تحویل آنی"], ["order", "قابل سفارش"], ["none", "ناموجود"]] as const;
+export const VCATS = ["انگشتر", "گردنبند", "دستبند", "گوشواره", "نیم‌ست", "سرویس", "مدال", "زنجیر", "پابند", "النگو", "پلاک و آویز"];
+const catKey = (s: string) => s.replace(/[\s\u200c]/g, "");
+const catOf = (it: VItem) => { const k = catKey(it.cat || ""); return VCATS.find(c => catKey(c) === k) || it.cat || ""; };
 export const stockText = (it: VItem) => stockOf(it) === "qty" ? (it.qty > 0 ? `${faDigits(it.qty)} عدد در فروشگاه` : "موجود در فروشگاه") : stockOf(it) === "order" ? "موجود (قابل سفارش)" : "ناموجود";
 
 function Media({ m, className, controls }: { m: { id: string; type: "image" | "video" }; className?: string; controls?: boolean }) {
@@ -40,14 +46,18 @@ export default function Vitrin({ demo }: { demo?: boolean }) {
   const [items, setItems] = useState<VItem[] | null>(null);
   const [err, setErr] = useState(false);
   const [cat, setCat] = useState("all");
+  const [st, setSt] = useState("all");
   const [open, setOpen] = useState<VItem | null>(null);
   const { feed } = usePrice();
   useEffect(() => {
     if (demo) { setItems(SAMPLE_VITRIN); return; }
     vitrin().then(setItems, () => setErr(true));
   }, [demo]);
-  const cats = useMemo(() => [...new Set((items || []).map(i => i.cat).filter(Boolean))], [items]);
-  const shown = (items || []).filter(i => cat === "all" || i.cat === cat);
+  const all = useMemo(() => items || [], [items]);
+  const cats = useMemo(() => [...VCATS, ...new Set(all.map(catOf).filter(c => c && !VCATS.includes(c)))], [all]);
+  const nCat = (c: string) => all.filter(i => catOf(i) === c && (st === "all" || stockOf(i) === st)).length;
+  const nSt = (k: string) => all.filter(i => stockOf(i) === k && (cat === "all" || catOf(i) === cat)).length;
+  const shown = all.filter(i => (st === "all" || stockOf(i) === st) && (cat === "all" || catOf(i) === cat));
   const show = (it: VItem | null) => { setOpen(it); scrollTo({ top: 0 }); };
 
   if (open) return <Product it={open} gp={feed?.gp || 0} demo={demo} onBack={() => show(null)} />;
@@ -57,14 +67,26 @@ export default function Vitrin({ demo }: { demo?: boolean }) {
         <h2 className="hs-h" id="hs-vit">ویترین لئون گلد</h2>
         <p>کارهای موجود، با قیمت تقریبیِ همین ساعت{feed?.time ? ` (نرخ اتحادیه، ساعت ${faDigits(feed.time)})` : ""}.</p>
       </div>
-      {cats.length > 1 && (
-        <div className="hs-vcats" role="tablist" aria-label="دسته‌ها">
-          {["all", ...cats].map(c => <button key={c} type="button" role="tab" aria-selected={cat === c} onClick={() => setCat(c)}>{c === "all" ? "همه" : c}</button>)}
+      {all.length > 0 && (
+        <div className="hs-vfilter">
+          <label className={"hs-vsel" + (st !== "all" ? " on" : "")}><span className="hs-sr">وضعیت</span>
+            <select value={st} onChange={e => setSt(e.target.value)} aria-label="وضعیت">
+              <option value="all">همه‌ی وضعیت‌ها</option>
+              {STOCKS.map(([k, t]) => { const n = nSt(k); return <option key={k} value={k} disabled={!n && st !== k}>{t} ({faDigits(n)})</option>; })}
+            </select>
+          </label>
+          <label className={"hs-vsel" + (cat !== "all" ? " on" : "")}><span className="hs-sr">دسته</span>
+            <select value={cat} onChange={e => setCat(e.target.value)} aria-label="دسته">
+              <option value="all">همه‌ی دسته‌ها</option>
+              {cats.map(c => { const n = nCat(c); return <option key={c} value={c} disabled={!n && cat !== c}>{c} ({faDigits(n)})</option>; })}
+            </select>
+          </label>
         </div>
       )}
       {err ? <p className="hs-empty">ویترین باز نشد. اینترنت را بررسی کنید و دوباره سر بزنید.</p>
         : !items ? <p className="hs-empty">در حال آوردن ویترین…</p>
-        : !shown.length ? <p className="hs-empty">فعلاً کاری در ویترین نیست. به‌زودی کارهای تازه اینجا می‌آید.</p>
+        : !all.length ? <p className="hs-empty">فعلاً کاری در ویترین نیست. به‌زودی کارهای تازه اینجا می‌آید.</p>
+        : !shown.length ? <p className="hs-empty">با این انتخاب کاری نیست. <button type="button" className="hs-link" onClick={() => { setSt("all"); setCat("all"); }}>همه را نشان بده</button></p>
         : (
           <ul className="hs-vgrid">
             {shown.map(it => (

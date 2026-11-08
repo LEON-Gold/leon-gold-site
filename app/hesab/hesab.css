@@ -405,10 +405,6 @@ body.hs-sheet-open { overflow: hidden; }
 .hs-bank-row button { flex: none; min-height: 38px; padding: 0 12px; border-radius: 999px; border: 1px solid rgba(156,116,51,.4); background: #fffdf6; font: 600 12.5px/1 var(--text); color: var(--gold-ink); cursor: pointer; }
 
 /* ============ «ویترین» in «حساب من» (components/hesab/Vitrin.tsx) ============ */
-.hs-vcats { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; margin: 0 -16px; padding: 2px 16px; }
-.hs-vcats::-webkit-scrollbar { display: none; }
-.hs-vcats button { flex: none; min-height: 40px; padding: 0 16px; border-radius: 999px; border: 1px solid rgba(232,207,142,.35); background: rgba(6,20,14,.4); color: #e6dcbf; font: 600 14px/1 var(--text); cursor: pointer; }
-.hs-vcats button[aria-selected="true"] { background: var(--leaf); background-size: 180% 100%; color: #0a1f15; border-color: #f3dfa4; }
 .hs-vgrid { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 12px; }
 .hs-vcard { width: 100%; display: grid; gap: 4px; padding: 8px 8px 12px; text-align: start; font: inherit; color: var(--ink); border: 0; cursor: pointer; overflow: hidden; transition: transform .2s var(--ease); }
 .hs-vcard:active { transform: scale(.98); }
@@ -593,3 +589,14 @@ html.hs-locked, html.hs-locked body { overflow: hidden; }
 .hs-a2hs .hs-steps-a2hs b { display: inline-grid; place-items: center; min-width: 28px; height: 28px; border-radius: 8px; background: rgba(13,58,42,.1); color: var(--emerald); }
 .hs-a2hs-later { justify-self: center; margin-top: 4px; color: var(--muted); }
 .hs-st-pay { color: var(--cr); }
+
+/* ---------- the showcase's two filters: how soon it can be had, and what kind (Vitrin.tsx) ---------- */
+.hs-vfilter { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.hs-vsel { position: relative; display: block; }
+.hs-vsel select { -webkit-appearance: none; appearance: none; width: 100%; min-height: 46px; border-radius: 999px; border: 1px solid rgba(232,207,142,.4); background: rgba(6,20,14,.45); color: #f1e6c8;
+  font: 600 16px/1.2 var(--text); padding: 0 16px 0 38px; cursor: pointer; text-overflow: ellipsis; }
+.hs-vsel::after { content: ""; position: absolute; left: 16px; top: 50%; width: 8px; height: 8px; border: solid #e8cf8e; border-width: 0 1.8px 1.8px 0; transform: translateY(-70%) rotate(45deg); pointer-events: none; }
+.hs-vsel.on select { background: var(--leaf); background-size: 180% 100%; color: #0a1f15; border-color: #f3dfa4; }
+.hs-vsel.on::after { border-color: #0a1f15; }
+.hs-vsel select option { color: #17231c; background: #fffdf6; }
+.hs-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
