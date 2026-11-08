@@ -26,7 +26,6 @@
 .hs-row { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
 .hs-link { background: none; border: 0; padding: 10px 0; font: 600 14px/1.4 var(--text); color: var(--gold-ink); cursor: pointer; text-decoration: underline; text-decoration-color: rgba(156,116,51,.4); text-underline-offset: 4px; }
 .hs-link[disabled] { color: #a59d88; text-decoration: none; cursor: default; }
-.hs-demo { margin-top: 18px; background: none; border: 0; font: 500 14px/1 var(--text); color: var(--muted); cursor: pointer; padding: 12px; text-decoration: underline; text-underline-offset: 4px; text-decoration-color: rgba(95,106,94,.35); }
 .hs-note { display: grid; gap: 16px; font-size: 15px; line-height: 1.8; color: var(--ink); text-wrap: pretty; }
 
 /* ---------- inside ---------- */

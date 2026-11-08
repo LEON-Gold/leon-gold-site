@@ -67,14 +67,12 @@ export default function Hesab() {
   }, [load]);
 
   const out = async () => { if (!data?.demo) { await dropDevice(); await logout(); } if (location.hash) history.replaceState(null, "", location.pathname); setData(null); setErr(""); setPhase("form"); };
-  const demo = () => { history.replaceState(null, "", "#demo"); setData(SAMPLE); setPhase("in"); };
 
   if (phase === "in" && data) return <Panel data={data} onOut={out} onReload={data.demo ? undefined : load} />;
   return (
     <Door name="حساب من" latin="LEON GOLD · MY ACCOUNT" fine="فقط حساب خودتان را می‌بینید و در این صفحه چیزی تغییر نمی‌کند.">
         {phase === "boot" ? <p className="hs-wait" aria-live="polite">در حال باز کردن…</p>
           : <SignIn err={err} setErr={setErr} onIn={load} />}
-        <button type="button" className="hs-demo" onClick={demo}>دیدن نمونه‌ی پنل</button>
     </Door>
   );
 }
