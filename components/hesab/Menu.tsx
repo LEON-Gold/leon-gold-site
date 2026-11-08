@@ -1,6 +1,7 @@
 "use client";
 // «حساب من»'s hamburger menu (every section, grouped) and the profile page: the party's own details as the ledger has
 // them, and the username and password they sign in with, which they can change here with their current password.
+import { InfoForm } from "./Onboard";
 import { useEffect, useRef, useState } from "react";
 import { SHOP } from "@/lib/content";
 import { ApiError, changeLogin, faDigits, gram, jdate, jtime, rial, side, type Account, type Me } from "@/lib/hesab";
@@ -140,6 +141,11 @@ export function Profile({ a, data, onUsername }: { a: Account; data: Me; onUsern
       {data.demo ? <Login username="demo.user" demo onUsername={() => {}} />
         : data.username ? <Login username={data.username} onUsername={onUsername} />
         : <p className="hs-prof-fine">شما با لینک یک‌باره وارد شده‌اید. برای داشتن نام کاربری و رمز، از لئون گلد بخواهید.</p>}
+      <section className="hs-login paper" aria-labelledby="hs-info-h">
+        <h2 className="hs-h" id="hs-info-h">اطلاعات من</h2>
+        <p className="hs-prof-fine">پر کردن هیچ‌کدام اجباری نیست. لئون گلد این‌ها را می‌بیند؛ حساب شما در دفتر با آن عوض نمی‌شود.</p>
+        <InfoForm a={a} info={data.info} demo={data.demo} onSaved={() => {}} />
+      </section>
       <Notify demo={data.demo} />
     </section>
   );

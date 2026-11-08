@@ -5,6 +5,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { SHOP } from "@/lib/content";
 import Door from "@/components/Door";
 import { LedgerInvoice } from "./Invoice";
+import { Onboard, useSigned } from "./Onboard";
 import { HomeHint, InvoiceSheet, MyReceipts, PriceCard, Quick, Rules, Summary, dueText, openRules } from "./Extras";
 import { EntryIcon, JewelBox, Journey, MemberCard, PayCard, Seal, Spark, TabBar, monthGroups, type Tab } from "./Home";
 import Vitrin from "./Vitrin";
@@ -47,6 +48,8 @@ export default function Hesab() {
   const [phase, setPhase] = useState<Phase>("boot");
   const [data, setData] = useState<Me | null>(null);
   const [err, setErr] = useState("");
+  // the rules must be signed (once, and again when they change) before the account opens
+  const signed = useSigned(data), [passed, setPassed] = useState(false);
 
   const load = useCallback(async () => {
     try { setData(await me()); setPhase("in"); }
@@ -69,6 +72,8 @@ export default function Hesab() {
 
   const out = async () => { if (!data?.demo) { await dropDevice(); await logout(); } if (location.hash) history.replaceState(null, "", location.pathname); setData(null); setErr(""); setPhase("form"); };
 
+  if (phase === "in" && data && signed === null) return <Door name="حساب من" latin="LEON GOLD · MY ACCOUNT"><p className="hs-wait" aria-live="polite">در حال باز کردن…</p></Door>;
+  if (phase === "in" && data && !signed && !passed) return <Onboard data={data} onDone={info => { if (info) setData({ ...data, info }); setPassed(true); }} />;
   if (phase === "in" && data) return <Panel data={data} onOut={out} onReload={data.demo ? undefined : load} />;
   return (
     <Door name="حساب من" latin="LEON GOLD · MY ACCOUNT" fine="فقط حساب خودتان را می‌بینید و در این صفحه چیزی تغییر نمی‌کند.">

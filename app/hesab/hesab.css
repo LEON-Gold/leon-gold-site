@@ -541,3 +541,23 @@ html.hs-locked, html.hs-locked body { overflow: hidden; }
 .hs-ledger-inv iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; transition: opacity .2s; }
 .hs-ledger-wait { position: absolute; inset: 0; display: grid; place-content: center; color: #e8cf8e; font-size: 15px; }
 .hs-ledger-x { position: absolute; top: calc(12px + env(safe-area-inset-top)); left: 16px; color: #e8cf8e; }
+
+/* ---------- first entry: the rules, signed with a tick, then the party's own details (components/hesab/Onboard.tsx) ---------- */
+.hs-terms { display: grid; gap: 14px; text-align: start; }
+.hs-terms-t { font: 700 18px/1.5 var(--display); color: var(--emerald); margin: 0; }
+.hs-terms-box { max-height: min(46dvh, 420px); overflow-y: auto; padding: 14px 16px; border: 1px solid rgba(197,154,80,.45); border-radius: 12px; background: rgba(255,255,255,.55); font-size: 14px; line-height: 1.9; color: var(--ink); overscroll-behavior: contain; }
+.hs-terms-box h3 { margin: 0 0 4px; font: 700 15px/1.6 var(--text); color: var(--emerald); }
+.hs-terms-box section { padding: 0; } /* the site gives every section a page padding */
+.hs-terms-box section + section { margin-top: 12px; }
+.hs-terms-box ol { margin: 0; padding-inline-start: 22px; list-style: persian; }
+.hs-terms-box li::marker { color: var(--gold-ink); font-weight: 700; }
+.hs-terms-box p { margin: 0; text-align: justify; }
+.hs-agree { display: grid; grid-template-columns: 26px 1fr; gap: 10px; align-items: start; padding: 12px; border: 1px solid rgba(197,154,80,.55); border-radius: 12px; background: rgba(197,154,80,.08); font-size: 14.5px; line-height: 1.8; font-weight: 600; color: var(--ink); cursor: pointer; }
+.hs-agree input { width: 24px; height: 24px; margin: 3px 0 0; accent-color: var(--emerald); }
+.hs-terms-fine { font-size: 12.5px; color: var(--muted); line-height: 1.8; margin: 0; }
+.hs-info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; text-align: start; }
+.hs-info-grid input { text-align: start; }
+.hs-info-grid .wide { grid-column: 1 / -1; }
+.hs-info input { font-size: 16px; }
+.hs-skip { justify-self: center; margin-top: 4px; }
+@media (max-width: 520px) { .hs-info-grid { grid-template-columns: 1fr; } }
