@@ -9,6 +9,7 @@ import ClientPage from "./ClientPage";
 import Leads from "./Leads";
 import Numbers from "./Numbers";
 import Door from "@/components/Door";
+import ThemeToggle from "@/components/ThemeToggle";
 
 // a sign-in handed over by the ledger starts before the first render; the door waits for it instead of flashing
 const handoff = typeof window !== "undefined" ? takeHandoff() : null;
@@ -102,6 +103,7 @@ export default function Panel() {
         <button className={"pn-sync " + state} onClick={refresh} aria-label="به‌روز کردن" title={state === "err" ? "به سرور وصل نشد" : "به‌روز کردن"}>
           <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M20 12a8 8 0 1 1-2.3-5.7M20 4v4h-4" /></svg>
         </button>
+        <ThemeToggle className="pn-theme" />
         <button className="pn-out" onClick={async () => { await logout(); setSt(emptyStore()); }}>خروج</button>
       </header>
       {state === "err" && <p className="pn-banner" role="status">به سرور وصل نشد. آنچه می‌بینی آخرین نسخه‌ی گرفته‌شده است. <button onClick={refresh}>دوباره</button></p>}

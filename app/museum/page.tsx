@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import ThemeToggle from "@/components/ThemeToggle";
 import Image from "next/image";
 import Karat from "@/components/Karat";
 import Timeline from "@/components/Timeline";
@@ -42,6 +43,7 @@ export default function Museum() {
           <span className="leaf">لئون گلد</span>
         </a>
         <span className="mu-bar-t">موزه‌ی طلا</span>
+        <ThemeToggle className="mu-theme" />
         <a className="btn btn-line mu-bar-back" href="../">بازگشت به فروشگاه</a>
       </header>
 

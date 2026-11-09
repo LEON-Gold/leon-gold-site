@@ -9,6 +9,7 @@ import { chrono, monthTitle, num, sideWord, statementPdf, totals } from "./Repor
 import { Onboard, useSigned } from "./Onboard";
 import { setRulesGroup } from "@/lib/content";
 import AuthSwap from "./AuthSwap";
+import ThemeToggle from "@/components/ThemeToggle";
 import { HomeHint, InvoiceSheet, MyReceipts, PriceCard, Quick, Rules, Summary, dueText, openRules } from "./Extras";
 import { EntryIcon, JewelBox, Journey, MemberCard, PayCard, Seal, TabBar, type Tab } from "./Home";
 import Vitrin from "./Vitrin";
@@ -236,6 +237,7 @@ function Panel({ data, onOut, onReload }: { data: Me; onOut: () => void; onReloa
         <button type="button" className="hs-burger" onClick={() => setMenu(true)} aria-label="منو" aria-expanded={menu} aria-haspopup="dialog"><i /><i /><i /></button>
         <a className="hs-brand" href="../"><img src="/leaf.png" alt="" width={28} height={28} /><span className="leaf">لئون گلد</span></a>
         <span className="hs-bar-t">حساب من</span>
+        <ThemeToggle className="hs-theme" />
         <Avatar name={a.name} current={tab === "profile"} onClick={() => setTab("profile")} />
       </header>
       {data.demo && <p className="hs-demo-band" role="note">این یک حساب نمونه است، با رقم‌های ساختگی؛ فقط برای دیدن شکل پنل.</p>}

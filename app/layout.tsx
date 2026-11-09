@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import type { CSSProperties } from "react";
 import { GL_VARS } from "@/lib/guilloche";
+import { THEME_BOOT } from "@/components/ThemeToggle";
 import "./globals.css";
 import "./site.css";
 
@@ -18,7 +19,8 @@ export const viewport: Viewport = { themeColor: "#06140e", width: "device-width"
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="fa" dir="rtl">
+    <html lang="fa" dir="rtl" suppressHydrationWarning>
+      <head><script dangerouslySetInnerHTML={{ __html: THEME_BOOT }} /></head>
       <body style={GL_VARS as CSSProperties}>{children}</body>
     </html>
   );

@@ -16,6 +16,8 @@
 :root {
   --bg: #e9e5da;
   --paper: #fffdf6;
+  --paper-2: #f6f0e1;
+  --emerald-bg: #0d3a2a;
   --ink: #12241b;
   --muted: #5f6a5e;
   --line: #d9c9a0;
@@ -57,7 +59,7 @@ a { color: inherit; }
 .btn-gold:hover { background-position: 90% 0; transform: translateY(-2px); box-shadow: 0 16px 34px -12px rgba(216,180,106,.9); }
 .btn-line { background: transparent; color: var(--gold-lt); border-color: rgba(232,207,142,.55); }
 .btn-line:hover { border-color: var(--gold-lt); background: rgba(232,207,142,.08); transform: translateY(-2px); }
-.btn-ink { background: var(--emerald); color: var(--gold-lt); border-color: var(--emerald); }
+.btn-ink { background: var(--emerald-bg); color: var(--gold-lt); border-color: var(--emerald); }
 .btn-ink:hover { background: var(--green-2); transform: translateY(-2px); }
 .btn:active { transform: scale(.97); }
 
@@ -65,3 +67,28 @@ a { color: inherit; }
   html { scroll-behavior: auto; }
   *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
 }
+
+/* ---------- dark mode (owner, 2026-11-09): html[data-theme=dark], set before paint from the visitor's choice or the
+   phone's own setting (app/layout.tsx), switched by components/ThemeToggle.tsx. The vault greens stay; the ivory paper
+   turns to deep green and its ink to cream. ---------- */
+html[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #071710;
+  --paper: #10241a;
+  --paper-2: #173226;
+  --ink: #efe6cc;
+  --muted: #a9b5aa;
+  --line: rgba(197, 154, 80, .34);
+  --gold-ink: #d8b46a;
+  --emerald: #9ed6b6;
+  --dr: #f2a493;
+  --cr: #8fd6b0;
+  --lift: 0 1px 0 rgba(232,207,142,.08) inset, 0 1px 2px rgba(0,0,0,.4), 0 18px 40px -24px rgba(0,0,0,.8);
+}
+html[data-theme="dark"] body { background-color: var(--bg); }
+html[data-theme="dark"] img[src$="leaf.webp"], html[data-theme="dark"] img[src$="leaf.png"] { filter: none; }
+/* the theme switch */
+.theme-t { flex: none; width: 38px; height: 38px; border-radius: 50%; display: grid; place-items: center; cursor: pointer; padding: 0;
+  border: 1px solid rgba(232,207,142,.45); background: rgba(6,20,14,.35); color: var(--gold-lt); }
+.theme-t svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+.theme-t:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }

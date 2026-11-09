@@ -1,4 +1,5 @@
 "use client";
+import ThemeToggle from "./ThemeToggle";
 // The ledger's emerald bar: the jewel and the name in gold leaf, a few links and the one action.
 // It sits clear over the hero and takes its woven band once the page scrolls.
 // On a phone the menu is a small dropdown card under the ☰ button: links, then the three account pills, then the CTA.
@@ -47,6 +48,7 @@ export default function Header({ ledger }: { ledger: string }) {
         <a className="bar-ledger" href="hesab/">حساب من</a>
         <a className="bar-ledger" href={ledger}>دفتر لئون</a>
       </nav>
+      <ThemeToggle className="bar-theme" />
       <a className="btn btn-gold bar-cta" href="#order">ثبت سفارش</a>
       <button className="bar-menu" type="button" aria-expanded={open} aria-controls="sheet" aria-label={open ? "بستن فهرست" : "فهرست"} onClick={() => setOpen(!open)}>
         <i /><i /><i />

@@ -2,6 +2,7 @@
 // The site's bar on top; under it a turning guilloché dial, the leaf seal in a gold-rimmed medallion, the name in
 // gold leaf, then the page's own ivory card (its fields and flows stay in the page) and one fine line.
 import type { ReactNode } from "react";
+import ThemeToggle from "./ThemeToggle";
 
 // wide: a page with a lot to show (the public showcase) gets a wide card on a desktop instead of the narrow sign-in one
 export default function Door({ name, latin, fine, children, wide }: { name: string; latin: string; fine?: ReactNode; children: ReactNode; wide?: boolean }) {
@@ -13,6 +14,7 @@ export default function Door({ name, latin, fine, children, wide }: { name: stri
           <span className="leaf">لئون گلد</span>
         </a>
         <span className="door-bar-t">{name}</span>
+        <ThemeToggle className="door-theme" />
         <a className="btn btn-line door-back" href="../">بازگشت به سایت</a>
       </header>
       <main className="door-in">
