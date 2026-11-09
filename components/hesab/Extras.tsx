@@ -4,7 +4,7 @@
 // them, and the iPhone's «Add to Home Screen» hint. Nothing here writes to the ledger.
 import { useEffect, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
-import { RULES, SHOP } from "@/lib/content";
+import { SHOP, rulesFor, rulesGroupNow, rulesTitleFor } from "@/lib/content";
 import { usePrice, MITHQAL, toman as tomanOf } from "@/lib/price";
 import { faDigits, gram, jdate, latin, myReceipts, photoUrl, toman, type Entry, type Line, type MyReceipt } from "@/lib/hesab";
 
@@ -157,8 +157,8 @@ export function Rules() {
   return createPortal(
     <div className="hs-sheet-bg" onClick={x => { if (x.target === x.currentTarget) setOn(false); }}>
       <article className="hs-inv hs-rules paper" role="dialog" aria-modal="true" aria-labelledby="hs-rules-h">
-        <header className="hs-inv-head"><div><p className="hs-inv-shop leaf">لئون گلد</p><h2 id="hs-rules-h" className="hs-rules-t">آیین‌نامه‌ی خرید و فروش کالا</h2></div></header>
-        {RULES.map(r => (
+        <header className="hs-inv-head"><div><p className="hs-inv-shop leaf">لئون گلد</p><h2 id="hs-rules-h" className="hs-rules-t">{rulesTitleFor(rulesGroupNow()).replace(" · لئون گلد", "")}</h2></div></header>
+        {rulesFor(rulesGroupNow()).map(r => (
           <section key={r.title} className="hs-rules-s">
             <h3>{r.title}</h3>
             {r.items && <ol>{r.items.map(t => <li key={t}>{t}</li>)}</ol>}

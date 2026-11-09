@@ -4,22 +4,22 @@
 // address and browser: leon-gold-server/portal.mjs /api/portal/terms/accept), then its own details to fill in if it wants.
 import { useEffect, useState } from "react";
 import Door from "@/components/Door";
-import { RULES } from "@/lib/content";
+import { rulesFor, rulesTitleFor } from "@/lib/content";
 import { ApiError, acceptTerms, faDigits, saveInfo, termsHash, type Account, type Info, type Me } from "@/lib/hesab";
 
 // the exact words signed: the title, then each section with its clauses numbered
-export const RULES_TITLE = "آیین‌نامه‌ی خرید و فروش کالا · لئون گلد";
-export const rulesText = () => [RULES_TITLE, ...RULES.map(r => [r.title, ...(r.items || []).map((t, i) => `${i + 1}. ${t}`), r.text || ""].filter(Boolean).join("\n"))].join("\n\n");
-export const AGREE = "متن کامل آیین‌نامه‌ی خرید و فروش لئون گلد را خواندم، مفاد آن را می‌پذیرم و تأیید می‌کنم. این تأیید، امضای الکترونیکی من است.";
+// retail buyers sign the retail rules (lib/content.ts RULES_RETAIL), the trade the full ones
+export const rulesText = (group?: string) => [rulesTitleFor(group), ...rulesFor(group).map(r => [r.title, ...(r.items || []).map((t, i) => `${i + 1}. ${t}`), r.text || ""].filter(Boolean).join("\n"))].join("\n\n");
+export const AGREE = "متن کامل آیین‌نامه‌ی لئون گلد را خواندم، مفاد آن را می‌پذیرم و تأیید می‌کنم. این تأیید، امضای الکترونیکی من است.";
 
 // has this party signed the rules as they read today
 export function useSigned(data: Me | null) {
   const [hash, setHash] = useState<string | null>(null);
   useEffect(() => {
     let dead = false;
-    termsHash(rulesText()).then(h => { if (!dead) setHash(h); }).catch(() => { if (!dead) setHash(""); });
+    termsHash(rulesText(data?.accounts[0]?.group)).then(h => { if (!dead) setHash(h); }).catch(() => { if (!dead) setHash(""); });
     return () => { dead = true; };
-  }, []);
+  }, [data?.accounts[0]?.group]);
   if (!data) return null;
   if (data.demo) return true;
   if (hash === null) return null;
@@ -28,10 +28,11 @@ export function useSigned(data: Me | null) {
 
 export function Onboard({ data, onDone }: { data: Me; onDone: (info?: Info) => void }) {
   const [step, setStep] = useState<"rules" | "info">("rules");
+  const g = data.accounts[0]?.group;
   const [tick, setTick] = useState(false), [busy, setBusy] = useState(false), [err, setErr] = useState("");
   const sign = async () => {
     if (!tick || busy) return; setBusy(true); setErr("");
-    try { await acceptTerms(rulesText(), AGREE); setStep("info"); }
+    try { await acceptTerms(rulesText(g), AGREE); setStep("info"); }
     catch (e) { setErr(e instanceof ApiError && e.code === "offline" ? "به سرور وصل نشد. اینترنت را بررسی کنید و دوباره بزنید." : "ثبت نشد. یک بار دیگر بزنید."); }
     finally { setBusy(false); }
   };
@@ -42,9 +43,9 @@ export function Onboard({ data, onDone }: { data: Me; onDone: (info?: Info) => v
   return (
     <Door name="آیین‌نامه" latin="LEON GOLD · TERMS" fine="برای ورود به «حساب من»، یک بار این آیین‌نامه را بخوانید و بپذیرید.">
       <div className="hs-terms">
-        <h2 className="hs-terms-t">{RULES_TITLE}</h2>
+        <h2 className="hs-terms-t">{rulesTitleFor(g)}</h2>
         <div className="hs-terms-box" tabIndex={0} aria-label="متن آیین‌نامه">
-          {RULES.map(r => (
+          {rulesFor(g).map(r => (
             <section key={r.title}>
               <h3>{r.title}</h3>
               {r.items && <ol>{r.items.map(t => <li key={t}>{t}</li>)}</ol>}

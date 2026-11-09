@@ -14,7 +14,7 @@ for (const [name, body] of Object.entries(glFiles(COLLECTION.length))) writeFile
 // robots.txt and sitemap.xml (generated too: route segment config cannot sit beside cacheComponents); the panel and «حساب من» carry noindex, so they stay crawlable
 const site = (process.env.SITE_URL || "https://leon-gold.github.io/leon-gold-app/site/").replace(/\/?$/, "/");
 const slash = preview ? "/" : "";
-const pages = ["", "museum" + slash];
+const pages = ["", "museum" + slash, "vitrin" + slash];
 const today = new Date().toISOString().slice(0, 10);
 writeFileSync("public/robots.txt", `User-agent: *\nAllow: /\n\nSitemap: ${site}sitemap.xml\n`);
 writeFileSync("public/sitemap.xml", `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${pages.map((p) => `  <url><loc>${site}${p}</loc><lastmod>${today}</lastmod></url>`).join("\n")}\n</urlset>\n`);

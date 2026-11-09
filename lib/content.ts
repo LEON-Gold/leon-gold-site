@@ -29,6 +29,32 @@ export const RULES: { title: string; items?: string[]; text?: string }[] = [
   { title: "کالای امانی (همکاران)", text: "کلیه مندرجات قبض جهت بازاریابی به رسم امانت تحویل می‌گردد. تحویل‌گیرنده شرعاً و قانوناً متعهد و ملزم است هر آنچه از اقلام اجناس را بابت خود یا دیگری فاکتور نماید، بجای آن را علاوه بر اجرت، نقد به «لئون گلد» بپردازد و مابقی اجناس را عندالمطالبه مسترد نماید؛ چون اجناس مذبور نزد او امانت بوده و دین است بر ذمه‌ی او. در این خصوص هرگونه کوتاهی و بی‌احتیاطی که به عمل آید، تحویل‌گیرنده ضامن و پاسخگو و حتی ملزم به پرداخت با دیگر اموال خویش در صورت ضرر می‌باشد." },
 ];
 
+// «آیین‌نامه‌ی خرید» for retail buyers (kinds of business in the «مشتری تک‌فروشی» group: home buyers, single-piece
+// customers; owner, 2026-11-09). They buy for themselves, so the trade's clauses (late fees, consignment, returns of
+// unsold stock) are not theirs. DRAFT for the owner to check; any change makes them sign again.
+export const RULES_RETAIL: { title: string; items?: string[]; text?: string }[] = [
+  { title: "قیمت", items: [
+    "قیمت هر کار برابر است با وزن × نرخ روز طلای ۱۸ عیار در لحظه‌ی خرید، به‌اضافه‌ی اجرت ساخت، سود فروشنده و مالیات بر ارزش افزوده (فقط روی اجرت و سود).",
+    "قیمتی که در سایت و «حساب من» دیده می‌شود تقریبی است و با نرخ لحظه‌ی خرید قطعی می‌شود.",
+    "وزن، عیار، اجرت و سود هر کار جداگانه در فاکتور نوشته می‌شود.",
+  ] },
+  { title: "سفارش و تحویل", items: [
+    "ثبت سفارش در سایت یا «حساب من» درخواست خرید است؛ لئون گلد برای قیمت نهایی و زمان تحویل با شما تماس می‌گیرد.",
+    "خرید با پرداخت مبلغ فاکتور قطعی می‌شود و کار همراه فاکتور تحویل داده می‌شود.",
+  ] },
+  { title: "فروش دوباره به لئون گلد", items: [
+    "اگر کاری را که خریده‌اید دوباره به لئون گلد بفروشید، طلای آن با نرخ روز خرید طلا حساب می‌شود و اجرت، سود و مالیات قابل برگشت نیست.",
+    "اشتباه در فاکتور از طرفین قابل برگشت است.",
+  ] },
+  { title: "حساب من", text: "اطلاعاتی که در ثبت‌نام می‌دهید (نام، کد ملی، شماره تماس) فقط نزد لئون گلد می‌ماند و برای فاکتور و تماس درباره‌ی سفارش‌های شما به کار می‌رود." },
+];
+// which rules a party signs: retail buyers the retail ones, everyone else (the trade) the full ones
+export const rulesFor = (group?: string) => group === "retail" ? RULES_RETAIL : RULES;
+export const rulesTitleFor = (group?: string) => group === "retail" ? "آیین‌نامه‌ی خرید · مشتریان لئون گلد" : "آیین‌نامه‌ی خرید و فروش کالا · لئون گلد";
+let rulesGroup = "";
+export const setRulesGroup = (g?: string) => { rulesGroup = g || ""; };
+export const rulesGroupNow = () => rulesGroup;
+
 // The ledger app: on the GitHub preview it is the app one level above the site; on real hosting it is /daftar/.
 export const LEDGER = process.env.PREVIEW_BASE ? process.env.PREVIEW_BASE.replace(/\/site\/?$/, "/") : "/daftar/";
 

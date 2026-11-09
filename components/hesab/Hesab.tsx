@@ -7,14 +7,15 @@ import Door from "@/components/Door";
 import { LedgerInvoice } from "./Invoice";
 import { chrono, monthTitle, num, sideWord, statementPdf, totals } from "./Report";
 import { Onboard, useSigned } from "./Onboard";
+import { setRulesGroup } from "@/lib/content";
 import { HomeHint, InvoiceSheet, MyReceipts, PriceCard, Quick, Rules, Summary, dueText, openRules } from "./Extras";
 import { EntryIcon, JewelBox, Journey, MemberCard, PayCard, Seal, TabBar, type Tab } from "./Home";
 import Vitrin from "./Vitrin";
 import { Avatar, KIND, Menu, Profile } from "./Menu";
 import { dropDevice, useHomeApp } from "./Notify";
 import {
-  ApiError, SAMPLE, signup, dayNum, faDigits, getToken, gram, jdate, jtime, latin, login, logout, me, photoUrl, redeem, rial, sendReceipt, shrinkPhoto, side, today, toman,
-  type Account, type Entry, type Me,
+  ApiError, SAMPLE, signup, publicBiz, nidOk, dayNum, faDigits, getToken, gram, jdate, jtime, latin, login, logout, me, photoUrl, redeem, rial, sendReceipt, shrinkPhoto, side, today, toman,
+  type Account, type BizType, type Entry, type Me,
 } from "@/lib/hesab";
 
 type Phase = "boot" | "form" | "in";
@@ -37,6 +38,10 @@ const ERR: Record<string, string> = {
   bad_mobile: "شماره موبایل باید ۱۱ رقم و با ۰۹ شروع شود.",
   bad_name: "نام و نام خانوادگی را کامل بنویسید.",
   bad_birth: "تاریخ تولد را مثل ۱۳۷۰/۰۵/۱۲ بنویسید.",
+  bad_nid: "کد ملی درست نیست. ۱۰ رقم کد ملی را بنویسید.",
+  nid_taken: "با این کد ملی قبلاً حساب ساخته شده. با همان نام کاربری وارد شوید، یا در تلگرام بپرسید.",
+  bad_biz: "نوع کسب‌وکار را انتخاب کنید.",
+  bad_trade: "برای همکاران، نام مغازه، شماره پروانه کسب، شماره عضویت اتحادیه و نشانی مغازه لازم است.",
 };
 const errText = (e: unknown) => (e instanceof ApiError && ERR[e.code]) || "مشکلی پیش آمد. دوباره امتحان کنید.";
 const tg = SHOP.telegram;
@@ -89,7 +94,7 @@ export default function Hesab() {
   return (
     <>{hint}<Door name="حساب من" latin="LEON GOLD · MY ACCOUNT" fine="فقط حساب خودتان را می‌بینید و در این صفحه چیزی تغییر نمی‌کند.">
         {phase === "boot" ? <p className="hs-wait" aria-live="polite">در حال باز کردن…</p>
-          : mode === "up" ? <SignUp onBack={() => { setMode("in"); setErr(""); }} />
+          : mode === "up" ? <SignUp onBack={() => { setMode("in"); setErr(""); }} onIn={load} />
           : <SignIn err={err} setErr={setErr} onIn={load} onUp={() => { setMode("up"); setErr(""); }} />}
     </Door></>
   );
@@ -117,6 +122,7 @@ function SignIn({ err, setErr, onIn, onUp }: { err: string; setErr: (s: string) 
       </label>
       {err && <p className="hs-err" id="hs-err" role="alert">{err}</p>}
       <button className="btn btn-gold hs-wide" disabled={busy}>{busy ? "در حال ورود…" : "ورود"}</button>
+      {typeof location !== "undefined" && /[?&]p=/.test(location.search) && <p className="hs-sent hs-fromsite">برای ثبت سفارش کاری که در ویترین دیدید، وارد شوید یا حساب بسازید.</p>}
       <div className="hs-or"><span>حساب ندارید؟</span></div>
       <button type="button" className="btn btn-ghost hs-wide hs-upbtn" onClick={onUp}>ثبت نام</button>
       <p className="hs-sent">اگر نام کاربری و رمز را فراموش کرده‌اید، <a href={tg} target="_blank" rel="noopener">در تلگرام بخواهید</a>.</p>
@@ -124,55 +130,72 @@ function SignIn({ err, setErr, onIn, onUp }: { err: string; setErr: (s: string) 
   );
 }
 
-// «ثبت نام»: what Leon Gold needs to open an account; it waits for approval in the ledger (leon-gold-server/portal.mjs)
-function SignUp({ onBack }: { onBack: () => void }) {
-  const [f, setF] = useState({ fullName: "", mobile: "", kind: "customer" as "customer" | "supplier", shop: "", city: "", birth: "", username: "", password: "", password2: "", note: "" });
-  const [err, setErr] = useState(""), [busy, setBusy] = useState(false), [done, setDone] = useState(false);
-  const set = (k: keyof typeof f) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => setF({ ...f, [k]: e.target.value });
+// «ثبت نام» (owner, 2026-11-09): the account opens at once, no approval. The kind of business decides the group: the
+// trade («همکار») gives what only a real shop has; national code and mobile are required for everyone.
+function SignUp({ onBack, onIn }: { onBack: () => void; onIn: () => Promise<void> }) {
+  const [types, setTypes] = useState<BizType[] | null>(null);
+  const [f, setF] = useState({ biz: "", fullName: "", mobile: "", nationalId: "", shop: "", city: "", birth: "", licence: "", union: "", shopAddr: "", username: "", password: "", password2: "", note: "" });
+  const [err, setErr] = useState(""), [busy, setBusy] = useState(false), [done, setDone] = useState("");
+  useEffect(() => { publicBiz().then(setTypes, () => setErr(ERR.offline)); }, []);
+  const set = (k: keyof typeof f) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => setF({ ...f, [k]: e.target.value });
+  const bt = types?.find(t => t.k === f.biz), colleague = bt?.group === "colleague";
   const send = async (e: React.FormEvent) => {
     e.preventDefault(); if (busy) return;
-    const mobile = latin(f.mobile).replace(/\D/g, ""), username = latin(f.username).trim().toLowerCase();
+    const mobile = latin(f.mobile).replace(/\D/g, ""), nid = latin(f.nationalId).replace(/\D/g, ""), username = latin(f.username).trim().toLowerCase();
+    if (!bt) return setErr(ERR.bad_biz);
     if (f.fullName.trim().length < 3) return setErr(ERR.bad_name);
     if (!/^09\d{9}$/.test(mobile)) return setErr(ERR.bad_mobile);
-    if (f.kind === "supplier" && !f.shop.trim()) return setErr("نام کارگاه یا فروشگاه را بنویسید.");
+    if (!nidOk(nid)) return setErr(ERR.bad_nid);
+    if (colleague && (f.shop.trim().length < 2 || !/^\d{6,20}$/.test(latin(f.licence).replace(/\D/g, "")) || f.union.trim().length < 3 || f.shopAddr.trim().length < 10)) return setErr(ERR.bad_trade);
     if (f.birth.trim() && !/^1[34]\d\d\/\d{1,2}\/\d{1,2}$/.test(latin(f.birth).trim())) return setErr(ERR.bad_birth);
     if (!/^[a-z0-9][a-z0-9._-]{2,39}$/.test(username)) return setErr(ERR.bad_username);
-    if (latin(f.password).trim().length < 6) return setErr(ERR.bad_password.replace("رمز تازه", "رمز"));
+    if (latin(f.password).trim().length < 6) return setErr("رمز باید دست‌کم ۶ حرف یا رقم باشد.");
     if (f.password !== f.password2) return setErr("دو رمز یکی نیستند.");
     setBusy(true); setErr("");
     try {
-      await signup({ fullName: f.fullName.trim(), mobile, kind: f.kind, shop: f.shop.trim() || undefined, city: f.city.trim() || undefined, birth: latin(f.birth).trim() || undefined, username, password: f.password, note: f.note.trim() || undefined });
-      setDone(true);
+      const r = await signup({ biz: bt.k, fullName: f.fullName.trim(), mobile, nationalId: nid, shop: f.shop.trim() || undefined, city: f.city.trim() || undefined, birth: latin(f.birth).trim() || undefined,
+        ...(colleague ? { licence: latin(f.licence).replace(/\D/g, ""), union: latin(f.union).trim(), shopAddr: f.shopAddr.trim() } : {}), username, password: f.password, note: f.note.trim() || undefined });
+      setDone(r.username);
     } catch (x) { setErr(errText(x)); }
     finally { setBusy(false); }
   };
   if (done) return (
     <div className="hs-form hs-updone" role="status">
-      <p className="hs-upok">ثبت‌نام شما رسید ✓</p>
-      <p className="hs-sent">لئون گلد اطلاعات شما را بررسی و تایید می‌کند. بعد از تایید، با همین نام کاربری <b dir="ltr">{latin(f.username).trim().toLowerCase()}</b> و رمزی که ساختید وارد شوید.</p>
-      <button type="button" className="btn btn-gold hs-wide" onClick={onBack}>بازگشت به ورود</button>
+      <p className="hs-upok">حساب شما ساخته شد ✓</p>
+      <p className="hs-sent">نام کاربری شما: <b dir="ltr" className="hs-uname">{done}</b><br />این نام کاربری و رمزتان را جایی یادداشت کنید؛ از این به بعد با همین‌ها وارد می‌شوید.</p>
+      <button type="button" className="btn btn-gold hs-wide" disabled={busy} onClick={async () => { setBusy(true); try { await onIn(); } finally { setBusy(false); } }}>{busy ? "در حال باز کردن…" : "ورود به حساب من"}</button>
     </div>
   );
   return (
     <form className="hs-form" onSubmit={send} noValidate>
       <p className="hs-uphead">ثبت نام در «حساب من»</p>
-      <div className="hs-seg" role="radiogroup" aria-label="شما">
-        <button type="button" role="radio" aria-checked={f.kind === "customer"} onClick={() => setF({ ...f, kind: "customer" })}>مشتری</button>
-        <button type="button" role="radio" aria-checked={f.kind === "supplier"} onClick={() => setF({ ...f, kind: "supplier" })}>همکار / تأمین‌کننده</button>
-      </div>
+      <label className="hs-field"><span>نوع کسب‌وکار *</span>
+        <select value={f.biz} onChange={set("biz")} className="hs-select">
+          <option value="">{types ? "— انتخاب کنید —" : "در حال آوردن…"}</option>
+          {types && <optgroup label="مشتری (برای خودم می‌خرم)">{types.filter(t => t.group === "retail").map(t => <option key={t.k} value={t.k}>{t.name}</option>)}</optgroup>}
+          {types && <optgroup label="همکار (از صنف طلا و جواهر)">{types.filter(t => t.group === "colleague").map(t => <option key={t.k} value={t.k}>{t.name}</option>)}</optgroup>}
+        </select>
+      </label>
+      {colleague && <p className="hs-sent hs-trade-note">برای همکاران چند اطلاعات صنفی لازم است؛ لئون گلد آن‌ها را بررسی می‌کند.</p>}
       <label className="hs-field"><span>نام و نام خانوادگی *</span><input value={f.fullName} onChange={set("fullName")} autoComplete="name" maxLength={80} /></label>
       <label className="hs-field"><span>شماره موبایل *</span><input value={f.mobile} onChange={set("mobile")} autoComplete="tel" inputMode="tel" dir="ltr" placeholder="09xxxxxxxxx" maxLength={14} /></label>
-      {f.kind === "supplier" && <label className="hs-field"><span>نام کارگاه یا فروشگاه *</span><input value={f.shop} onChange={set("shop")} autoComplete="organization" maxLength={80} /></label>}
-      <label className="hs-field"><span>شهر</span><input value={f.city} onChange={set("city")} autoComplete="address-level2" maxLength={40} /></label>
+      <label className="hs-field"><span>کد ملی *</span><input value={f.nationalId} onChange={set("nationalId")} inputMode="numeric" dir="ltr" maxLength={12} /></label>
+      {colleague && <>
+        <label className="hs-field"><span>نام مغازه یا کارگاه *</span><input value={f.shop} onChange={set("shop")} autoComplete="organization" maxLength={80} /></label>
+        <label className="hs-field"><span>شماره پروانه کسب (جواز صنفی) *</span><input value={f.licence} onChange={set("licence")} inputMode="numeric" dir="ltr" maxLength={30} /></label>
+        <label className="hs-field"><span>شماره عضویت اتحادیه طلا و جواهر *</span><input value={f.union} onChange={set("union")} dir="ltr" maxLength={30} /></label>
+        <label className="hs-field"><span>نشانی مغازه (بازار، پاساژ، پلاک) *</span><input value={f.shopAddr} onChange={set("shopAddr")} maxLength={200} /></label>
+      </>}
+      {!colleague && <label className="hs-field"><span>شهر</span><input value={f.city} onChange={set("city")} autoComplete="address-level2" maxLength={40} /></label>}
       <label className="hs-field"><span>تاریخ تولد (برای تبریک؛ اختیاری)</span><input value={f.birth} onChange={set("birth")} inputMode="numeric" dir="ltr" placeholder="۱۳۷۰/۰۵/۱۲" maxLength={10} /></label>
       <label className="hs-field"><span>نام کاربری * (حروف انگلیسی یا عدد)</span><input value={f.username} onChange={set("username")} autoComplete="username" autoCapitalize="none" spellCheck={false} dir="ltr" maxLength={40} /></label>
       <label className="hs-field"><span>رمز * (حداقل ۶ حرف یا عدد)</span><input type="password" value={f.password} onChange={set("password")} autoComplete="new-password" dir="ltr" maxLength={60} /></label>
       <label className="hs-field"><span>تکرار رمز *</span><input type="password" value={f.password2} onChange={set("password2")} autoComplete="new-password" dir="ltr" maxLength={60} /></label>
       <label className="hs-field"><span>توضیح (اختیاری)</span><textarea value={f.note} onChange={set("note")} rows={2} maxLength={300} placeholder="مثلاً از کجا ما را می‌شناسید" /></label>
       {err && <p className="hs-err" role="alert">{err}</p>}
-      <button className="btn btn-gold hs-wide" disabled={busy}>{busy ? "در حال فرستادن…" : "ثبت نام"}</button>
+      <button className="btn btn-gold hs-wide" disabled={busy}>{busy ? "در حال ساختن حساب…" : "ساختن حساب"}</button>
       <button type="button" className="hs-link hs-back" onClick={onBack}>حساب دارم؛ ورود</button>
-      <p className="hs-sent">حساب شما بعد از تایید لئون گلد باز می‌شود. اطلاعاتتان فقط برای لئون گلد است.</p>
+      <p className="hs-sent">حساب همین الان ساخته می‌شود. اطلاعات شما فقط نزد لئون گلد می‌ماند.</p>
     </form>
   );
 }
@@ -183,6 +206,7 @@ function Panel({ data, onOut, onReload }: { data: Me; onOut: () => void; onReloa
   const [ai, setAi] = useState(0);
   // a tapped notification opens on its section (?t=orders), then the address is cleaned
   const [tab, setTabS] = useState<Tab>(() => { const t = typeof location === "undefined" ? "" : new URLSearchParams(location.search).get("t") || ""; return (["vitrin", "orders", "box", "stmt", "profile"].includes(t) ? t : "home") as Tab; });
+  const [openId] = useState(() => typeof location === "undefined" ? "" : new URLSearchParams(location.search).get("p") || "");
   useEffect(() => { if (location.search) history.replaceState(null, "", location.pathname + location.hash); }, []);
   const [menu, setMenu] = useState(false);
   const [username, setUsername] = useState(data.username);
@@ -192,6 +216,7 @@ function Panel({ data, onOut, onReload }: { data: Me; onOut: () => void; onReloa
   const closeMenu = useCallback(() => setMenu(false), []);
   useHomeApp(useCallback((t: string) => setTabS(t as Tab), []));
   const a = data.accounts[Math.min(ai, data.accounts.length - 1)];
+  setRulesGroup(a.group);
   const isCustomer = a.kind !== "supplier", isSupplier = a.kind !== "customer" || a.work.length > 0; // any party the owner picked as an order's maker
   // a supplier only sees its work first; a party that is both sees its own orders, then its work
   const supplierFirst = isSupplier && !isCustomer;
@@ -241,7 +266,7 @@ function Panel({ data, onOut, onReload }: { data: Me; onOut: () => void; onReloa
           </footer>
         </>}
         {tab === "profile" && <Profile a={a} data={{ ...data, username }} onUsername={setUsername} />}
-        {tab === "vitrin" && <Vitrin demo={data.demo} />}
+        {tab === "vitrin" && <Vitrin demo={data.demo} openId={openId} />}
         {tab === "orders" && blocks}
         {tab === "box" && <><JewelBox a={a} /><Summary ent={a.ent} /></>}
         {tab === "stmt" && <>{isCustomer && <MyReceipts demo={data.demo} />}<Statement a={a} /></>}

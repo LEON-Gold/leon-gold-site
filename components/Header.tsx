@@ -43,6 +43,7 @@ export default function Header({ ledger }: { ledger: string }) {
       </a>
       <nav className="bar-links" aria-label="بخش‌های سایت">
         {LINKS.map(([h, t]) => <a key={h} href={h}>{t}</a>)}
+        <a className="bar-ledger" href="vitrin/">ویترین</a>
         <a className="bar-ledger" href="hesab/">حساب من</a>
         <a className="bar-ledger" href={ledger}>دفتر لئون</a>
       </nav>
@@ -59,6 +60,7 @@ export default function Header({ ledger }: { ledger: string }) {
           </nav>
           {/* the customers' and suppliers' own account, then the ledger; the CRM panel is opened from inside the ledger, never linked here */}
           <div className="sheet-more">
+            <a className="sheet-pill" href="vitrin/" onClick={close}>ویترین</a>
             <a className="sheet-pill" href="hesab/" onClick={close}>حساب من</a>
             <a className="sheet-pill" href={ledger} onClick={close}>دفتر لئون</a>
           </div>

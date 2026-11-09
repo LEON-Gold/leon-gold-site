@@ -610,3 +610,13 @@ html.hs-locked, html.hs-locked body { overflow: hidden; }
 .hs-field textarea:focus { outline: none; border-color: var(--gold); box-shadow: 0 0 0 3px rgba(197,154,80,.28); }
 .hs-back { justify-self: center; background: none; border: 0; color: var(--emerald); font: 600 15px/1 var(--text); text-decoration: underline; cursor: pointer; padding: 10px; }
 .hs-upok { text-align: center; font: 700 22px/1.4 var(--text); color: var(--emerald); margin: 0; }
+.hs-select { width: 100%; min-height: 54px; padding: 0 16px; border-radius: 14px; border: 1px solid rgba(156,116,51,.35); background: #f6f0e1; font: inherit; color: inherit; }
+.hs-select:focus { outline: none; border-color: var(--gold); box-shadow: 0 0 0 3px rgba(197,154,80,.28); }
+.hs-uname { font-size: 20px; color: var(--emerald); }
+.hs-trade-note, .hs-fromsite { margin: 0; color: var(--emerald); }
+/* the public showcase (app/vitrin) sits on the door's ivory card, not the dark panel: ink headings and ivory filters */
+.door-card .hs-vit .hs-h { color: var(--emerald); background: none; -webkit-text-fill-color: currentColor; }
+.door-card .hs-vit .hs-box-head p { color: var(--muted); }
+.door-card .hs-vsel select { background: #f6f0e1; color: #17231c; border-color: rgba(156,116,51,.45); }
+.door-card .hs-vsel::after { border-color: #9c7433; }
+.door-card .hs-vsel.on select { background: var(--leaf); background-size: 180% 100%; color: #0a1f15; }

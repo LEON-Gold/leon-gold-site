@@ -11,7 +11,7 @@ export type Sheet = { kind: "whole" | "retail"; doc: string; no: string; date: s
 export type Entry = { ts: string; date?: string; label: string; u: "g" | "r"; d: number; run: number; lines?: Line[]; sheet?: Sheet; gross?: number };
 export type Order = { ref: string; date: string; due: string; status: string; statusLabel: string; deposit: number; items: { desc: string; qty: number; weight: number; carat: number; photo?: string }[] };
 export type Work = { ref: string; date: string; due: string; status: string; statusLabel: string; desc: string; qty: number; weight: number; carat: number; photo?: string };
-export type Account = { id: string; name: string; shop: string; phone?: string; vip?: boolean; kind: "customer" | "supplier" | "both"; bal: { g: number; r: number }; ent: Entry[]; orders: Order[]; work: Work[] };
+export type Account = { id: string; name: string; shop: string; phone?: string; vip?: boolean; kind: "customer" | "supplier" | "both"; biz?: string; group?: "colleague" | "retail" | ""; bal: { g: number; r: number }; ent: Entry[]; orders: Order[]; work: Work[] };
 // what the party wrote about itself (all optional) and its last signature of the rules (leon-gold-server/portal.mjs)
 export type Info = { fullName?: string; nationalId?: string; birth?: string; mobile?: string; phone?: string; shop?: string; address?: string; postal?: string; email?: string; at?: number };
 export type Me = { accounts: Account[]; updated?: string; demo?: boolean; username?: string; terms?: { hash: string; at: number } | null; info?: Info | null };
@@ -46,8 +46,13 @@ export async function login(u: string, p: string) { setToken((await api<{ token:
 export const changeLogin = (old: string, c: { username?: string; password?: string }) =>
   api<{ ok: true; username: string }>("/api/portal/password", { old, ...(c.username != null ? { username: c.username } : {}), ...(c.password != null ? { new: c.password } : {}) });
 // «ثبت نام» (2026-11-09): the request waits for Leon Gold's approval in the ledger; then this username and password sign in
-export type Signup = { fullName: string; mobile: string; kind: "customer" | "supplier"; shop?: string; city?: string; birth?: string; username: string; password: string; note?: string };
-export const signup = (d: Signup) => api<{ ok: true }>("/api/portal/signup", d);
+export type BizType = { k: string; name: string; group: "colleague" | "retail" };
+export const publicBiz = async () => (await api<{ types: BizType[] }>("/api/public/biz")).types;
+// no approval (owner, 2026-11-09): the account is made at once and this browser is signed in
+export type Signup = { fullName: string; mobile: string; nationalId: string; biz: string; shop?: string; city?: string; birth?: string; licence?: string; union?: string; shopAddr?: string; username: string; password: string; note?: string };
+export async function signup(d: Signup) { const r = await api<{ ok: true; username: string; token: string }>("/api/portal/signup", d); setToken(r.token); return r; }
+// an Iranian national code: 10 digits with its check digit (the server checks the same)
+export const nidOk = (s: string) => { if (!/^\d{10}$/.test(s) || /^(\d)\1{9}$/.test(s)) return false; const c = +s[9], m = [...s.slice(0, 9)].reduce((a, d, i) => a + +d * (10 - i), 0) % 11; return m < 2 ? c === m : c === 11 - m; };
 export async function redeem(k: string) { setToken((await api<{ token: string }>("/api/portal/redeem", { k })).token); }
 export async function me(): Promise<Me> {
   try { return await api<Me>("/api/portal/me"); }
@@ -88,6 +93,9 @@ export const sendReceipt = (image: string, amount?: number, date?: string) => ap
 // ---------- «ویترین»: the pieces on show (the owner puts them in the ledger), their photos and films, and an order ----------
 export type VItem = { id: string; code: string; name: string; cat: string; desc: string; weight: number; carat: number; ajrat: number; profit: number; settle: string[]; settleNote?: string; stock: "qty" | "order" | "none"; qty: number; sold: boolean; media: { id: string; type: "image" | "video" }[] };
 export const vitrin = async () => (await api<{ items: VItem[] }>("/api/portal/vitrin")).items;
+// the public site's showcase (no sign-in): pieces the owner marked «روی سایت», at the site's wage
+export const publicVitrin = async () => (await api<{ items: VItem[] }>("/api/public/vitrin")).items;
+export const publicMedia = (id: string) => SERVER + "/api/public/media/" + encodeURIComponent(id);
 export const orderItem = (id: string, note: string) => api<{ ok: true }>("/api/portal/vitrin/order", { id, note });
 export async function mediaUrl(id: string): Promise<string> {
   const t = getToken(), headers: Record<string, string> = {};

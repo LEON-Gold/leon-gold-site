@@ -6,7 +6,7 @@ import { useEffect, useMemo, useState } from "react";
 import { SHOP } from "@/lib/content";
 import { openRules } from "./Extras";
 import { usePrice } from "@/lib/price";
-import { faDigits, gram, mediaUrl, orderItem, SAMPLE_VITRIN, toman, vitrin, ApiError, type VItem } from "@/lib/hesab";
+import { faDigits, gram, mediaUrl, orderItem, publicMedia, publicVitrin, SAMPLE_VITRIN, toman, vitrin, ApiError, type VItem } from "@/lib/hesab";
 
 // today's price of a piece, the way the site's own calculator does it: gold at the hour's rate (by its 750-equivalent
 // weight), plus the wage, plus the profit, plus 10% tax on the wage and the profit
@@ -25,24 +25,27 @@ const catKey = (s: string) => s.replace(/[\s\u200c]/g, "");
 const catOf = (it: VItem) => { const k = catKey(it.cat || ""); return VCATS.find(c => catKey(c) === k) || it.cat || ""; };
 export const stockText = (it: VItem) => stockOf(it) === "qty" ? (it.qty > 0 ? `${faDigits(it.qty)} عدد در فروشگاه` : "موجود در فروشگاه") : stockOf(it) === "order" ? "موجود (قابل سفارش)" : "ناموجود";
 
-function Media({ m, className, controls }: { m: { id: string; type: "image" | "video" }; className?: string; controls?: boolean }) {
-  const [url, setUrl] = useState<string | null>(null);
+function Media({ m, className, controls, pub }: { m: { id: string; type: "image" | "video" }; className?: string; controls?: boolean; pub?: boolean }) {
+  const [url, setUrl] = useState<string | null>(pub ? publicMedia(m.id) : null);
   useEffect(() => {
+    if (pub) return;
     let u = "", dead = false;
     mediaUrl(m.id).then(r => { if (dead) return; u = r; setUrl(r); }).catch(() => {});
     return () => { dead = true; if (u) URL.revokeObjectURL(u); };
-  }, [m.id]);
+  }, [m.id, pub]);
   if (!url) return <span className={(className || "") + " hs-pic-none"} aria-hidden><img src="/leaf.webp" alt="" /></span>;
   return m.type === "video"
     ? <video className={className} src={url} playsInline muted={!controls} loop={!controls} autoPlay={!controls} controls={controls} preload="metadata" />
     : <img className={className} src={url} alt="" />;
 }
-const Cover = ({ it, className }: { it: VItem; className: string }) => {
+const Cover = ({ it, className, pub }: { it: VItem; className: string; pub?: boolean }) => {
   const m = it.media.find(x => x.type === "image") || it.media[0];
-  return m ? <Media m={m} className={className} /> : <span className={className + " hs-pic-none"} aria-hidden><img src="/leaf.webp" alt="" /></span>;
+  return m ? <Media m={m} className={className} pub={pub} /> : <span className={className + " hs-pic-none"} aria-hidden><img src="/leaf.webp" alt="" /></span>;
 };
 
-export default function Vitrin({ demo }: { demo?: boolean }) {
+// pub: the public site's showcase (no sign-in; its order button leads to «حساب من»). openId: open this piece first
+// (from the site's order button, after signing in or signing up)
+export default function Vitrin({ demo, pub, openId }: { demo?: boolean; pub?: boolean; openId?: string }) {
   const [items, setItems] = useState<VItem[] | null>(null);
   const [err, setErr] = useState(false);
   const [cat, setCat] = useState("all");
@@ -51,8 +54,8 @@ export default function Vitrin({ demo }: { demo?: boolean }) {
   const { feed } = usePrice();
   useEffect(() => {
     if (demo) { setItems(SAMPLE_VITRIN); return; }
-    vitrin().then(setItems, () => setErr(true));
-  }, [demo]);
+    (pub ? publicVitrin() : vitrin()).then(L => { setItems(L); const o = openId && L.find(x => x.id === openId); if (o) setOpen(o); }, () => setErr(true));
+  }, [demo, pub, openId]);
   const all = useMemo(() => items || [], [items]);
   const cats = useMemo(() => [...VCATS, ...new Set(all.map(catOf).filter(c => c && !VCATS.includes(c)))], [all]);
   const nCat = (c: string) => all.filter(i => catOf(i) === c && (st === "all" || stockOf(i) === st)).length;
@@ -60,12 +63,12 @@ export default function Vitrin({ demo }: { demo?: boolean }) {
   const shown = all.filter(i => (st === "all" || stockOf(i) === st) && (cat === "all" || catOf(i) === cat));
   const show = (it: VItem | null) => { setOpen(it); scrollTo({ top: 0 }); };
 
-  if (open) return <Product it={open} gp={feed?.gp || 0} demo={demo} onBack={() => show(null)} />;
+  if (open) return <Product it={open} gp={feed?.gp || 0} demo={demo} pub={pub} onBack={() => show(null)} />;
   return (
     <section className="hs-sec hs-vit" aria-labelledby="hs-vit">
       <div className="hs-box-head">
         <h2 className="hs-h" id="hs-vit">ویترین لئون گلد</h2>
-        <p>کارهای موجود، با قیمت تقریبیِ همین ساعت{feed?.time ? ` (نرخ اتحادیه، ساعت ${faDigits(feed.time)})` : ""}.</p>
+        <p>کارهای موجود، با قیمت تقریبیِ همین ساعت{feed?.time ? ` (نرخ اتحادیه، ساعت ${faDigits(feed.time)})` : ""}.{pub ? " برای سفارش، روی هر کار بزنید." : ""}</p>
       </div>
       {all.length > 0 && (
         <div className="hs-vfilter">
@@ -92,7 +95,7 @@ export default function Vitrin({ demo }: { demo?: boolean }) {
             {shown.map(it => (
               <li key={it.id}>
                 <button type="button" className="hs-vcard paper" onClick={() => show(it)}>
-                  <span className="hs-vcard-pic"><Cover it={it} className="hs-vimg" />{it.media.some(m => m.type === "video") && <i className="hs-vplay" aria-label="فیلم دارد">▶</i>}{stockOf(it) === "none" ? <em className="hs-vsold">ناموجود</em> : <em className={"hs-vstock " + stockOf(it)}>{stockOf(it) === "qty" ? "آماده‌ی تحویل" : "قابل سفارش"}</em>}</span>
+                  <span className="hs-vcard-pic"><Cover it={it} className="hs-vimg" pub={pub} />{it.media.some(m => m.type === "video") && <i className="hs-vplay" aria-label="فیلم دارد">▶</i>}{stockOf(it) === "none" ? <em className="hs-vsold">ناموجود</em> : <em className={"hs-vstock " + stockOf(it)}>{stockOf(it) === "qty" ? "آماده‌ی تحویل" : "قابل سفارش"}</em>}</span>
                   <b>{it.name}</b>
                   <span className="num">{gram(it.weight)} گرم · عیار {faDigits(it.carat)}</span>
                   {feed?.gp ? <strong className="num">≈ {toman(priceOf(it, feed.gp).total)} <small>تومان</small></strong> : <strong>قیمت با نرخ روز</strong>}
@@ -105,7 +108,7 @@ export default function Vitrin({ demo }: { demo?: boolean }) {
   );
 }
 
-function Product({ it, gp, demo, onBack }: { it: VItem; gp: number; demo?: boolean; onBack: () => void }) {
+function Product({ it, gp, demo, pub, onBack }: { it: VItem; gp: number; demo?: boolean; pub?: boolean; onBack: () => void }) {
   const [at, setAt] = useState(0);
   const [note, setNote] = useState("");
   const [state, setState] = useState<"" | "busy" | "done" | "err" | "many">("");
@@ -123,7 +126,7 @@ function Product({ it, gp, demo, onBack }: { it: VItem; gp: number; demo?: boole
       <div className="hs-gal paper">
         {media.length ? (
           <div className="hs-gal-track" onScroll={e => { const el = e.currentTarget; setAt(Math.round(Math.abs(el.scrollLeft) / el.clientWidth)); }}>
-            {media.map(m => <div key={m.id} className="hs-gal-it"><Media m={m} className="hs-gal-m" controls={m.type === "video"} /></div>)}
+            {media.map(m => <div key={m.id} className="hs-gal-it"><Media m={m} className="hs-gal-m" controls={m.type === "video"} pub={pub} /></div>)}
           </div>
         ) : <div className="hs-gal-it"><span className="hs-gal-m hs-pic-none" aria-hidden><img src="/leaf.webp" alt="" /></span></div>}
         {media.length > 1 && <p className="hs-gal-dots" aria-hidden>{media.map((m, i) => <i key={m.id} className={i === at ? "on" : ""} />)}</p>}
@@ -161,6 +164,11 @@ function Product({ it, gp, demo, onBack }: { it: VItem; gp: number; demo?: boole
           <h2>فعلاً ناموجود</h2>
           <p className="hs-prod-fine">این کار در حال حاضر نه در فروشگاه هست و نه سفارش گرفته می‌شود. برای کار مشابه در تلگرام بپرسید.</p>
           <a className="btn btn-ink hs-prod-tg" href={SHOP.telegram} target="_blank" rel="noopener">پرسیدن در تلگرام</a>
+        </> : pub ? <>
+          <h2>{stockOf(it) === "qty" ? "خرید این کار" : "سفارش این کار"}</h2>
+          <p className="hs-prod-fine">برای ثبت سفارش وارد «حساب من» شوید؛ اگر حساب ندارید، همان‌جا در یک دقیقه بسازید. سفارش شما با همین کار ثبت می‌شود.</p>
+          <a className="btn btn-gold" href={`../hesab/?t=vitrin&p=${encodeURIComponent(it.id)}`}>ثبت سفارش</a>
+          <a className="hs-link" href={SHOP.telegram} target="_blank" rel="noopener">یا در تلگرام بپرسید</a>
         </> : state === "done" ? (
           <p className="hs-ok">✦ سفارش «{it.name}» ثبت شد. لئون گلد به‌زودی با شما تماس می‌گیرد. ✦</p>
         ) : <>
