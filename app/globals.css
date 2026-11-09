@@ -108,3 +108,27 @@ html[data-theme="dark"] hr, html[data-theme="dark"] .words > div { border-color:
   border: 1px solid rgba(232,207,142,.45); background: rgba(6,20,14,.35); color: var(--gold-lt); }
 .theme-t svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
 .theme-t:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+
+/* ---------- «ویترین»: the categories (components/hesab/Vitrin.tsx CatGrid; the home page and the showcase) ---------- */
+.vc-grid { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 14px; }
+.vc-card { display: grid; gap: 2px; width: 100%; padding: 0 0 12px; text-align: center; text-decoration: none; font: inherit; color: var(--ink); cursor: pointer;
+  background: var(--paper); border: 1px solid rgba(197,154,80,.38); border-radius: 18px; overflow: hidden;
+  box-shadow: 0 16px 30px -24px rgba(10,31,21,.55); transition: transform .25s var(--ease), box-shadow .25s var(--ease); }
+.vc-card:hover { transform: translateY(-3px); box-shadow: 0 22px 36px -24px rgba(10,31,21,.65); }
+.vc-card:active { transform: scale(.98); }
+.vc-pic { position: relative; display: block; aspect-ratio: 1; overflow: hidden; margin-bottom: 8px;
+  background: radial-gradient(circle at 50% 38%, #1d5e45, #0b2a1d 72%); box-shadow: 0 -1px 0 rgba(197,154,80,.45) inset; }
+.vc-img { display: block; width: 100%; height: 100%; object-fit: cover; transition: scale .7s var(--ease); }
+.vc-pic .hs-pic-none, .vc-pic span.vc-img { display: grid; place-items: center; }
+.vc-pic .hs-pic-none img { width: 40%; opacity: .7; }
+.vc-card:hover .vc-img { scale: 1.05; }
+.vc-art { display: grid; place-items: center; width: 100%; height: 100%; }
+.vc-art .jewel { width: 64%; height: 64%; }
+.vc-card b { font: 700 22px/1.35 var(--display); color: var(--emerald); padding-inline: 6px; }
+.vc-card small { font-size: 12.5px; color: var(--muted); }
+.vc-card.empty small { color: var(--gold-ink); }
+.vc-card.empty .vc-art { opacity: .85; }
+.vc-all { text-align: center; margin-top: 22px; }
+.vc-back { justify-self: start; display: inline-block; margin-bottom: 6px; padding: 6px 0; }
+@media (min-width: 900px) { .vc-grid { grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 20px; } .vc-card b { font-size: 25px; } }
+@media (max-width: 380px) { .vc-grid { gap: 10px; } .vc-card b { font-size: 19px; } }

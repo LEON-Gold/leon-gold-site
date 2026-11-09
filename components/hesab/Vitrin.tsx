@@ -5,6 +5,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { SHOP, TAX, TAX_FA } from "@/lib/content";
 import { openRules } from "./Extras";
+import Jewel from "@/components/Jewel";
 import { refreshPrice, usePrice } from "@/lib/price";
 import { faDigits, gram, latin, mediaUrl, orderItem, orderPrice, orderStatus, publicMedia, publicVitrin, SAMPLE_VITRIN, toman, vitrin, ApiError, type VItem } from "@/lib/hesab";
 
@@ -16,13 +17,13 @@ export function priceOf(it: VItem, gp: number) {
 }
 
 // in hand with a count / can be ordered / not available
-const stockOf = (it: VItem) => it.stock || (it.sold ? "none" : "order");
+export const stockOf = (it: VItem) => it.stock || (it.sold ? "none" : "order");
 // the two filters (owner, 2026-11-09): how soon it can be had, and what kind of piece. A category typed «نیم ست» or
 // «پا بند» in the ledger counts as «نیم‌ست» / «پابند».
 const STOCKS = [["qty", "آماده‌ی تحویل آنی"], ["order", "قابل سفارش"], ["none", "ناموجود"]] as const;
 export const VCATS = ["انگشتر", "گردنبند", "دستبند", "گوشواره", "نیم‌ست", "سرویس", "مدال", "زنجیر", "پابند", "النگو", "پلاک و آویز"];
 const catKey = (s: string) => s.replace(/[\s\u200c]/g, "");
-const catOf = (it: VItem) => { const k = catKey(it.cat || ""); return VCATS.find(c => catKey(c) === k) || it.cat || ""; };
+export const catOf = (it: VItem) => { const k = catKey(it.cat || ""); return VCATS.find(c => catKey(c) === k) || it.cat || ""; };
 // «نوع کار» (owner, 2026-11-09): the owner's tags in the ledger; a piece may have several
 export const VTAGS = ["لوکس", "مینیمال", "لیزری", "ریخته"];
 const numIn = (s: string) => { const v = parseFloat(latin(s).replace(/[٫,]/g, ".").replace(/[^\d.]/g, "")); return isFinite(v) ? v : null; };
@@ -47,10 +48,33 @@ function Media({ m, className, controls, pub }: { m: { id: string; type: "image"
     ? <video className={className} src={url} playsInline muted={!controls} loop={!controls} autoPlay={!controls} controls={controls} preload="metadata" />
     : <img className={className} src={url} alt="" />;
 }
-const Cover = ({ it, className, pub }: { it: VItem; className: string; pub?: boolean }) => {
+export const Cover = ({ it, className, pub }: { it: VItem; className: string; pub?: boolean }) => {
   const m = it.media.find(x => x.type === "image") || it.media[0];
   return m ? <Media m={m} className={className} pub={pub} /> : <span className={className + " hs-pic-none"} aria-hidden><img src="/leaf.webp" alt="" /></span>;
 };
+
+// the categories first (owner, 2026-11-09): every category, each with a photo of its newest piece, or its drawing
+// when it has none yet («به‌زودی»); a tap opens that category's pieces. Used on the home page and atop «ویترین».
+const ART: Record<string, string> = { "انگشتر": "ring", "گردنبند": "necklace", "دستبند": "bracelet", "گوشواره": "earring", "نیم‌ست": "set", "سرویس": "set", "مدال": "coin", "زنجیر": "necklace", "پابند": "bracelet", "النگو": "bracelet", "پلاک و آویز": "necklace" };
+export const catsOf = (all: VItem[]) => [...VCATS, ...new Set(all.map(catOf).filter(c => c && !VCATS.includes(c)))];
+export function CatGrid({ items, pub, href, onPick }: { items: VItem[] | null; pub?: boolean; href?: (c: string) => string; onPick?: (c: string) => void }) {
+  const all = items || [];
+  return (
+    <ul className="vc-grid">
+      {catsOf(all).map((c, i) => {
+        const L = all.filter(it => catOf(it) === c), n = L.length;
+        const face = L.find(it => stockOf(it) !== "none" && it.media.some(m => m.type === "image")) || L.find(it => it.media.some(m => m.type === "image")) || L.find(it => it.media.length);
+        const inner = <>
+          <span className="vc-pic">{face ? <Cover it={face} className="vc-img" pub={pub} /> : <span className="vc-art"><Jewel kind={ART[c] || "ring"} id={"vc" + i} /></span>}</span>
+          <b>{c}</b>
+          <small className="num">{!items ? "\u00a0" : n ? `${faDigits(n)} کار` : "به‌زودی"}</small>
+        </>;
+        const cls = "vc-card" + (items && !n ? " empty" : "");
+        return <li key={c}>{href ? <a className={cls} href={href(c)}>{inner}</a> : <button type="button" className={cls} onClick={() => onPick?.(c)}>{inner}</button>}</li>;
+      })}
+    </ul>
+  );
+}
 
 // pub: the public site's showcase (no sign-in; its order button leads to «حساب من»). openId: open this piece first
 // (from the site's order button, after signing in or signing up)
@@ -59,17 +83,29 @@ export default function Vitrin({ demo, pub, openId, onlyMine }: { demo?: boolean
   const [items, setItems] = useState<VItem[] | null>(null);
   const [mine, setMine] = useState<VItem[]>([]);
   const [err, setErr] = useState(false);
-  const [cat, setCat] = useState("all");
+  const [open, setOpen] = useState<VItem | null>(null);
+  const [cat, setCat] = useState(onlyMine ? "all" : "");
+  // on the site the category is in the address (vitrin/?c=دستبند), so a link from the home page opens it and «back» returns
+  const goCat = (c: string, keep?: boolean) => {
+    setCat(c);
+    if (pub && typeof history !== "undefined") history[keep ? "replaceState" : "pushState"](null, "", c ? "?c=" + encodeURIComponent(c) : location.pathname);
+    if (!keep) scrollTo({ top: 0 });
+  };
+  useEffect(() => {
+    if (!pub) return;
+    const read = () => { setCat(new URLSearchParams(location.search).get("c") || ""); setOpen(null); };
+    read(); addEventListener("popstate", read);
+    return () => removeEventListener("popstate", read);
+  }, [pub]);
   const [st, setSt] = useState("all");
   const [tag, setTag] = useState("all");
   const [more, setMore] = useState(false);
   const [r, setR] = useState({ wMin: "", wMax: "", aMin: "", aMax: "", aNear: "" });
   const setRv = (k: keyof typeof r) => (e: React.ChangeEvent<HTMLInputElement>) => setR({ ...r, [k]: e.target.value });
-  const [open, setOpen] = useState<VItem | null>(null);
   const { feed } = usePrice();
   useEffect(() => {
     if (demo) { setItems(SAMPLE_VITRIN); return; }
-    (pub ? publicVitrin().then(items => ({ items, mine: [] as VItem[] })) : vitrin()).then(({ items: L, mine: M }) => { setItems(L); setMine(M); const o = openId && L.find(x => x.id === openId); if (o) setOpen(o); }, () => setErr(true));
+    (pub ? publicVitrin().then(items => ({ items, mine: [] as VItem[] })) : vitrin()).then(({ items: L, mine: M }) => { setItems(L); setMine(M); const o = openId && L.find(x => x.id === openId); if (o) { setOpen(o); setCat(catOf(o) || "all"); } }, () => setErr(true));
   }, [demo, pub, openId]);
   const all = useMemo(() => items || [], [items]);
   const cats = useMemo(() => [...VCATS, ...new Set(all.map(catOf).filter(c => c && !VCATS.includes(c)))], [all]);
@@ -77,14 +113,14 @@ export default function Vitrin({ demo, pub, openId, onlyMine }: { demo?: boolean
   // weight and wage: a range, or a wage typed (with its nearest neighbours)
   const wMin = numIn(r.wMin), wMax = numIn(r.wMax), aMin = numIn(r.aMin), aMax = numIn(r.aMax), aNear = numIn(r.aNear);
   const inRange = (i: VItem) => (wMin == null || i.weight >= wMin) && (wMax == null || i.weight <= wMax) && (aMin == null || i.ajrat >= aMin) && (aMax == null || i.ajrat <= aMax);
-  const okSt = (i: VItem) => st === "all" || stockOf(i) === st, okCat = (i: VItem) => cat === "all" || catOf(i) === cat, okTag = (i: VItem) => tag === "all" || !!i.tags?.includes(tag);
+  const okSt = (i: VItem) => st === "all" || stockOf(i) === st, okCat = (i: VItem) => cat === "all" || cat === "" || catOf(i) === cat, okTag = (i: VItem) => tag === "all" || !!i.tags?.includes(tag);
   const nCat = (c: string) => all.filter(i => catOf(i) === c && okSt(i) && okTag(i) && inRange(i)).length;
   const nSt = (k: string) => all.filter(i => stockOf(i) === k && okCat(i) && okTag(i) && inRange(i)).length;
   const nTag = (t: string) => all.filter(i => i.tags?.includes(t) && okSt(i) && okCat(i) && inRange(i)).length;
   const pool = all.filter(i => okSt(i) && okCat(i) && okTag(i) && inRange(i));
   const shown = aNear == null ? pool : nearWage(pool, aNear);
   const nMore = [r.wMin, r.wMax, r.aMin, r.aMax, r.aNear].filter(v => v.trim()).length;
-  const reset = () => { setSt("all"); setCat("all"); setTag("all"); setR({ wMin: "", wMax: "", aMin: "", aMax: "", aNear: "" }); };
+  const reset = () => { setSt("all"); setTag("all"); setR({ wMin: "", wMax: "", aMin: "", aMax: "", aNear: "" }); };
   const show = (it: VItem | null) => { setOpen(it); scrollTo({ top: 0 }); };
 
   if (open) return <Product it={open} gp={feed?.gp || 0} demo={demo} pub={pub} onBack={() => show(null)} />;
@@ -111,9 +147,18 @@ export default function Vitrin({ demo, pub, openId, onlyMine }: { demo?: boolean
         </ul>
       </section>
     )}
-    {!onlyMine && <section className="hs-sec hs-vit" aria-labelledby="hs-vit">
+    {!onlyMine && cat === "" && <section className="hs-sec hs-vit" aria-labelledby="hs-vit">
       <div className="hs-box-head">
         <h2 className="hs-h" id="hs-vit">ویترین لئون گلد</h2>
+        <p>{err ? "ویترین باز نشد. اینترنت را بررسی کنید و دوباره سر بزنید." : "یک دسته را انتخاب کنید تا کارهایش را با قیمت همین ساعت ببینید."}</p>
+      </div>
+      <CatGrid items={err ? null : items} pub={pub} onPick={c => goCat(c)} />
+      {all.length > 0 && <p className="vc-all"><button type="button" className="btn btn-line" onClick={() => goCat("all")}>همه‌ی کارها با هم ({faDigits(all.length)})</button></p>}
+    </section>}
+    {!onlyMine && cat !== "" && <section className="hs-sec hs-vit" aria-labelledby="hs-vit">
+      <button type="button" className="hs-link vc-back" onClick={() => goCat("")}>→ همه‌ی دسته‌ها</button>
+      <div className="hs-box-head">
+        <h2 className="hs-h" id="hs-vit">{cat === "all" ? "همه‌ی کارهای ویترین" : cat}</h2>
         <p>کارهای موجود، با قیمت تقریبیِ همین ساعت{feed?.time ? ` (نرخ اتحادیه، ساعت ${faDigits(feed.time)})` : ""}.{pub ? " برای سفارش، روی هر کار بزنید." : ""}</p>
       </div>
       {all.length > 0 && (<>
@@ -125,7 +170,7 @@ export default function Vitrin({ demo, pub, openId, onlyMine }: { demo?: boolean
             </select>
           </label>
           <label className={"hs-vsel" + (cat !== "all" ? " on" : "")}><span className="hs-sr">دسته</span>
-            <select value={cat} onChange={e => setCat(e.target.value)} aria-label="دسته">
+            <select value={cat} onChange={e => goCat(e.target.value, true)} aria-label="دسته">
               <option value="all">همه‌ی دسته‌ها</option>
               {cats.map(c => { const n = nCat(c); return <option key={c} value={c} disabled={!n && cat !== c}>{c} ({faDigits(n)})</option>; })}
             </select>
@@ -155,6 +200,7 @@ export default function Vitrin({ demo, pub, openId, onlyMine }: { demo?: boolean
       </>)}
       {err ? <p className="hs-empty">ویترین باز نشد. اینترنت را بررسی کنید و دوباره سر بزنید.</p>
         : !items ? <p className="hs-empty">در حال آوردن ویترین…</p>
+        : cat !== "all" && !all.some(i => catOf(i) === cat) ? <p className="hs-empty">فعلاً کاری در «{cat}» در ویترین نیست؛ به‌زودی می‌آید.{pub && <> اگر کار خاصی می‌خواهید، <a href="../#order">سفارش ساختش</a> را بدهید.</>}</p>
         : !all.length ? <p className="hs-empty">فعلاً کاری در ویترین نیست. به‌زودی کارهای تازه اینجا می‌آید.</p>
         : !shown.length ? <p className="hs-empty">با این انتخاب کاری نیست. <button type="button" className="hs-link" onClick={reset}>همه را نشان بده</button></p>
         : (

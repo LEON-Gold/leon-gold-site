@@ -7,7 +7,6 @@ import { useEffect, useState } from "react";
 
 const LINKS = [
   ["#price", "قیمت امروز"],
-  ["#collection", "مجموعه"],
   ["#heritage", "شیر در طلا"],
   ["museum/", "موزه"],
   ["#wholesale", "همکاران"],

@@ -4,14 +4,14 @@ import { PricePanel, Ticker } from "@/components/Price";
 import OrderForm from "@/components/OrderForm";
 import Motion from "@/components/Motion";
 import InlineSvg from "@/components/InlineSvg";
-import Jewel from "@/components/Jewel";
+import HomeVitrin from "@/components/HomeVitrin";
 import Hallmark from "@/components/Hallmark";
 import Exhibits from "@/components/Exhibits";
 import Ruler from "@/components/Ruler";
 import HeroGL from "@/components/HeroGL";
 import Titles from "@/components/Titles";
 import { STORE_LD } from "@/lib/seo";
-import { COLLECTION, EXHIBITS, HERO, LEDGER, MELT, SHOP, STEPS, WORKBOX } from "@/lib/content";
+import { EXHIBITS, HERO, LEDGER, MELT, SHOP, STEPS, WORKBOX } from "@/lib/content";
 
 // the rosettes are files from public/gl/ (see lib/guilloche.ts): the hero's first one is put inline once loaded so it can engrave itself, the rest are images
 const Rosette = ({ className, draw }: { className: string; draw?: boolean }) => draw ? <InlineSvg className={className} src="/gl/rose-draw.svg" />
@@ -65,28 +65,13 @@ export default function Home() {
           <PricePanel />
         </section>
 
-        <section id="collection" className="sec-paper sec-collection" aria-labelledby="col-h">
+        {/* «ویترین» (owner, 2026-11-09): the real pieces, category by category, before the museum */}
+        <section id="vitrin" className="sec-paper sec-vitrin" aria-labelledby="vit-h">
           <div className="sec-head" data-rise>
-            <h2 id="col-h"><i aria-hidden>◆</i>مجموعه</h2>
-            <p>هر کار با وزن و عیار ۷۵۰ روی برچسبش، و قیمت با نرخ همان ساعت اتحادیه.</p>
+            <h2 id="vit-h"><i aria-hidden>◆</i>ویترین</h2>
+            <p>کارهای لئون گلد، دسته به دسته؛ با وزن، عیار ۷۵۰ و قیمت همین ساعت. روی هر دسته بزنید.</p>
           </div>
-          <ul className="cards" data-rise>
-            {COLLECTION.map((c, i) => (
-              <li className="card" key={c.name}>
-                <div className="card-art">
-                  <div className="card-med" aria-hidden><img src={`/gl/medallion-${i}.svg`} alt="" width={200} height={200} loading="lazy" decoding="async" /></div>
-                  <Jewel kind={c.art} id={String(i)} />
-                </div>
-                <h3>{c.name}</h3>
-                <p>{c.kind}</p>
-                <dl className="num">
-                  <div><dt>وزن</dt><dd>{c.weight}</dd></div>
-                  <div><dt>اجرت</dt><dd>{c.ajrat.replace("اجرت ", "")}</dd></div>
-                </dl>
-                <a className="card-go" href="#order">سفارش {c.name}</a>
-              </li>
-            ))}
-          </ul>
+          <HomeVitrin />
         </section>
 
         <section id="heritage" className="sec-vault heritage" aria-labelledby="her-h">
