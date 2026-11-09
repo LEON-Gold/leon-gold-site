@@ -13,7 +13,7 @@ import Vitrin from "./Vitrin";
 import { Avatar, KIND, Menu, Profile } from "./Menu";
 import { dropDevice, useHomeApp } from "./Notify";
 import {
-  ApiError, SAMPLE, dayNum, faDigits, getToken, gram, jdate, jtime, latin, login, logout, me, photoUrl, redeem, rial, sendReceipt, shrinkPhoto, side, today, toman,
+  ApiError, SAMPLE, signup, dayNum, faDigits, getToken, gram, jdate, jtime, latin, login, logout, me, photoUrl, redeem, rial, sendReceipt, shrinkPhoto, side, today, toman,
   type Account, type Entry, type Me,
 } from "@/lib/hesab";
 
@@ -29,6 +29,14 @@ const ERR: Record<string, string> = {
   bad_password: "رمز تازه باید دست‌کم ۶ حرف یا رقم باشد.",
   bad_type: "این فایل عکس نیست. یک عکس از رسید را انتخاب کن.",
   too_large: "عکس خیلی بزرگ است. عکس کوچک‌تری انتخاب کن یا دوباره از دوربین بگیر.",
+  signup_pending: "ثبت‌نام شما رسیده و منتظر تایید لئون گلد است. بعد از تایید با همین نام کاربری و رمز وارد شوید.",
+  signup_rejected: "ثبت‌نام شما تایید نشد. برای پیگیری در تلگرام با لئون گلد در تماس باشید.",
+  signup_waiting: "با این شماره موبایل یک ثبت‌نام منتظر تایید هست. لطفاً منتظر بمانید.",
+  username_taken: "این نام کاربری را کس دیگری گرفته. یک نام دیگر انتخاب کنید.",
+  bad_username: "نام کاربری باید با حروف انگلیسی یا عدد باشد، ۳ تا ۴۰ حرف (نقطه، خط تیره و زیرخط هم مجاز است).",
+  bad_mobile: "شماره موبایل باید ۱۱ رقم و با ۰۹ شروع شود.",
+  bad_name: "نام و نام خانوادگی را کامل بنویسید.",
+  bad_birth: "تاریخ تولد را مثل ۱۳۷۰/۰۵/۱۲ بنویسید.",
 };
 const errText = (e: unknown) => (e instanceof ApiError && ERR[e.code]) || "مشکلی پیش آمد. دوباره امتحان کنید.";
 const tg = SHOP.telegram;
@@ -49,6 +57,7 @@ export default function Hesab() {
   const [phase, setPhase] = useState<Phase>("boot");
   const [data, setData] = useState<Me | null>(null);
   const [err, setErr] = useState("");
+  const [mode, setMode] = useState<"in" | "up">("in");
   // the rules must be signed (once, and again when they change) before the account opens
   const signed = useSigned(data), [passed, setPassed] = useState(false);
 
@@ -80,12 +89,13 @@ export default function Hesab() {
   return (
     <>{hint}<Door name="حساب من" latin="LEON GOLD · MY ACCOUNT" fine="فقط حساب خودتان را می‌بینید و در این صفحه چیزی تغییر نمی‌کند.">
         {phase === "boot" ? <p className="hs-wait" aria-live="polite">در حال باز کردن…</p>
-          : <SignIn err={err} setErr={setErr} onIn={load} />}
+          : mode === "up" ? <SignUp onBack={() => { setMode("in"); setErr(""); }} />
+          : <SignIn err={err} setErr={setErr} onIn={load} onUp={() => { setMode("up"); setErr(""); }} />}
     </Door></>
   );
 }
 
-function SignIn({ err, setErr, onIn }: { err: string; setErr: (s: string) => void; onIn: () => Promise<void> }) {
+function SignIn({ err, setErr, onIn, onUp }: { err: string; setErr: (s: string) => void; onIn: () => Promise<void>; onUp: () => void }) {
   const [u, setU] = useState("");
   const [p, setP] = useState("");
   const [busy, setBusy] = useState(false);
@@ -107,7 +117,62 @@ function SignIn({ err, setErr, onIn }: { err: string; setErr: (s: string) => voi
       </label>
       {err && <p className="hs-err" id="hs-err" role="alert">{err}</p>}
       <button className="btn btn-gold hs-wide" disabled={busy}>{busy ? "در حال ورود…" : "ورود"}</button>
-      <p className="hs-sent">نام کاربری و رمز را لئون گلد برایتان فرستاده است. اگر ندارید یا فراموش کرده‌اید، <a href={tg} target="_blank" rel="noopener">در تلگرام بخواهید</a>.</p>
+      <div className="hs-or"><span>حساب ندارید؟</span></div>
+      <button type="button" className="btn btn-ghost hs-wide hs-upbtn" onClick={onUp}>ثبت نام</button>
+      <p className="hs-sent">اگر نام کاربری و رمز را فراموش کرده‌اید، <a href={tg} target="_blank" rel="noopener">در تلگرام بخواهید</a>.</p>
+    </form>
+  );
+}
+
+// «ثبت نام»: what Leon Gold needs to open an account; it waits for approval in the ledger (leon-gold-server/portal.mjs)
+function SignUp({ onBack }: { onBack: () => void }) {
+  const [f, setF] = useState({ fullName: "", mobile: "", kind: "customer" as "customer" | "supplier", shop: "", city: "", birth: "", username: "", password: "", password2: "", note: "" });
+  const [err, setErr] = useState(""), [busy, setBusy] = useState(false), [done, setDone] = useState(false);
+  const set = (k: keyof typeof f) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => setF({ ...f, [k]: e.target.value });
+  const send = async (e: React.FormEvent) => {
+    e.preventDefault(); if (busy) return;
+    const mobile = latin(f.mobile).replace(/\D/g, ""), username = latin(f.username).trim().toLowerCase();
+    if (f.fullName.trim().length < 3) return setErr(ERR.bad_name);
+    if (!/^09\d{9}$/.test(mobile)) return setErr(ERR.bad_mobile);
+    if (f.kind === "supplier" && !f.shop.trim()) return setErr("نام کارگاه یا فروشگاه را بنویسید.");
+    if (f.birth.trim() && !/^1[34]\d\d\/\d{1,2}\/\d{1,2}$/.test(latin(f.birth).trim())) return setErr(ERR.bad_birth);
+    if (!/^[a-z0-9][a-z0-9._-]{2,39}$/.test(username)) return setErr(ERR.bad_username);
+    if (latin(f.password).trim().length < 6) return setErr(ERR.bad_password.replace("رمز تازه", "رمز"));
+    if (f.password !== f.password2) return setErr("دو رمز یکی نیستند.");
+    setBusy(true); setErr("");
+    try {
+      await signup({ fullName: f.fullName.trim(), mobile, kind: f.kind, shop: f.shop.trim() || undefined, city: f.city.trim() || undefined, birth: latin(f.birth).trim() || undefined, username, password: f.password, note: f.note.trim() || undefined });
+      setDone(true);
+    } catch (x) { setErr(errText(x)); }
+    finally { setBusy(false); }
+  };
+  if (done) return (
+    <div className="hs-form hs-updone" role="status">
+      <p className="hs-upok">ثبت‌نام شما رسید ✓</p>
+      <p className="hs-sent">لئون گلد اطلاعات شما را بررسی و تایید می‌کند. بعد از تایید، با همین نام کاربری <b dir="ltr">{latin(f.username).trim().toLowerCase()}</b> و رمزی که ساختید وارد شوید.</p>
+      <button type="button" className="btn btn-gold hs-wide" onClick={onBack}>بازگشت به ورود</button>
+    </div>
+  );
+  return (
+    <form className="hs-form" onSubmit={send} noValidate>
+      <p className="hs-uphead">ثبت نام در «حساب من»</p>
+      <div className="hs-seg" role="radiogroup" aria-label="شما">
+        <button type="button" role="radio" aria-checked={f.kind === "customer"} onClick={() => setF({ ...f, kind: "customer" })}>مشتری</button>
+        <button type="button" role="radio" aria-checked={f.kind === "supplier"} onClick={() => setF({ ...f, kind: "supplier" })}>همکار / تأمین‌کننده</button>
+      </div>
+      <label className="hs-field"><span>نام و نام خانوادگی *</span><input value={f.fullName} onChange={set("fullName")} autoComplete="name" maxLength={80} /></label>
+      <label className="hs-field"><span>شماره موبایل *</span><input value={f.mobile} onChange={set("mobile")} autoComplete="tel" inputMode="tel" dir="ltr" placeholder="09xxxxxxxxx" maxLength={14} /></label>
+      {f.kind === "supplier" && <label className="hs-field"><span>نام کارگاه یا فروشگاه *</span><input value={f.shop} onChange={set("shop")} autoComplete="organization" maxLength={80} /></label>}
+      <label className="hs-field"><span>شهر</span><input value={f.city} onChange={set("city")} autoComplete="address-level2" maxLength={40} /></label>
+      <label className="hs-field"><span>تاریخ تولد (برای تبریک؛ اختیاری)</span><input value={f.birth} onChange={set("birth")} inputMode="numeric" dir="ltr" placeholder="۱۳۷۰/۰۵/۱۲" maxLength={10} /></label>
+      <label className="hs-field"><span>نام کاربری * (حروف انگلیسی یا عدد)</span><input value={f.username} onChange={set("username")} autoComplete="username" autoCapitalize="none" spellCheck={false} dir="ltr" maxLength={40} /></label>
+      <label className="hs-field"><span>رمز * (حداقل ۶ حرف یا عدد)</span><input type="password" value={f.password} onChange={set("password")} autoComplete="new-password" dir="ltr" maxLength={60} /></label>
+      <label className="hs-field"><span>تکرار رمز *</span><input type="password" value={f.password2} onChange={set("password2")} autoComplete="new-password" dir="ltr" maxLength={60} /></label>
+      <label className="hs-field"><span>توضیح (اختیاری)</span><textarea value={f.note} onChange={set("note")} rows={2} maxLength={300} placeholder="مثلاً از کجا ما را می‌شناسید" /></label>
+      {err && <p className="hs-err" role="alert">{err}</p>}
+      <button className="btn btn-gold hs-wide" disabled={busy}>{busy ? "در حال فرستادن…" : "ثبت نام"}</button>
+      <button type="button" className="hs-link hs-back" onClick={onBack}>حساب دارم؛ ورود</button>
+      <p className="hs-sent">حساب شما بعد از تایید لئون گلد باز می‌شود. اطلاعاتتان فقط برای لئون گلد است.</p>
     </form>
   );
 }

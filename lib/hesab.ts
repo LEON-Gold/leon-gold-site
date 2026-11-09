@@ -45,6 +45,9 @@ export async function login(u: string, p: string) { setToken((await api<{ token:
 // its other devices out, this one stays in
 export const changeLogin = (old: string, c: { username?: string; password?: string }) =>
   api<{ ok: true; username: string }>("/api/portal/password", { old, ...(c.username != null ? { username: c.username } : {}), ...(c.password != null ? { new: c.password } : {}) });
+// «ثبت نام» (2026-11-09): the request waits for Leon Gold's approval in the ledger; then this username and password sign in
+export type Signup = { fullName: string; mobile: string; kind: "customer" | "supplier"; shop?: string; city?: string; birth?: string; username: string; password: string; note?: string };
+export const signup = (d: Signup) => api<{ ok: true }>("/api/portal/signup", d);
 export async function redeem(k: string) { setToken((await api<{ token: string }>("/api/portal/redeem", { k })).token); }
 export async function me(): Promise<Me> {
   try { return await api<Me>("/api/portal/me"); }
