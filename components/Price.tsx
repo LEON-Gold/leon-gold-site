@@ -1,4 +1,5 @@
 "use client";
+import { TAX, TAX_FA } from "@/lib/content";
 // The live parts that read the union feed: the ticker under the hero, the two price plaques, the board and the calculator.
 import { useEffect, useMemo, useRef, useState } from "react";
 import { MITHQAL, fa, faDigits, parseNum, toman, usePrice, type Row } from "@/lib/price";
@@ -64,7 +65,7 @@ export function PricePanel() {
   const board: Row[] = useMemo(() => (feed?.board?.length ? feed.board.filter((r) => r.name !== "طلا ۱۸ عیار") : BOARD_ROWS.map((name) => ({ name, value: 0, unit: name === "انس طلا" ? "usd" : "rial" }))), [feed]);
   const est = useMemo(() => {
     const weight = parseNum(w), a = parseNum(aj) / 100, p = parseNum(pf) / 100;
-    const gold = weight * gp, ajr = gold * a, prof = (gold + ajr) * p, tax = (ajr + prof) * 0.1;
+    const gold = weight * gp, ajr = gold * a, prof = (gold + ajr) * p, tax = (ajr + prof) * TAX;
     return { gold, ajr, prof, tax, total: gold + ajr + prof + tax, ok: gp > 0 && weight > 0 };
   }, [gp, w, aj, pf]);
 
@@ -119,7 +120,7 @@ export function PricePanel() {
           <div><dt>طلا</dt><dd>{est.ok ? toman(est.gold) : "—"}</dd></div>
           <div><dt>اجرت</dt><dd>{est.ok ? toman(est.ajr) : "—"}</dd></div>
           <div><dt>سود</dt><dd>{est.ok ? toman(est.prof) : "—"}</dd></div>
-          <div><dt>مالیات بر اجرت و سود (۱۰٪)</dt><dd>{est.ok ? toman(est.tax) : "—"}</dd></div>
+          <div><dt>مالیات بر اجرت و سود ({TAX_FA})</dt><dd>{est.ok ? toman(est.tax) : "—"}</dd></div>
         </dl>
       </form>
     </div>

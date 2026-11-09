@@ -3,15 +3,15 @@
 // its photos and films, weight, karat, wage, today's estimated price (the union board's rate this hour), how it can be
 // settled and its description, and an order button that lands in the management panel as a new lead.
 import { useEffect, useMemo, useState } from "react";
-import { SHOP } from "@/lib/content";
+import { SHOP, TAX, TAX_FA } from "@/lib/content";
 import { openRules } from "./Extras";
 import { usePrice } from "@/lib/price";
 import { faDigits, gram, mediaUrl, orderItem, publicMedia, publicVitrin, SAMPLE_VITRIN, toman, vitrin, ApiError, type VItem } from "@/lib/hesab";
 
 // today's price of a piece, the way the site's own calculator does it: gold at the hour's rate (by its 750-equivalent
-// weight), plus the wage, plus the profit, plus 10% tax on the wage and the profit
+// weight), plus the wage, plus the profit, plus the tax (TAX, 3%) on the wage and the profit
 export function priceOf(it: VItem, gp: number) {
-  const gold = it.weight * (it.carat / 750) * gp, ajr = gold * it.ajrat / 100, prof = (gold + ajr) * it.profit / 100, tax = (ajr + prof) * 0.1;
+  const gold = it.weight * (it.carat / 750) * gp, ajr = gold * it.ajrat / 100, prof = (gold + ajr) * it.profit / 100, tax = (ajr + prof) * TAX;
   return { gold, ajr, prof, tax, total: gold + ajr + prof + tax };
 }
 
@@ -143,7 +143,7 @@ function Product({ it, gp, demo, pub, onBack }: { it: VItem; gp: number; demo?: 
           <div><dt>طلا ({gram(it.weight)} گرم، عیار {faDigits(it.carat)})</dt><dd className="num">{toman(p.gold)}</dd></div>
           <div><dt>اجرت ({faDigits(it.ajrat)}٪)</dt><dd className="num">{toman(p.ajr)}</dd></div>
           <div><dt>سود ({faDigits(it.profit)}٪)</dt><dd className="num">{toman(p.prof)}</dd></div>
-          <div><dt>مالیات بر اجرت و سود (۱۰٪)</dt><dd className="num">{toman(p.tax)}</dd></div>
+          <div><dt>مالیات بر اجرت و سود ({TAX_FA})</dt><dd className="num">{toman(p.tax)}</dd></div>
         </dl>}
         <p className="hs-prod-fine">قیمت نهایی با نرخ لحظه‌ی خرید حساب می‌شود.</p>
       </section>
