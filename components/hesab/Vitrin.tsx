@@ -5,8 +5,8 @@
 import { useEffect, useMemo, useState } from "react";
 import { SHOP, TAX, TAX_FA } from "@/lib/content";
 import { openRules } from "./Extras";
-import { usePrice } from "@/lib/price";
-import { faDigits, gram, latin, mediaUrl, orderItem, publicMedia, publicVitrin, SAMPLE_VITRIN, toman, vitrin, ApiError, type VItem } from "@/lib/hesab";
+import { refreshPrice, usePrice } from "@/lib/price";
+import { faDigits, gram, latin, mediaUrl, orderItem, orderPrice, orderStatus, publicMedia, publicVitrin, SAMPLE_VITRIN, toman, vitrin, ApiError, type VItem } from "@/lib/hesab";
 
 // today's price of a piece, the way the site's own calculator does it: gold at the hour's rate (by its 750-equivalent
 // weight), plus the wage, plus the profit, plus the tax (TAX, 3%) on all of it
@@ -180,14 +180,39 @@ export default function Vitrin({ demo, pub, openId, onlyMine }: { demo?: boolean
 function Product({ it, gp, demo, pub, onBack }: { it: VItem; gp: number; demo?: boolean; pub?: boolean; onBack: () => void }) {
   const [at, setAt] = useState(0);
   const [note, setNote] = useState("");
-  const [state, setState] = useState<"" | "busy" | "done" | "err" | "many">("");
+  const [state, setState] = useState<"" | "busy" | "wait" | "done" | "late" | "err" | "many">("");
   const p = gp ? priceOf(it, gp) : null;
+  // waiting for Leon's confirmation: the order's id, its deadline, the price it was sent with, and a price change seen meanwhile
+  const [w, setW] = useState<{ id: string; end: number; gp: number; total: number } | null>(null);
+  const [left, setLeft] = useState(0);
+  const [moved, setMoved] = useState<{ from: number; to: number } | null>(null);
   const order = async () => {
-    if (demo) { setState("done"); return; }
-    setState("busy");
-    try { await orderItem(it.id, note.trim()); setState("done"); }
+    setState("busy"); setMoved(null);
+    const total = p ? Math.round(p.total) : 0;
+    if (demo) { setW({ id: "demo", end: Date.now() + 120000, gp, total }); setState("wait"); setTimeout(() => setState(s => s === "wait" ? "done" : s), 6000); return; }
+    try { const r = await orderItem(it.id, note.trim(), gp || undefined, total || undefined); setW({ id: r.id, end: Date.now() + r.wait * 1000, gp, total }); setState("wait"); }
     catch (e) { setState(e instanceof ApiError && e.code === "too_many" ? "many" : "err"); }
   };
+  // the countdown, Leon's answer (every 3 s), and the gold rate (every 15 s) while it waits
+  useEffect(() => {
+    if (state !== "wait" || !w) return;
+    const tick = () => { const l = Math.max(0, Math.ceil((w.end - Date.now()) / 1000)); setLeft(l); if (l <= 0 && !demo) setState("late"); };
+    tick();
+    const t1 = setInterval(tick, 1000);
+    const t2 = demo ? 0 : setInterval(() => { orderStatus(w.id).then(r => { if (r.status === "confirmed") setState("done"); else if (r.status === "expired") setState("late"); }, () => {}); }, 3000);
+    const t3 = setInterval(() => { refreshPrice(); }, 15000);
+    return () => { clearInterval(t1); if (t2) clearInterval(t2); clearInterval(t3); };
+  }, [state, w, demo]);
+  // the waiting, confirmed or late box comes into view
+  useEffect(() => { if (state === "wait" || state === "done" || state === "late") document.querySelector(".hs-prod-order")?.scrollIntoView({ behavior: "smooth", block: "center" }); }, [state]);
+  // the rate moved while it waits: tell the buyer, and send the new price with the order
+  useEffect(() => {
+    if (state !== "wait" || !w || !gp || gp === w.gp) return;
+    const total = Math.round(priceOf(it, gp).total);
+    setMoved({ from: w.total, to: total });
+    setW({ ...w, gp, total });
+    if (!demo) orderPrice(w.id, gp, total).catch(() => {});
+  }, [gp, state, w, it, demo]);
   const media = it.media.length ? it.media : [];
   return (
     <article className="hs-prod" aria-label={it.name}>
@@ -238,8 +263,27 @@ function Product({ it, gp, demo, pub, onBack }: { it: VItem; gp: number; demo?: 
           <p className="hs-prod-fine">برای ثبت سفارش وارد «حساب من» شوید؛ اگر حساب ندارید، همان‌جا در یک دقیقه بسازید. سفارش شما با همین کار ثبت می‌شود.</p>
           <a className="btn btn-gold" href={`../hesab/?t=vitrin&p=${encodeURIComponent(it.id)}`}>ثبت سفارش</a>
           <a className="hs-link" href={SHOP.telegram} target="_blank" rel="noopener">یا در تلگرام بپرسید</a>
-        </> : state === "done" ? (
-          <p className="hs-ok">✦ سفارش «{it.name}» ثبت شد. لئون گلد به‌زودی با شما تماس می‌گیرد. ✦</p>
+        </> : state === "wait" && w ? (
+          <div className="hs-wait-box" role="status" aria-live="polite">
+            <div className="hs-ring" style={{ "--p": left / 120 } as React.CSSProperties}><b className="num">{faDigits(left)}</b><small>ثانیه</small></div>
+            <h2>در انتظار تایید لئون گلد</h2>
+            <p className="hs-prod-fine">سفارش «{it.name}» رسید. تا {faDigits(left)} ثانیه‌ی دیگر لئون گلد آن را تایید می‌کند؛ این صفحه را باز نگه دارید.</p>
+            {w.total > 0 && <p className="hs-wait-price">قیمت سفارش: <b className="num">{toman(w.total)}</b> تومان</p>}
+            {moved && <p className="hs-err hs-moved" role="alert">قیمت طلا همین الان تغییر کرد؛ قیمت سفارش شما به‌روز شد: از {toman(moved.from)} به <b>{toman(moved.to)}</b> تومان.</p>}
+          </div>
+        ) : state === "done" ? (
+          <div className="hs-wait-box">
+            <p className="hs-ok">✦ سفارش «{it.name}» تایید شد. ✦</p>
+            {w && w.total > 0 && <p className="hs-wait-price">قیمت سفارش: <b className="num">{toman(w.total)}</b> تومان</p>}
+            <p className="hs-prod-fine">لئون گلد برای پرداخت و تحویل با شما تماس می‌گیرد. وضعیت سفارش را در «سفارش‌ها» می‌بینید.</p>
+          </div>
+        ) : state === "late" ? (
+          <div className="hs-wait-box" role="alert">
+            <h2>سفارش تایید نشد</h2>
+            <p className="hs-prod-fine">سفارش شما در ۱۲۰ ثانیه تایید نشد. لطفاً دوباره تلاش کنید.</p>
+            <button type="button" className="btn btn-gold" onClick={() => { setState(""); setW(null); setMoved(null); }}>دوباره تلاش کنید</button>
+            <a className="hs-link" href={SHOP.telegram} target="_blank" rel="noopener">یا در تلگرام بپرسید</a>
+          </div>
         ) : <>
           <h2>{stockOf(it) === "qty" ? "خرید این کار" : "سفارش این کار"}</h2>
           <label className="hs-field"><span>توضیح (اختیاری): سایز، رنگ طلا، زمان تحویل…</span>

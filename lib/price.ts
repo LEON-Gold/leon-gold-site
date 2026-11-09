@@ -42,6 +42,8 @@ function refresh() {
   return inflight;
 }
 if (typeof window !== "undefined") setInterval(refresh, 120000);
+// a page that must follow the rate closely for a while (an order waiting for Leon's confirmation) asks again sooner
+export const refreshPrice = () => refresh();
 
 const subscribe = (s: () => void) => { subs.add(s); if (!cache && !inflight) refresh(); return () => { subs.delete(s); }; };
 export function usePrice() {

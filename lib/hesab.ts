@@ -97,7 +97,10 @@ export const vitrin = async () => { const r = await api<{ items: VItem[]; mine?:
 // the public site's showcase (no sign-in): pieces the owner marked «روی سایت», at the site's wage
 export const publicVitrin = async () => (await api<{ items: VItem[] }>("/api/public/vitrin")).items;
 export const publicMedia = (id: string) => SERVER + "/api/public/media/" + encodeURIComponent(id);
-export const orderItem = (id: string, note: string) => api<{ ok: true }>("/api/portal/vitrin/order", { id, note });
+// an order waits 120 s for Leon's confirmation (owner, 2026-11-09): its price goes with it and follows the rate
+export const orderItem = (id: string, note: string, gp?: number, total?: number) => api<{ ok: true; id: string; exp: number; wait: number }>("/api/portal/vitrin/order", { id, note, gp, total });
+export const orderStatus = (lid: string) => api<{ status: "waiting" | "confirmed" | "expired"; left: number; price: { gp: number; total: number } | null }>("/api/portal/vitrin/order/" + encodeURIComponent(lid));
+export const orderPrice = (lid: string, gp: number, total: number) => api<{ ok: true }>("/api/portal/vitrin/order/" + encodeURIComponent(lid) + "/price", { gp, total });
 export async function mediaUrl(id: string): Promise<string> {
   const t = getToken(), headers: Record<string, string> = {};
   if (t) headers.Authorization = "Bearer " + t;
