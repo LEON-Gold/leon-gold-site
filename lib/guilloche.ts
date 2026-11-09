@@ -34,8 +34,8 @@ function svg(w: number, h: number, body: string, stroke: string, op: number, sw:
   return `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 ${w} ${h}'${stretch ? " preserveAspectRatio='none'" : ""} fill='none' stroke='${stroke}' stroke-width='${sw}' stroke-opacity='${op}'>${body.replace(/"/g, "'")}</svg>`;
 }
 
-const GOLD = "#e8cf8e";
-const INK = "#9c7433";
+const GOLD = "#d7c49f";
+const INK = "#8c6f43";
 
 // the big rosette, drawn inline so it can turn
 export const ROSETTE = svg(400, 400, ring(400, 150, 22, 24, 8, 72, 12, 520) + ring(400, 95, 16, 18, 5, 54, 10, 400) + ring(400, 48, 10, 12, 3, 36, 8, 260), GOLD, 0.5, 0.55);

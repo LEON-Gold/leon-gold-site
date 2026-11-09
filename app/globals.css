@@ -14,24 +14,24 @@
 /* Assay Ledger, the ledger app's own design: an emerald vault, ivory paper with a pressed gold hairline,
    guilloché engraving, Naskh titles and gold leaf on the few things that matter. */
 :root {
-  --bg: #e9e5da;
-  --paper: #fffdf6;
-  --paper-2: #f6f0e1;
-  --emerald-bg: #0d3a2a;
-  --ink: #12241b;
+  --bg: #efe6d4;
+  --paper: #fefcf7;
+  --paper-2: #f5efe2;
+  --emerald-bg: #1e291e;
+  --ink: #171f18;
   --muted: #5f6a5e;
-  --line: #d9c9a0;
-  --gold: #c59a50;
-  --gold-d: #9c7433;
-  --gold-lt: #e8cf8e;
-  --gold-ink: #8a6420;
-  --emerald: #0d3a2a;
-  --green-2: #0f4030;
-  --vault: #06140e;
-  --cream: #f3ead0;
-  --leaf: linear-gradient(100deg, #b0843d 0%, #f6e7b4 34%, #d8b46a 52%, #fff3cf 66%, #b0843d 100%);
-  --lift: 0 1px 0 rgba(255,255,255,.85) inset, 0 1px 2px rgba(4,23,15,.06), 0 18px 40px -24px rgba(4,23,15,.5);
-  --corner: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40' fill='none' stroke='%23c59a50'%3E%3Cpath d='M2 39V12Q2 2 12 2H39' stroke-width='1.3'/%3E%3Cpath d='M7 39V15Q7 7 15 7H39' stroke-width='.5'/%3E%3Cpath d='M12 12q5-1 8 3-4 1-8-3zM12 12q-1 5 3 8 1-4-3-8z' fill='%23c59a50' stroke='none'/%3E%3Ccircle cx='24' cy='2' r='1.3' fill='%23c59a50' stroke='none'/%3E%3Ccircle cx='2' cy='24' r='1.3' fill='%23c59a50' stroke='none'/%3E%3C/svg%3E");
+  --line: #d8c6a1;
+  --gold: #b59460;
+  --gold-d: #8c6f43;
+  --gold-lt: #d7c49f;
+  --gold-ink: #745a36;
+  --emerald: #1e291e;
+  --green-2: #212e21;
+  --vault: #0b0f0d;
+  --cream: #efe6d4;
+  --leaf: linear-gradient(100deg, #9f7f4e 0%, #e7dbc3 34%, #c5aa7d 52%, #f2ebdc 66%, #9f7f4e 100%);
+  --lift: 0 1px 0 rgba(255,255,255,.85) inset, 0 1px 2px rgba(11,16,13,.06), 0 18px 40px -24px rgba(11,16,13,.5);
+  --corner: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40' fill='none' stroke='%23b59460'%3E%3Cpath d='M2 39V12Q2 2 12 2H39' stroke-width='1.3'/%3E%3Cpath d='M7 39V15Q7 7 15 7H39' stroke-width='.5'/%3E%3Cpath d='M12 12q5-1 8 3-4 1-8-3zM12 12q-1 5 3 8 1-4-3-8z' fill='%23b59460' stroke='none'/%3E%3Ccircle cx='24' cy='2' r='1.3' fill='%23b59460' stroke='none'/%3E%3Ccircle cx='2' cy='24' r='1.3' fill='%23b59460' stroke='none'/%3E%3C/svg%3E");
   --display: "LG Naskh", "Vazirmatn", Tahoma, serif;
   --text: "Vazirmatn", Tahoma, sans-serif;
   --latin: "Cinzel", "Times New Roman", serif;
@@ -55,10 +55,10 @@ a { color: inherit; }
 .btn { position: relative; display: inline-flex; align-items: center; justify-content: center; gap: 10px; min-height: 52px; padding: 0 30px; border-radius: 999px;
   font: 700 16px/1 var(--text); text-decoration: none; cursor: pointer; border: 1px solid transparent; white-space: nowrap;
   transition: transform .3s var(--ease), box-shadow .3s var(--ease), background-position .6s var(--ease), color .2s, border-color .2s, background-color .2s; }
-.btn-gold { background: var(--leaf); background-size: 180% 100%; background-position: 30% 0; color: #0a1f15; border-color: #f3dfa4; box-shadow: 0 10px 28px -12px rgba(216,180,106,.75); }
-.btn-gold:hover { background-position: 90% 0; transform: translateY(-2px); box-shadow: 0 16px 34px -12px rgba(216,180,106,.9); }
-.btn-line { background: transparent; color: var(--gold-lt); border-color: rgba(232,207,142,.55); }
-.btn-line:hover { border-color: var(--gold-lt); background: rgba(232,207,142,.08); transform: translateY(-2px); }
+.btn-gold { background: var(--leaf); background-size: 180% 100%; background-position: 30% 0; color: #111813; border-color: #e1d3b6; box-shadow: 0 10px 28px -12px rgba(197,170,125,.75); }
+.btn-gold:hover { background-position: 90% 0; transform: translateY(-2px); box-shadow: 0 16px 34px -12px rgba(197,170,125,.9); }
+.btn-line { background: transparent; color: var(--gold-lt); border-color: rgba(215,196,159,.55); }
+.btn-line:hover { border-color: var(--gold-lt); background: rgba(215,196,159,.08); transform: translateY(-2px); }
 .btn-ink { background: var(--emerald-bg); color: var(--gold-lt); border-color: var(--emerald); }
 .btn-ink:hover { background: var(--green-2); transform: translateY(-2px); }
 .btn:active { transform: scale(.97); }
@@ -75,49 +75,49 @@ html[data-theme="dark"] {
   /* «گاوصندوق شبانه» (owner, 2026-11-09: "the dark is too dull, be more creative"): near-black vault green, cards lit
      from above like a jeweller's case, gold hairlines and gold titles, warm ivory text with real contrast */
   color-scheme: dark;
-  --bg: #040b08;
-  --paper: #0d1c15;
-  --paper-2: #13281e;
-  --ink: #f4ecd8;
-  --muted: #cfc7b0;
-  --line: rgba(232, 207, 142, .3);
-  --gold-ink: #ecd193;
-  --emerald: #e8cf8e;
+  --bg: #060908;
+  --paper: #111813;
+  --paper-2: #19221a;
+  --ink: #f2eada;
+  --muted: #dac8a5;
+  --line: rgba(215,196,159,.3);
+  --gold-ink: #dac8a5;
+  --emerald: #d7c49f;
   --dr: #ff9f8c;
-  --cr: #8fe0b4;
-  --dk-ink: #f4ecd8;
-  --dk-text: #d3cbb4;
-  --lift: 0 0 0 1px rgba(232,207,142,.16), 0 1px 0 rgba(232,207,142,.12) inset, 0 24px 50px -26px rgba(0,0,0,.95);
+  --cr: #adc2ad;
+  --dk-ink: #f2eada;
+  --dk-text: #dcccab;
+  --lift: 0 0 0 1px rgba(215,196,159,.16), 0 1px 0 rgba(215,196,159,.12) inset, 0 24px 50px -26px rgba(0,0,0,.95);
 }
 html[data-theme="dark"] body { background-color: var(--bg); }
 /* the jeweller's case: every ivory card becomes a dark case lit from the top edge, with a gold rim */
 html[data-theme="dark"] :is(.paper, .door-card, .card) {
-  background: radial-gradient(130% 70% at 50% -10%, rgba(232,207,142,.10), transparent 55%), linear-gradient(180deg, #102219, #0a1610) !important;
-  border-color: rgba(232,207,142,.32);
+  background: radial-gradient(130% 70% at 50% -10%, rgba(215,196,159,.10), transparent 55%), linear-gradient(180deg, #151d16, #0e120f) !important;
+  border-color: rgba(215,196,159,.32);
 }
 html[data-theme="dark"] :is(.paper, .door-card, .card) :is(h1, h2, h3, .hs-h, dt.term, .words dt) { color: var(--gold-lt); }
-html[data-theme="dark"] .words dt, html[data-theme="dark"] .hs-h { text-shadow: 0 0 18px rgba(232,207,142,.18); }
-html[data-theme="dark"] :is(input, select, textarea):not([type=checkbox]):not([type=radio]) { background-color: #08130e !important; color: var(--ink); border-color: rgba(232,207,142,.32) !important; }
-html[data-theme="dark"] :is(input, select, textarea):focus { box-shadow: 0 0 0 3px rgba(232,207,142,.22) !important; border-color: var(--gold) !important; }
-html[data-theme="dark"] ::placeholder { color: rgba(207,199,176,.55); }
-html[data-theme="dark"] ::selection { background: #e8cf8e; color: #0a1f15; }
+html[data-theme="dark"] .words dt, html[data-theme="dark"] .hs-h { text-shadow: 0 0 18px rgba(215,196,159,.18); }
+html[data-theme="dark"] :is(input, select, textarea):not([type=checkbox]):not([type=radio]) { background-color: #0b100d !important; color: var(--ink); border-color: rgba(215,196,159,.32) !important; }
+html[data-theme="dark"] :is(input, select, textarea):focus { box-shadow: 0 0 0 3px rgba(215,196,159,.22) !important; border-color: var(--gold) !important; }
+html[data-theme="dark"] ::placeholder { color: rgba(218,200,165,.55); }
+html[data-theme="dark"] ::selection { background: #d7c49f; color: #111813; }
 html[data-theme="dark"] :is(p, li, dd) > a:not([class]) { color: var(--gold-lt); }
-html[data-theme="dark"] hr, html[data-theme="dark"] .words > div { border-color: rgba(232,207,142,.18); }
+html[data-theme="dark"] hr, html[data-theme="dark"] .words > div { border-color: rgba(215,196,159,.18); }
 /* the theme switch */
 .theme-t { flex: none; width: 38px; height: 38px; border-radius: 50%; display: grid; place-items: center; cursor: pointer; padding: 0;
-  border: 1px solid rgba(232,207,142,.45); background: rgba(6,20,14,.35); color: var(--gold-lt); }
+  border: 1px solid rgba(215,196,159,.45); background: rgba(11,15,13,.35); color: var(--gold-lt); }
 .theme-t svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
 .theme-t:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
 
 /* ---------- «ویترین»: the categories (components/hesab/Vitrin.tsx CatGrid; the home page and the showcase) ---------- */
 .vc-grid { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 14px; }
 .vc-card { display: grid; gap: 2px; width: 100%; padding: 0 0 12px; text-align: center; text-decoration: none; font: inherit; color: var(--ink); cursor: pointer;
-  background: var(--paper); border: 1px solid rgba(197,154,80,.38); border-radius: 18px; overflow: hidden;
-  box-shadow: 0 16px 30px -24px rgba(10,31,21,.55); transition: transform .25s var(--ease), box-shadow .25s var(--ease); }
-.vc-card:hover { transform: translateY(-3px); box-shadow: 0 22px 36px -24px rgba(10,31,21,.65); }
+  background: var(--paper); border: 1px solid rgba(181,148,96,.38); border-radius: 18px; overflow: hidden;
+  box-shadow: 0 16px 30px -24px rgba(17,24,19,.55); transition: transform .25s var(--ease), box-shadow .25s var(--ease); }
+.vc-card:hover { transform: translateY(-3px); box-shadow: 0 22px 36px -24px rgba(17,24,19,.65); }
 .vc-card:active { transform: scale(.98); }
 .vc-pic { position: relative; display: block; aspect-ratio: 1; overflow: hidden; margin-bottom: 8px;
-  background: radial-gradient(circle at 50% 38%, #1d5e45, #0b2a1d 72%); box-shadow: 0 -1px 0 rgba(197,154,80,.45) inset; }
+  background: radial-gradient(circle at 50% 38%, #334833, #161f17 72%); box-shadow: 0 -1px 0 rgba(181,148,96,.45) inset; }
 .vc-img { display: block; width: 100%; height: 100%; object-fit: cover; transition: scale .7s var(--ease); }
 .vc-pic .hs-pic-none, .vc-pic span.vc-img { display: grid; place-items: center; }
 .vc-pic .hs-pic-none img { width: 40%; opacity: .7; }
