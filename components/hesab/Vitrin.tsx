@@ -54,8 +54,10 @@ const Cover = ({ it, className, pub }: { it: VItem; className: string; pub?: boo
 
 // pub: the public site's showcase (no sign-in; its order button leads to «حساب من»). openId: open this piece first
 // (from the site's order button, after signing in or signing up)
-export default function Vitrin({ demo, pub, openId }: { demo?: boolean; pub?: boolean; openId?: string }) {
+// onlyMine: a supplier that does not buy sees only its own pieces («محصولات شما در لئون»), not Leon's prices
+export default function Vitrin({ demo, pub, openId, onlyMine }: { demo?: boolean; pub?: boolean; openId?: string; onlyMine?: boolean }) {
   const [items, setItems] = useState<VItem[] | null>(null);
+  const [mine, setMine] = useState<VItem[]>([]);
   const [err, setErr] = useState(false);
   const [cat, setCat] = useState("all");
   const [st, setSt] = useState("all");
@@ -67,7 +69,7 @@ export default function Vitrin({ demo, pub, openId }: { demo?: boolean; pub?: bo
   const { feed } = usePrice();
   useEffect(() => {
     if (demo) { setItems(SAMPLE_VITRIN); return; }
-    (pub ? publicVitrin() : vitrin()).then(L => { setItems(L); const o = openId && L.find(x => x.id === openId); if (o) setOpen(o); }, () => setErr(true));
+    (pub ? publicVitrin().then(items => ({ items, mine: [] as VItem[] })) : vitrin()).then(({ items: L, mine: M }) => { setItems(L); setMine(M); const o = openId && L.find(x => x.id === openId); if (o) setOpen(o); }, () => setErr(true));
   }, [demo, pub, openId]);
   const all = useMemo(() => items || [], [items]);
   const cats = useMemo(() => [...VCATS, ...new Set(all.map(catOf).filter(c => c && !VCATS.includes(c)))], [all]);
@@ -87,7 +89,29 @@ export default function Vitrin({ demo, pub, openId }: { demo?: boolean; pub?: bo
 
   if (open) return <Product it={open} gp={feed?.gp || 0} demo={demo} pub={pub} onBack={() => show(null)} />;
   return (
-    <section className="hs-sec hs-vit" aria-labelledby="hs-vit">
+    <>
+    {onlyMine && items && !mine.length && <section className="hs-sec hs-vit hs-mine"><div className="hs-box-head"><h2 className="hs-h">محصولات شما در لئون</h2><p>هنوز کاری از شما در ویترین لئون گلد نیست.</p></div></section>}
+    {mine.length > 0 && (
+      <section className="hs-sec hs-vit hs-mine" aria-labelledby="hs-mine">
+        <div className="hs-box-head">
+          <h2 className="hs-h" id="hs-mine">محصولات شما در لئون</h2>
+          <p>کارهایی که ساخته‌اید و در ویترین لئون گلد گذاشته شده؛ {faDigits(mine.length)} کار.</p>
+        </div>
+        <ul className="hs-vgrid">
+          {mine.map(it => (
+            <li key={it.id}>
+              <button type="button" className="hs-vcard paper" onClick={() => show(it)}>
+                <span className="hs-vcard-pic"><Cover it={it} className="hs-vimg" />{stockOf(it) === "none" ? <em className="hs-vsold">ناموجود</em> : <em className={"hs-vstock " + stockOf(it)}>{stockOf(it) === "qty" ? "در فروشگاه" : "قابل سفارش"}</em>}</span>
+                <b>{it.name}</b>
+                <span className="num">{gram(it.weight)} گرم · عیار {faDigits(it.carat)}</span>
+                {!!it.tags?.length && <span className="hs-vtags">{it.tags.join(" · ")}</span>}
+              </button>
+            </li>
+          ))}
+        </ul>
+      </section>
+    )}
+    {!onlyMine && <section className="hs-sec hs-vit" aria-labelledby="hs-vit">
       <div className="hs-box-head">
         <h2 className="hs-h" id="hs-vit">ویترین لئون گلد</h2>
         <p>کارهای موجود، با قیمت تقریبیِ همین ساعت{feed?.time ? ` (نرخ اتحادیه، ساعت ${faDigits(feed.time)})` : ""}.{pub ? " برای سفارش، روی هر کار بزنید." : ""}</p>
@@ -148,7 +172,8 @@ export default function Vitrin({ demo, pub, openId }: { demo?: boolean; pub?: bo
             ))}
           </ul>
         )}
-    </section>
+    </section>}
+    </>
   );
 }
 
@@ -166,7 +191,7 @@ function Product({ it, gp, demo, pub, onBack }: { it: VItem; gp: number; demo?: 
   const media = it.media.length ? it.media : [];
   return (
     <article className="hs-prod" aria-label={it.name}>
-      <button type="button" className="hs-link hs-prod-back" onClick={onBack}>→ ویترین</button>
+      <button type="button" className="hs-link hs-prod-back" onClick={onBack}>{it.mine ? "→ محصولات من" : "→ ویترین"}</button>
       <div className="hs-gal paper">
         {media.length ? (
           <div className="hs-gal-track" onScroll={e => { const el = e.currentTarget; setAt(Math.round(Math.abs(el.scrollLeft) / el.clientWidth)); }}>
@@ -180,7 +205,7 @@ function Product({ it, gp, demo, pub, onBack }: { it: VItem; gp: number; demo?: 
         <p className="hs-prod-k">{[it.cat, ...(it.tags || []), it.code && "کد " + faDigits(it.code)].filter(Boolean).join(" · ")}</p>
         <h1>{it.name}</h1>
       </header>
-      <section className="hs-prod-price paper" aria-label="قیمت تقریبی امروز">
+      {it.mine ? <section className="hs-prod-price paper" aria-label="کار شما"><p className="hs-prod-pk">محصول شما در لئون</p><p className="hs-prod-fine">این کار را شما ساخته‌اید و در ویترین لئون گلد گذاشته شده است.</p></section> : <section className="hs-prod-price paper" aria-label="قیمت تقریبی امروز">
         <p className="hs-prod-pk">قیمت تقریبی با نرخ همین ساعت</p>
         <p className="hs-prod-pv num">{p ? toman(p.total) : "…"} <small>تومان</small></p>
         {p && <dl className="hs-prod-break">
@@ -190,20 +215,20 @@ function Product({ it, gp, demo, pub, onBack }: { it: VItem; gp: number; demo?: 
           <div><dt>مالیات بر ارزش افزوده ({TAX_FA} کل)</dt><dd className="num">{toman(p.tax)}</dd></div>
         </dl>}
         <p className="hs-prod-fine">قیمت نهایی با نرخ لحظه‌ی خرید حساب می‌شود.</p>
-      </section>
+      </section>}
       <section className="hs-prod-spec paper" aria-label="مشخصات">
         <dl>
           <div><dt>وزن</dt><dd className="num">{gram(it.weight)} گرم</dd></div>
           <div><dt>عیار</dt><dd className="num">{faDigits(it.carat)}</dd></div>
-          <div><dt>اجرت</dt><dd className="num">{faDigits(it.ajrat)}٪</dd></div>
+          {!it.mine && <div><dt>اجرت</dt><dd className="num">{faDigits(it.ajrat)}٪</dd></div>}
           <div><dt>موجودی</dt><dd>{stockText(it)}</dd></div>
         </dl>
-        {(it.settle.length > 0 || it.settleNote) && <div className="hs-prod-settle"><h2>مدت تسویه</h2>
+        {!it.mine && ((it.settle || []).length > 0 || it.settleNote) && <div className="hs-prod-settle"><h2>مدت تسویه</h2>
           {it.settle.length > 0 && <p className="hs-chips">{it.settle.map(s => <span key={s}>{s}</span>)}</p>}
           {it.settleNote && <p>{it.settleNote}</p>}</div>}
         {it.desc && <div className="hs-prod-desc"><h2>توضیحات</h2><p>{it.desc}</p></div>}
       </section>
-      <section className="hs-prod-order paper" aria-label="سفارش">
+      {!it.mine && <section className="hs-prod-order paper" aria-label="سفارش">
         {stockOf(it) === "none" ? <>
           <h2>فعلاً ناموجود</h2>
           <p className="hs-prod-fine">این کار در حال حاضر نه در فروشگاه هست و نه سفارش گرفته می‌شود. برای کار مشابه در تلگرام بپرسید.</p>
@@ -226,7 +251,7 @@ function Product({ it, gp, demo, pub, onBack }: { it: VItem; gp: number; demo?: 
           <p className="hs-prod-fine">با ثبت سفارش، <button type="button" className="hs-link hs-inline" onClick={openRules}>آیین‌نامه‌ی خرید و فروش لئون گلد</button> را می‌پذیرید.</p>
           <a className="hs-link" href={SHOP.telegram} target="_blank" rel="noopener">یا در تلگرام بپرسید</a>
         </>}
-      </section>
+      </section>}
     </article>
   );
 }

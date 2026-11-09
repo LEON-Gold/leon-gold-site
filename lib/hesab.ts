@@ -91,8 +91,9 @@ export function shrinkPhoto(file: File, max = 1280, quality = 0.82): Promise<str
 export const sendReceipt = (image: string, amount?: number, date?: string) => api<{ ok: true }>("/api/portal/receipt", { image, amount, date });
 // the receipts this party sent, newest first, each pending until Leon records the real document in the ledger
 // ---------- «ویترین»: the pieces on show (the owner puts them in the ledger), their photos and films, and an order ----------
-export type VItem = { id: string; code: string; tags?: string[]; name: string; cat: string; desc: string; weight: number; carat: number; ajrat: number; profit: number; settle: string[]; settleNote?: string; stock: "qty" | "order" | "none"; qty: number; sold: boolean; media: { id: string; type: "image" | "video" }[] };
-export const vitrin = async () => (await api<{ items: VItem[] }>("/api/portal/vitrin")).items;
+// mine: a supplier's own piece («محصولات شما در لئون»): no wage, profit, tax or price
+export type VItem = { id: string; code: string; tags?: string[]; mine?: boolean; name: string; cat: string; desc: string; weight: number; carat: number; ajrat: number; profit: number; settle: string[]; settleNote?: string; stock: "qty" | "order" | "none"; qty: number; sold: boolean; media: { id: string; type: "image" | "video" }[] };
+export const vitrin = async () => { const r = await api<{ items: VItem[]; mine?: VItem[] }>("/api/portal/vitrin"); return { items: r.items, mine: r.mine || [] }; };
 // the public site's showcase (no sign-in): pieces the owner marked «روی سایت», at the site's wage
 export const publicVitrin = async () => (await api<{ items: VItem[] }>("/api/public/vitrin")).items;
 export const publicMedia = (id: string) => SERVER + "/api/public/media/" + encodeURIComponent(id);

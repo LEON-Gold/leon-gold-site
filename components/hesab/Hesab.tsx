@@ -226,7 +226,7 @@ function Panel({ data, onOut, onReload }: { data: Me; onOut: () => void; onReloa
   const settled = side(a.bal.g, "g") === "z" && side(a.bal.r, "r") === "z" && a.ent.length > 0;
   const tabs: [Tab, string, number?][] = isCustomer
     ? [["home", "خانه"], ["vitrin", "ویترین"], ["orders", "سفارش‌ها", open.length + (isSupplier ? a.work.length : 0)], ["box", "صندوقچه"], ["stmt", "صورتحساب"]]
-    : [["home", "خانه"], ["orders", "کارها", a.work.length], ["stmt", "صورتحساب"]];
+    : [["home", "خانه"], ["orders", "کارها", a.work.length], ["vitrin", "محصولات من"], ["stmt", "صورتحساب"]]; // a supplier: only its own pieces, no prices
   const hour = new Date().getHours(), hello = hour < 12 ? "صبح بخیر" : hour < 17 ? "روز بخیر" : "عصر بخیر";
 
   return (
@@ -266,7 +266,7 @@ function Panel({ data, onOut, onReload }: { data: Me; onOut: () => void; onReloa
           </footer>
         </>}
         {tab === "profile" && <Profile a={a} data={{ ...data, username }} onUsername={setUsername} />}
-        {tab === "vitrin" && <Vitrin demo={data.demo} openId={openId} />}
+        {tab === "vitrin" && <Vitrin demo={data.demo} openId={openId} onlyMine={!isCustomer} />}
         {tab === "orders" && blocks}
         {tab === "box" && <><JewelBox a={a} /><Summary ent={a.ent} /></>}
         {tab === "stmt" && <>{isCustomer && <MyReceipts demo={data.demo} />}<Statement a={a} /></>}
