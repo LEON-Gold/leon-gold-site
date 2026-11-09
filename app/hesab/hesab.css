@@ -673,3 +673,40 @@ html.hs-locked, html.hs-locked body { overflow: hidden; }
 .hs-wait-price { margin: 0; font-size: 15px; color: var(--ink); }
 .hs-wait-price b { color: var(--emerald); font-size: 18px; }
 .hs-moved { margin: 0; background: rgba(139,46,34,.07); border: 1px solid rgba(139,46,34,.25); border-radius: 12px; padding: 10px 12px; }
+
+/* ---------- «ورود» ⇄ «ثبت نام» (AuthSwap.tsx): a slanted emerald panel slides across on a desktop, sweeps over on a phone ---------- */
+.door-card:has(.hs-auth) { overflow: hidden; }
+.hs-auth { position: relative; }
+.hs-auth-form { transition: opacity .28s ease; }
+.hs-auth.is-moving .hs-auth-form { animation: hsAuthForm .76s ease both; }
+@keyframes hsAuthForm { 0% { opacity: 1; } 40%, 55% { opacity: 0; } 100% { opacity: 1; } }
+.hs-auth-panel { display: none; }
+.hs-auth-sweep { position: absolute; top: -40px; bottom: -40px; left: -60%; right: -60%; z-index: 3; pointer-events: none; transform: translateX(120%) skewX(-16deg); visibility: hidden;
+  background: radial-gradient(120% 80% at 50% 40%, #1a5a3f, #0b2a1d 70%), #0b2a1d; box-shadow: 0 0 0 2px rgba(232,207,142,.55), 0 0 60px rgba(0,0,0,.4); }
+.hs-auth.is-moving .hs-auth-sweep { visibility: visible; animation: hsAuthSweep .76s linear both; }
+@keyframes hsAuthSweep { 0% { transform: translateX(-100%) skewX(-16deg); animation-timing-function: cubic-bezier(.6,0,.3,1); } 42%, 58% { transform: translateX(0) skewX(-16deg); animation-timing-function: cubic-bezier(.6,0,.3,1); } 100% { transform: translateX(100%) skewX(-16deg); } }
+@media (min-width: 900px) {
+  .door-card:has(.hs-auth) { width: min(960px, 100%); padding: 0; }
+  .hs-auth { min-height: 600px; }
+  .hs-auth-sweep { display: none; }
+  .hs-auth-form { width: 50%; box-sizing: border-box; padding: 46px 48px 36px; }
+  .hs-auth[data-mode="up"] .hs-auth-form { margin-inline-start: 50%; }
+  /* the form's own «ثبت نام» / «حساب دارم» links: the panel does it here */
+  .hs-auth .hs-or, .hs-auth .hs-upbtn, .hs-auth .hs-back { display: none; }
+  .hs-auth-panel { display: grid; place-content: center; justify-items: center; gap: 10px; text-align: center; position: absolute; top: 0; bottom: 0; left: 0; width: 56%; z-index: 2;
+    padding: 40px 70px 40px 56px; box-sizing: border-box; color: #f1e6c8;
+    background: var(--gl-vault, none) center / cover, radial-gradient(120% 90% at 30% 30%, #1d6646, #0b2a1d 72%);
+    clip-path: polygon(0 0, 100% 0, 84% 100%, 0 100%);
+    transition: transform .76s cubic-bezier(.7, 0, .2, 1), clip-path .76s cubic-bezier(.7, 0, .2, 1), padding .76s; }
+  .hs-auth[data-side="up"] .hs-auth-panel { transform: translateX(78.6%); clip-path: polygon(16% 0, 100% 0, 100% 100%, 0 100%); padding: 40px 56px 40px 70px; }
+  .hs-auth-panel img { filter: drop-shadow(0 8px 18px rgba(0,0,0,.45)); }
+  .hs-auth-k { font: 600 12px/1 var(--latin, serif); letter-spacing: .32em; color: var(--gold); margin: 4px 0 0; }
+  .hs-auth-t { font: 700 34px/1.3 var(--display); margin: 0; background: var(--leaf); background-size: 220% 100%; -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+  .hs-auth-p { font-size: 14.5px; line-height: 1.9; color: #d6ccb0; max-width: 26em; margin: 0; }
+  .hs-auth-q { margin: 14px 0 0; font-size: 13px; color: #b9ad8c; }
+  .hs-auth-b { min-width: 180px; color: var(--gold-lt); border-color: rgba(232,207,142,.6); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hs-auth-panel { transition: none; }
+  .hs-auth.is-moving .hs-auth-form, .hs-auth.is-moving .hs-auth-sweep { animation: none; }
+}

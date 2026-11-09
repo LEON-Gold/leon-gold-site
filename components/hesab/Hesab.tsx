@@ -8,6 +8,7 @@ import { LedgerInvoice } from "./Invoice";
 import { chrono, monthTitle, num, sideWord, statementPdf, totals } from "./Report";
 import { Onboard, useSigned } from "./Onboard";
 import { setRulesGroup } from "@/lib/content";
+import AuthSwap from "./AuthSwap";
 import { HomeHint, InvoiceSheet, MyReceipts, PriceCard, Quick, Rules, Summary, dueText, openRules } from "./Extras";
 import { EntryIcon, JewelBox, Journey, MemberCard, PayCard, Seal, TabBar, type Tab } from "./Home";
 import Vitrin from "./Vitrin";
@@ -62,7 +63,6 @@ export default function Hesab() {
   const [phase, setPhase] = useState<Phase>("boot");
   const [data, setData] = useState<Me | null>(null);
   const [err, setErr] = useState("");
-  const [mode, setMode] = useState<"in" | "up">("in");
   // the rules must be signed (once, and again when they change) before the account opens
   const signed = useSigned(data), [passed, setPassed] = useState(false);
 
@@ -94,8 +94,9 @@ export default function Hesab() {
   return (
     <>{hint}<Door name="حساب من" latin="LEON GOLD · MY ACCOUNT" fine="فقط حساب خودتان را می‌بینید و در این صفحه چیزی تغییر نمی‌کند.">
         {phase === "boot" ? <p className="hs-wait" aria-live="polite">در حال باز کردن…</p>
-          : mode === "up" ? <SignUp onBack={() => { setMode("in"); setErr(""); }} onIn={load} />
-          : <SignIn err={err} setErr={setErr} onIn={load} onUp={() => { setMode("up"); setErr(""); }} />}
+          : <AuthSwap onSwap={() => setErr("")} render={(m, go) => m === "up"
+              ? <SignUp onBack={() => go("in")} onIn={load} />
+              : <SignIn err={err} setErr={setErr} onIn={load} onUp={() => go("up")} />} />}
     </Door></>
   );
 }
