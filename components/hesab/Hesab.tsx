@@ -238,7 +238,7 @@ function Panel({ data, onOut, onReload }: { data: Me; onOut: () => void; onReloa
         <Avatar name={a.name} current={tab === "profile"} onClick={() => setTab("profile")} />
       </header>
       {data.demo && <p className="hs-demo-band" role="note">این یک حساب نمونه است، با رقم‌های ساختگی؛ فقط برای دیدن شکل پنل.</p>}
-      <main className="hs-main">
+      <main className={"hs-main" + (tab === "vitrin" ? " hs-main-wide" : "")}>
         {tab === "home" && <>
           <div className="hs-who">
             <p className="hs-hello">{hello}</p>

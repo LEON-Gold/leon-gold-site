@@ -6,7 +6,7 @@ import { useEffect, useMemo, useState } from "react";
 import { SHOP, TAX, TAX_FA } from "@/lib/content";
 import { openRules } from "./Extras";
 import { usePrice } from "@/lib/price";
-import { faDigits, gram, mediaUrl, orderItem, publicMedia, publicVitrin, SAMPLE_VITRIN, toman, vitrin, ApiError, type VItem } from "@/lib/hesab";
+import { faDigits, gram, latin, mediaUrl, orderItem, publicMedia, publicVitrin, SAMPLE_VITRIN, toman, vitrin, ApiError, type VItem } from "@/lib/hesab";
 
 // today's price of a piece, the way the site's own calculator does it: gold at the hour's rate (by its 750-equivalent
 // weight), plus the wage, plus the profit, plus the tax (TAX, 3%) on all of it
@@ -23,6 +23,15 @@ const STOCKS = [["qty", "آماده‌ی تحویل آنی"], ["order", "قاب�
 export const VCATS = ["انگشتر", "گردنبند", "دستبند", "گوشواره", "نیم‌ست", "سرویس", "مدال", "زنجیر", "پابند", "النگو", "پلاک و آویز"];
 const catKey = (s: string) => s.replace(/[\s\u200c]/g, "");
 const catOf = (it: VItem) => { const k = catKey(it.cat || ""); return VCATS.find(c => catKey(c) === k) || it.cat || ""; };
+// «نوع کار» (owner, 2026-11-09): the owner's tags in the ledger; a piece may have several
+export const VTAGS = ["لوکس", "مینیمال", "لیزری", "ریخته"];
+const numIn = (s: string) => { const v = parseFloat(latin(s).replace(/[٫,]/g, ".").replace(/[^\d.]/g, "")); return isFinite(v) ? v : null; };
+// a wage the buyer types: the pieces at that wage and at the nearest wage below and above it, nearest first
+function nearWage(L: VItem[], x: number) {
+  const vals = [...new Set(L.map(i => i.ajrat))].sort((a, b) => a - b);
+  const lo = vals.filter(v => v < x).pop(), hi = vals.find(v => v > x), keep = new Set([x, lo, hi].filter(v => v !== undefined));
+  return L.filter(i => keep.has(i.ajrat)).sort((a, b) => Math.abs(a.ajrat - x) - Math.abs(b.ajrat - x));
+}
 export const stockText = (it: VItem) => stockOf(it) === "qty" ? (it.qty > 0 ? `${faDigits(it.qty)} عدد در فروشگاه` : "موجود در فروشگاه") : stockOf(it) === "order" ? "موجود (قابل سفارش)" : "ناموجود";
 
 function Media({ m, className, controls, pub }: { m: { id: string; type: "image" | "video" }; className?: string; controls?: boolean; pub?: boolean }) {
@@ -50,6 +59,10 @@ export default function Vitrin({ demo, pub, openId }: { demo?: boolean; pub?: bo
   const [err, setErr] = useState(false);
   const [cat, setCat] = useState("all");
   const [st, setSt] = useState("all");
+  const [tag, setTag] = useState("all");
+  const [more, setMore] = useState(false);
+  const [r, setR] = useState({ wMin: "", wMax: "", aMin: "", aMax: "", aNear: "" });
+  const setRv = (k: keyof typeof r) => (e: React.ChangeEvent<HTMLInputElement>) => setR({ ...r, [k]: e.target.value });
   const [open, setOpen] = useState<VItem | null>(null);
   const { feed } = usePrice();
   useEffect(() => {
@@ -58,9 +71,18 @@ export default function Vitrin({ demo, pub, openId }: { demo?: boolean; pub?: bo
   }, [demo, pub, openId]);
   const all = useMemo(() => items || [], [items]);
   const cats = useMemo(() => [...VCATS, ...new Set(all.map(catOf).filter(c => c && !VCATS.includes(c)))], [all]);
-  const nCat = (c: string) => all.filter(i => catOf(i) === c && (st === "all" || stockOf(i) === st)).length;
-  const nSt = (k: string) => all.filter(i => stockOf(i) === k && (cat === "all" || catOf(i) === cat)).length;
-  const shown = all.filter(i => (st === "all" || stockOf(i) === st) && (cat === "all" || catOf(i) === cat));
+  const tags = useMemo(() => [...VTAGS.filter(t => all.some(i => i.tags?.includes(t))), ...new Set(all.flatMap(i => i.tags || []).filter(t => !VTAGS.includes(t)))], [all]);
+  // weight and wage: a range, or a wage typed (with its nearest neighbours)
+  const wMin = numIn(r.wMin), wMax = numIn(r.wMax), aMin = numIn(r.aMin), aMax = numIn(r.aMax), aNear = numIn(r.aNear);
+  const inRange = (i: VItem) => (wMin == null || i.weight >= wMin) && (wMax == null || i.weight <= wMax) && (aMin == null || i.ajrat >= aMin) && (aMax == null || i.ajrat <= aMax);
+  const okSt = (i: VItem) => st === "all" || stockOf(i) === st, okCat = (i: VItem) => cat === "all" || catOf(i) === cat, okTag = (i: VItem) => tag === "all" || !!i.tags?.includes(tag);
+  const nCat = (c: string) => all.filter(i => catOf(i) === c && okSt(i) && okTag(i) && inRange(i)).length;
+  const nSt = (k: string) => all.filter(i => stockOf(i) === k && okCat(i) && okTag(i) && inRange(i)).length;
+  const nTag = (t: string) => all.filter(i => i.tags?.includes(t) && okSt(i) && okCat(i) && inRange(i)).length;
+  const pool = all.filter(i => okSt(i) && okCat(i) && okTag(i) && inRange(i));
+  const shown = aNear == null ? pool : nearWage(pool, aNear);
+  const nMore = [r.wMin, r.wMax, r.aMin, r.aMax, r.aNear].filter(v => v.trim()).length;
+  const reset = () => { setSt("all"); setCat("all"); setTag("all"); setR({ wMin: "", wMax: "", aMin: "", aMax: "", aNear: "" }); };
   const show = (it: VItem | null) => { setOpen(it); scrollTo({ top: 0 }); };
 
   if (open) return <Product it={open} gp={feed?.gp || 0} demo={demo} pub={pub} onBack={() => show(null)} />;
@@ -70,8 +92,8 @@ export default function Vitrin({ demo, pub, openId }: { demo?: boolean; pub?: bo
         <h2 className="hs-h" id="hs-vit">ویترین لئون گلد</h2>
         <p>کارهای موجود، با قیمت تقریبیِ همین ساعت{feed?.time ? ` (نرخ اتحادیه، ساعت ${faDigits(feed.time)})` : ""}.{pub ? " برای سفارش، روی هر کار بزنید." : ""}</p>
       </div>
-      {all.length > 0 && (
-        <div className="hs-vfilter">
+      {all.length > 0 && (<>
+        <div className="hs-vfilter hs-vfilter4">
           <label className={"hs-vsel" + (st !== "all" ? " on" : "")}><span className="hs-sr">وضعیت</span>
             <select value={st} onChange={e => setSt(e.target.value)} aria-label="وضعیت">
               <option value="all">همه‌ی وضعیت‌ها</option>
@@ -84,12 +106,33 @@ export default function Vitrin({ demo, pub, openId }: { demo?: boolean; pub?: bo
               {cats.map(c => { const n = nCat(c); return <option key={c} value={c} disabled={!n && cat !== c}>{c} ({faDigits(n)})</option>; })}
             </select>
           </label>
+          <label className={"hs-vsel" + (tag !== "all" ? " on" : "")}><span className="hs-sr">نوع کار</span>
+            <select value={tag} onChange={e => setTag(e.target.value)} aria-label="نوع کار">
+              <option value="all">همه‌ی انواع کار</option>
+              {tags.map(t => { const n = nTag(t); return <option key={t} value={t} disabled={!n && tag !== t}>{t} ({faDigits(n)})</option>; })}
+            </select>
+          </label>
+          <button type="button" className={"hs-vmore-b" + (nMore ? " on" : "")} aria-expanded={more} onClick={() => setMore(!more)}>وزن و اجرت{nMore ? ` (${faDigits(nMore)})` : ""}</button>
         </div>
-      )}
+        {more && (
+          <div className="hs-vmore paper">
+            <div className="hs-vrange"><span>وزن (گرم)</span>
+              <input value={r.wMin} onChange={setRv("wMin")} inputMode="decimal" placeholder="از" aria-label="وزن از" />
+              <input value={r.wMax} onChange={setRv("wMax")} inputMode="decimal" placeholder="تا" aria-label="وزن تا" /></div>
+            <div className="hs-vrange"><span>اجرت (٪)</span>
+              <input value={r.aMin} onChange={setRv("aMin")} inputMode="decimal" placeholder="حداقل" aria-label="کمترین اجرت" />
+              <input value={r.aMax} onChange={setRv("aMax")} inputMode="decimal" placeholder="حداکثر" aria-label="بیشترین اجرت" /></div>
+            <div className="hs-vrange hs-vnear"><span>یا اجرت مورد نظر</span>
+              <input value={r.aNear} onChange={setRv("aNear")} inputMode="decimal" placeholder="مثلاً ۱۸" aria-label="اجرت مورد نظر" /></div>
+            <p className="hs-vmore-fine">با نوشتن اجرت مورد نظر، کارهای همان اجرت و نزدیک‌ترین اجرت پایین‌تر و بالاتر نشان داده می‌شود.</p>
+            {nMore > 0 && <button type="button" className="hs-link" onClick={() => setR({ wMin: "", wMax: "", aMin: "", aMax: "", aNear: "" })}>پاک کردن وزن و اجرت</button>}
+          </div>
+        )}
+      </>)}
       {err ? <p className="hs-empty">ویترین باز نشد. اینترنت را بررسی کنید و دوباره سر بزنید.</p>
         : !items ? <p className="hs-empty">در حال آوردن ویترین…</p>
         : !all.length ? <p className="hs-empty">فعلاً کاری در ویترین نیست. به‌زودی کارهای تازه اینجا می‌آید.</p>
-        : !shown.length ? <p className="hs-empty">با این انتخاب کاری نیست. <button type="button" className="hs-link" onClick={() => { setSt("all"); setCat("all"); }}>همه را نشان بده</button></p>
+        : !shown.length ? <p className="hs-empty">با این انتخاب کاری نیست. <button type="button" className="hs-link" onClick={reset}>همه را نشان بده</button></p>
         : (
           <ul className="hs-vgrid">
             {shown.map(it => (
@@ -97,7 +140,8 @@ export default function Vitrin({ demo, pub, openId }: { demo?: boolean; pub?: bo
                 <button type="button" className="hs-vcard paper" onClick={() => show(it)}>
                   <span className="hs-vcard-pic"><Cover it={it} className="hs-vimg" pub={pub} />{it.media.some(m => m.type === "video") && <i className="hs-vplay" aria-label="فیلم دارد">▶</i>}{stockOf(it) === "none" ? <em className="hs-vsold">ناموجود</em> : <em className={"hs-vstock " + stockOf(it)}>{stockOf(it) === "qty" ? "آماده‌ی تحویل" : "قابل سفارش"}</em>}</span>
                   <b>{it.name}</b>
-                  <span className="num">{gram(it.weight)} گرم · عیار {faDigits(it.carat)}</span>
+                  <span className="num">{gram(it.weight)} گرم · عیار {faDigits(it.carat)} · اجرت {faDigits(it.ajrat)}٪</span>
+                  {!!it.tags?.length && <span className="hs-vtags">{it.tags.join(" · ")}</span>}
                   {feed?.gp ? <strong className="num">≈ {toman(priceOf(it, feed.gp).total)} <small>تومان</small></strong> : <strong>قیمت با نرخ روز</strong>}
                 </button>
               </li>
@@ -133,7 +177,7 @@ function Product({ it, gp, demo, pub, onBack }: { it: VItem; gp: number; demo?: 
         {stockOf(it) === "none" && <em className="hs-vsold">ناموجود</em>}
       </div>
       <header className="hs-prod-h">
-        <p className="hs-prod-k">{[it.cat, it.code && "کد " + faDigits(it.code)].filter(Boolean).join(" · ")}</p>
+        <p className="hs-prod-k">{[it.cat, ...(it.tags || []), it.code && "کد " + faDigits(it.code)].filter(Boolean).join(" · ")}</p>
         <h1>{it.name}</h1>
       </header>
       <section className="hs-prod-price paper" aria-label="قیمت تقریبی امروز">

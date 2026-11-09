@@ -12,7 +12,7 @@ export const metadata = {
 
 export default function Page() {
   return (
-    <Door name="ویترین" latin="LEON GOLD · SHOWCASE" fine="قیمت‌ها تقریبی است و با نرخ لحظه‌ی خرید قطعی می‌شود.">
+    <Door wide name="ویترین" latin="LEON GOLD · SHOWCASE" fine="قیمت‌ها تقریبی است و با نرخ لحظه‌ی خرید قطعی می‌شود.">
       <Vitrin pub />
     </Door>
   );

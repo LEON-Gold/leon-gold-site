@@ -3,7 +3,8 @@
 // gold leaf, then the page's own ivory card (its fields and flows stay in the page) and one fine line.
 import type { ReactNode } from "react";
 
-export default function Door({ name, latin, fine, children }: { name: string; latin: string; fine?: ReactNode; children: ReactNode }) {
+// wide: a page with a lot to show (the public showcase) gets a wide card on a desktop instead of the narrow sign-in one
+export default function Door({ name, latin, fine, children, wide }: { name: string; latin: string; fine?: ReactNode; children: ReactNode; wide?: boolean }) {
   return (
     <div className="door">
       <header className="bar solid door-bar">
@@ -19,7 +20,7 @@ export default function Door({ name, latin, fine, children }: { name: string; la
         <div className="door-seal" aria-hidden><img src="/leaf.webp" alt="" width={30} height={56} /></div>
         <p className="door-latin" lang="en" dir="ltr">{latin}</p>
         <h1 className="door-title"><span className="leaf leaf-sweep">{name}</span></h1>
-        <section className="door-card paper" aria-label={name}>
+        <section className={"door-card paper" + (wide ? " door-wide" : "")} aria-label={name}>
           <i className="corner c1" aria-hidden /><i className="corner c2" aria-hidden /><i className="corner c3" aria-hidden /><i className="corner c4" aria-hidden />
           {children}
         </section>
