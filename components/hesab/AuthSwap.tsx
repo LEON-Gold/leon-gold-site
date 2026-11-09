@@ -8,9 +8,9 @@ import { useRef, useState, type ReactNode } from "react";
 type Mode = "in" | "up";
 const SLIDE = 760, SWAP = 360;
 
-export default function AuthSwap({ render, onSwap }: { render: (mode: Mode, go: (m: Mode) => void) => ReactNode; onSwap?: () => void }) {
-  const [mode, setMode] = useState<Mode>("in");   // the form shown
-  const [side, setSide] = useState<Mode>("in");   // where the panel is going
+export default function AuthSwap({ render, onSwap, start = "in" }: { render: (mode: Mode, go: (m: Mode) => void) => ReactNode; onSwap?: () => void; start?: Mode }) {
+  const [mode, setMode] = useState<Mode>(start);   // the form shown (an invite link opens on «ثبت نام»)
+  const [side, setSide] = useState<Mode>(start);   // where the panel is going
   const [moving, setMoving] = useState(false);
   const busy = useRef(false);
   const go = (m: Mode) => {

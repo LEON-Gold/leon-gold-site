@@ -40,6 +40,14 @@ export const termsHash = async (text: string) => Array.from(new Uint8Array(await
 export const acceptTerms = (text: string, label: string) => api<{ ok: true; hash: string; at: number }>("/api/portal/terms/accept", { text, label });
 // the party's own profile photo (owner, 2026-11-09): shrunk to a small square-ish JPEG here, kept on the server
 export const setAvatar = (image: string) => api<{ ok: true; photo: string }>("/api/portal/avatar", { image });
+// the party's invite code (owner, 2026-11-09) and how many signed up with it
+export const invite = () => api<{ code: string; joined: number }>("/api/portal/invite");
+// a code that came in a link (?ref=…), kept for this visit so it survives a reload or a detour
+export function refFromLink(): string {
+  if (typeof location === "undefined") return "";
+  const r = (new URLSearchParams(location.search).get("ref") || "").toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 12);
+  try { if (r) sessionStorage.setItem("leon-ref", r); return r || sessionStorage.getItem("leon-ref") || ""; } catch { return r; }
+}
 export const removeAvatar = () => api<{ ok: true }>("/api/portal/avatar/remove", {});
 export const saveInfo = (info: Info) => api<{ ok: true; info: Info }>("/api/portal/info", info);
 
@@ -52,7 +60,7 @@ export const changeLogin = (old: string, c: { username?: string; password?: stri
 export type BizType = { k: string; name: string; group: "colleague" | "retail" };
 export const publicBiz = async () => (await api<{ types: BizType[] }>("/api/public/biz")).types;
 // no approval (owner, 2026-11-09): the account is made at once and this browser is signed in
-export type Signup = { fullName: string; mobile: string; nationalId: string; biz: string; shop?: string; city?: string; birth?: string; licence?: string; union?: string; shopAddr?: string; username: string; password: string; note?: string };
+export type Signup = { fullName: string; mobile: string; nationalId: string; biz: string; shop?: string; city?: string; birth?: string; licence?: string; union?: string; shopAddr?: string; username: string; password: string; note?: string; ref?: string };
 export async function signup(d: Signup) { const r = await api<{ ok: true; username: string; token: string }>("/api/portal/signup", d); setToken(r.token); return r; }
 // an Iranian national code: 10 digits with its check digit (the server checks the same)
 export const nidOk = (s: string) => { if (!/^\d{10}$/.test(s) || /^(\d)\1{9}$/.test(s)) return false; const c = +s[9], m = [...s.slice(0, 9)].reduce((a, d, i) => a + +d * (10 - i), 0) % 11; return m < 2 ? c === m : c === 11 - m; };

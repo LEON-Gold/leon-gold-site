@@ -4,7 +4,7 @@
 import { InfoForm } from "./Onboard";
 import { useEffect, useRef, useState } from "react";
 import { SHOP } from "@/lib/content";
-import { ApiError, changeLogin, faDigits, gram, jdate, jtime, removeAvatar, rial, setAvatar, shrinkPhoto, side, type Account, type Me } from "@/lib/hesab";
+import { ApiError, changeLogin, invite, faDigits, gram, jdate, jtime, removeAvatar, rial, setAvatar, shrinkPhoto, side, type Account, type Me } from "@/lib/hesab";
 import { openRules } from "./Extras";
 import { MemberCard, type Tab } from "./Home";
 import { Notify } from "./Notify";
@@ -28,6 +28,7 @@ const P: Record<string, string> = {
   site: "M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18zM3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18",
   reload: "M20 11a8 8 0 1 0-2.3 5.7M20 4v7h-7",
   bell: "M6 16V11a6 6 0 0 1 12 0v5l2 2H4zM10 20a2 2 0 0 0 4 0",
+  gift: "M4 10h16v10H4zM3 7h18v3H3zM12 7v13M12 7C10 4 7 4 7 6s3 1 5 1c2 0 5 1 5-1s-3-2-5 1",
   out: "M15 4h4v16h-4M10 8l-4 4 4 4M6 12h11",
 };
 const Ico = ({ k }: { k: string }) => <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden><path d={P[k]} /></svg>;
@@ -85,7 +86,7 @@ export function Menu({ open, onClose, a, data, tab, go, onReload, onOut }: {
   const openOrders = a.orders.filter(o => o.status !== "done" && o.status !== "cancel").length;
   const tabItem = (k: Tab, t: string, n?: number): Item => ({ k, t, n, on: tab === k, go: () => go(k) });
   const groups: [string, Item[]][] = [
-    ["حساب من", [tabItem("home", "خانه"), tabItem("stmt", "صورتحساب و فاکتورها"), ...(isCustomer ? [tabItem("box", "صندوقچه‌ی جواهرات")] : []), { k: "bell", t: "اعلان‌ها", go: () => go("profile", "hs-notify") }]],
+    ["حساب من", [tabItem("home", "خانه"), tabItem("stmt", "صورتحساب و فاکتورها"), ...(isCustomer ? [tabItem("box", "صندوقچه‌ی جواهرات")] : []), { k: "bell", t: "اعلان‌ها", go: () => go("profile", "hs-notify") }, { k: "gift", t: "دعوت از دوستان", go: () => go("profile", "hs-invite") }]],
     ["خرید و سفارش", [
       ...(isCustomer ? [tabItem("vitrin", "ویترین لئون گلد"), tabItem("orders", "سفارش‌های من", openOrders)] : []),
       ...(isSupplier ? [{ ...tabItem("orders", "کارهای سپرده به من", a.work.length), k: "orders" }] : []),
@@ -147,6 +148,33 @@ const ERR: Record<string, string> = {
 };
 const errText = (e: unknown) => (e instanceof ApiError && ERR[e.code]) || "مشکلی پیش آمد. دوباره امتحان کنید.";
 
+// «دعوت از دوستان» (owner, 2026-11-09): the party's own code and a link that opens «ثبت نام» with it filled in; whoever signs
+// up with it is marked in the ledger as brought by this party, and the owner sets there what share of the profit it earns
+function Invite({ demo }: { demo?: boolean }) {
+  const [d, setD] = useState<{ code: string; joined: number } | null>(demo ? { code: "LG7K2M", joined: 2 } : null);
+  const [err, setErr] = useState(false), [copied, setCopied] = useState(false);
+  useEffect(() => { if (!demo) invite().then(setD, () => setErr(true)); }, [demo]);
+  const link = d && typeof location !== "undefined" ? location.origin + location.pathname.replace(/[^/]*$/, "") + "?ref=" + d.code : "";
+  const text = d ? `در «حساب من» لئون گلد با لینک من حساب بساز؛ کد معرف: ${d.code}` : "";
+  const copy = async () => { try { await navigator.clipboard.writeText(link); setCopied(true); setTimeout(() => setCopied(false), 2200); } catch { setCopied(false); } };
+  const share = async () => { if (navigator.share) { try { await navigator.share({ title: "لئون گلد", text, url: link }); } catch {} } else copy(); };
+  return (
+    <section className="hs-login paper hs-invite" id="hs-invite" aria-labelledby="hs-invite-h">
+      <h2 className="hs-h" id="hs-invite-h">دعوت از دوستان</h2>
+      <p className="hs-prof-fine">لینک خودتان را برای دوستانتان بفرستید. هر کس با آن در «حساب من» ثبت‌نام کند، به‌عنوان معرفیِ شما در دفتر لئون ثبت می‌شود و از خریدهایش سهمی برای شما در نظر گرفته می‌شود.</p>
+      {err ? <p className="hs-err">کد دعوت آورده نشد؛ کمی بعد دوباره سر بزنید.</p> : !d ? <p className="hs-wait">در حال آوردن…</p> : <>
+        <div className="hs-inv-code"><span>کد معرف شما</span><b dir="ltr">{d.code}</b></div>
+        <p className="hs-inv-link" dir="ltr">{link}</p>
+        <div className="hs-inv-act">
+          <button type="button" className="btn btn-gold" onClick={share}>اشتراک‌گذاری لینک</button>
+          <button type="button" className="btn btn-line" onClick={copy}>{copied ? "کپی شد ✓" : "کپی لینک"}</button>
+        </div>
+        <p className="hs-prof-fine num">{d.joined ? `تا حالا ${faDigits(d.joined)} نفر با دعوت شما ثبت‌نام کرده‌اند.` : "هنوز کسی با دعوت شما ثبت‌نام نکرده است."}</p>
+      </>}
+    </section>
+  );
+}
+
 export function Profile({ a, data, onUsername, onPhoto }: { a: Account; data: Me; onUsername: (u: string) => void; onPhoto: (p?: string) => void }) {
   const g = side(a.bal.g, "g"), r = side(a.bal.r, "r");
   const balText = (v: number, u: "g" | "r", s: string) => s === "z" ? "تسویه" : (u === "g" ? gram(v) + " گرم" : rial(v) + " ریال") + (s === "dr" ? " بدهکار" : " بستانکار");
@@ -154,6 +182,7 @@ export function Profile({ a, data, onUsername, onPhoto }: { a: Account; data: Me
     <section className="hs-sec hs-prof" aria-labelledby="hs-prof">
       <h1 className="hs-h" id="hs-prof">پروفایل من</h1>
       <PhotoPick name={a.name} photo={data.photo} demo={data.demo} onPhoto={onPhoto} />
+      <Invite demo={data.demo} />
       {a.kind !== "supplier" && <MemberCard a={a} />}
       <dl className="hs-prof-dl paper">
         <div><dt>نام در دفتر لئون</dt><dd>{a.name}</dd></div>

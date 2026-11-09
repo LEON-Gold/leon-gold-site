@@ -16,7 +16,7 @@ import Vitrin from "./Vitrin";
 import { Avatar, KIND, Menu, Profile } from "./Menu";
 import { dropDevice, useHomeApp } from "./Notify";
 import {
-  ApiError, SAMPLE, signup, publicBiz, nidOk, dayNum, faDigits, getToken, gram, jdate, jtime, latin, login, logout, me, photoUrl, redeem, rial, sendReceipt, shrinkPhoto, side, today, toman,
+  ApiError, SAMPLE, signup, refFromLink, publicBiz, nidOk, dayNum, faDigits, getToken, gram, jdate, jtime, latin, login, logout, me, photoUrl, redeem, rial, sendReceipt, shrinkPhoto, side, today, toman,
   type Account, type BizType, type Entry, type Me,
 } from "@/lib/hesab";
 
@@ -40,6 +40,7 @@ const ERR: Record<string, string> = {
   bad_mobile: "شماره موبایل باید ۱۱ رقم و با ۰۹ شروع شود.",
   bad_name: "نام و نام خانوادگی را کامل بنویسید.",
   bad_birth: "تاریخ تولد را مثل ۱۳۷۰/۰۵/۱۲ بنویسید.",
+  bad_ref: "کد معرف درست نیست. آن را دوباره از کسی که دعوتتان کرده بگیرید، یا خالی بگذارید.",
   bad_nid: "کد ملی درست نیست. ۱۰ رقم کد ملی را بنویسید.",
   nid_taken: "با این کد ملی قبلاً حساب ساخته شده. با همان نام کاربری وارد شوید، یا در تلگرام بپرسید.",
   bad_biz: "نوع کسب‌وکار را انتخاب کنید.",
@@ -64,6 +65,8 @@ export default function Hesab() {
   const [phase, setPhase] = useState<Phase>("boot");
   const [data, setData] = useState<Me | null>(null);
   const [err, setErr] = useState("");
+  // an invite link (…/hesab/?ref=CODE): the sign-up form opens first, with the code filled in
+  const [ref] = useState(refFromLink);
   // the rules must be signed (once, and again when they change) before the account opens
   const signed = useSigned(data), [passed, setPassed] = useState(false);
 
@@ -95,8 +98,8 @@ export default function Hesab() {
   return (
     <>{hint}<Door name="حساب من" latin="LEON GOLD · MY ACCOUNT" fine="فقط حساب خودتان را می‌بینید و در این صفحه چیزی تغییر نمی‌کند.">
         {phase === "boot" ? <p className="hs-wait" aria-live="polite">در حال باز کردن…</p>
-          : <AuthSwap onSwap={() => setErr("")} render={(m, go) => m === "up"
-              ? <SignUp onBack={() => go("in")} onIn={load} />
+          : <AuthSwap start={ref ? "up" : "in"} onSwap={() => setErr("")} render={(m, go) => m === "up"
+              ? <SignUp ref0={ref} onBack={() => go("in")} onIn={load} />
               : <SignIn err={err} setErr={setErr} onIn={load} onUp={() => go("up")} />} />}
     </Door></>
   );
@@ -134,9 +137,9 @@ function SignIn({ err, setErr, onIn, onUp }: { err: string; setErr: (s: string) 
 
 // «ثبت نام» (owner, 2026-11-09): the account opens at once, no approval. The kind of business decides the group: the
 // trade («همکار») gives what only a real shop has; national code and mobile are required for everyone.
-function SignUp({ onBack, onIn }: { onBack: () => void; onIn: () => Promise<void> }) {
+function SignUp({ ref0 = "", onBack, onIn }: { ref0?: string; onBack: () => void; onIn: () => Promise<void> }) {
   const [types, setTypes] = useState<BizType[] | null>(null);
-  const [f, setF] = useState({ biz: "", fullName: "", mobile: "", nationalId: "", shop: "", city: "", birth: "", licence: "", union: "", shopAddr: "", username: "", password: "", password2: "", note: "" });
+  const [f, setF] = useState({ biz: "", fullName: "", mobile: "", nationalId: "", shop: "", city: "", birth: "", licence: "", union: "", shopAddr: "", username: "", password: "", password2: "", note: "", ref: ref0 });
   const [err, setErr] = useState(""), [busy, setBusy] = useState(false), [done, setDone] = useState("");
   useEffect(() => { publicBiz().then(setTypes, () => setErr(ERR.offline)); }, []);
   const set = (k: keyof typeof f) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => setF({ ...f, [k]: e.target.value });
@@ -156,7 +159,7 @@ function SignUp({ onBack, onIn }: { onBack: () => void; onIn: () => Promise<void
     setBusy(true); setErr("");
     try {
       const r = await signup({ biz: bt.k, fullName: f.fullName.trim(), mobile, nationalId: nid, shop: f.shop.trim() || undefined, city: f.city.trim() || undefined, birth: latin(f.birth).trim() || undefined,
-        ...(colleague ? { licence: latin(f.licence).replace(/\D/g, ""), union: latin(f.union).trim(), shopAddr: f.shopAddr.trim() } : {}), username, password: f.password, note: f.note.trim() || undefined });
+        ...(colleague ? { licence: latin(f.licence).replace(/\D/g, ""), union: latin(f.union).trim(), shopAddr: f.shopAddr.trim() } : {}), username, password: f.password, note: f.note.trim() || undefined, ref: latin(f.ref).trim() || undefined });
       setDone(r.username);
     } catch (x) { setErr(errText(x)); }
     finally { setBusy(false); }
@@ -171,6 +174,7 @@ function SignUp({ onBack, onIn }: { onBack: () => void; onIn: () => Promise<void
   return (
     <form className="hs-form" onSubmit={send} noValidate>
       <p className="hs-uphead">ثبت نام در «حساب من»</p>
+      {ref0 && <p className="hs-sent hs-refnote">با دعوت یکی از مشتریان لئون گلد آمده‌اید؛ کد معرف پایین نوشته شده است.</p>}
       <label className="hs-field"><span>نوع کسب‌وکار *</span>
         <select value={f.biz} onChange={set("biz")} className="hs-select">
           <option value="">{types ? "— انتخاب کنید —" : "در حال آوردن…"}</option>
@@ -193,6 +197,7 @@ function SignUp({ onBack, onIn }: { onBack: () => void; onIn: () => Promise<void
       <label className="hs-field"><span>نام کاربری * (حروف انگلیسی یا عدد)</span><input value={f.username} onChange={set("username")} autoComplete="username" autoCapitalize="none" spellCheck={false} dir="ltr" maxLength={40} /></label>
       <label className="hs-field"><span>رمز * (حداقل ۶ حرف یا عدد)</span><input type="password" value={f.password} onChange={set("password")} autoComplete="new-password" dir="ltr" maxLength={60} /></label>
       <label className="hs-field"><span>تکرار رمز *</span><input type="password" value={f.password2} onChange={set("password2")} autoComplete="new-password" dir="ltr" maxLength={60} /></label>
+      <label className="hs-field"><span>کد معرف (اگر کسی دعوتتان کرده؛ اختیاری)</span><input value={f.ref} onChange={set("ref")} autoCapitalize="characters" spellCheck={false} dir="ltr" maxLength={12} /></label>
       <label className="hs-field"><span>توضیح (اختیاری)</span><textarea value={f.note} onChange={set("note")} rows={2} maxLength={300} placeholder="مثلاً از کجا ما را می‌شناسید" /></label>
       {err && <p className="hs-err" role="alert">{err}</p>}
       <button className="btn btn-gold hs-wide" disabled={busy}>{busy ? "در حال ساختن حساب…" : "ساختن حساب"}</button>

@@ -724,3 +724,13 @@ html.hs-locked, html.hs-locked body { overflow: hidden; }
 .hs-pfp-ring.busy { opacity: .6; }
 .hs-pfp-act { display: grid; gap: 6px; justify-items: center; }
 .hs-pfp-b { cursor: pointer; min-height: 44px; display: inline-grid; place-items: center; padding: 0 18px; }
+
+/* ---------- «دعوت از دوستان» (Menu.tsx Invite) ---------- */
+.hs-invite { display: grid; gap: 10px; }
+.hs-inv-code { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 12px 14px; border-radius: 14px; background: var(--paper-2); border: 1px dashed rgba(156,116,51,.55); }
+.hs-inv-code span { font-size: 13px; color: var(--muted); }
+.hs-inv-code b { font: 700 24px/1 var(--text); letter-spacing: .18em; color: var(--gold-ink); }
+.hs-inv-link { font-size: 12px; color: var(--muted); overflow-wrap: anywhere; text-align: left; }
+.hs-inv-act { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.hs-inv-act .btn { min-height: 46px; }
+.hs-refnote { color: var(--gold-ink); }
