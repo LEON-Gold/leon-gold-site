@@ -72,21 +72,37 @@ a { color: inherit; }
    phone's own setting (app/layout.tsx), switched by components/ThemeToggle.tsx. The vault greens stay; the ivory paper
    turns to deep green and its ink to cream. ---------- */
 html[data-theme="dark"] {
+  /* «گاوصندوق شبانه» (owner, 2026-11-09: "the dark is too dull, be more creative"): near-black vault green, cards lit
+     from above like a jeweller's case, gold hairlines and gold titles, warm ivory text with real contrast */
   color-scheme: dark;
-  --bg: #071710;
-  --paper: #10241a;
-  --paper-2: #173226;
-  --ink: #efe6cc;
-  --muted: #a9b5aa;
-  --line: rgba(197, 154, 80, .34);
-  --gold-ink: #d8b46a;
-  --emerald: #9ed6b6;
-  --dr: #f2a493;
-  --cr: #8fd6b0;
-  --lift: 0 1px 0 rgba(232,207,142,.08) inset, 0 1px 2px rgba(0,0,0,.4), 0 18px 40px -24px rgba(0,0,0,.8);
+  --bg: #040b08;
+  --paper: #0d1c15;
+  --paper-2: #13281e;
+  --ink: #f4ecd8;
+  --muted: #cfc7b0;
+  --line: rgba(232, 207, 142, .3);
+  --gold-ink: #ecd193;
+  --emerald: #e8cf8e;
+  --dr: #ff9f8c;
+  --cr: #8fe0b4;
+  --dk-ink: #f4ecd8;
+  --dk-text: #d3cbb4;
+  --lift: 0 0 0 1px rgba(232,207,142,.16), 0 1px 0 rgba(232,207,142,.12) inset, 0 24px 50px -26px rgba(0,0,0,.95);
 }
 html[data-theme="dark"] body { background-color: var(--bg); }
-html[data-theme="dark"] img[src$="leaf.webp"], html[data-theme="dark"] img[src$="leaf.png"] { filter: none; }
+/* the jeweller's case: every ivory card becomes a dark case lit from the top edge, with a gold rim */
+html[data-theme="dark"] :is(.paper, .door-card, .card) {
+  background: radial-gradient(130% 70% at 50% -10%, rgba(232,207,142,.10), transparent 55%), linear-gradient(180deg, #102219, #0a1610) !important;
+  border-color: rgba(232,207,142,.32);
+}
+html[data-theme="dark"] :is(.paper, .door-card, .card) :is(h1, h2, h3, .hs-h, dt.term, .words dt) { color: var(--gold-lt); }
+html[data-theme="dark"] .words dt, html[data-theme="dark"] .hs-h { text-shadow: 0 0 18px rgba(232,207,142,.18); }
+html[data-theme="dark"] :is(input, select, textarea):not([type=checkbox]):not([type=radio]) { background-color: #08130e !important; color: var(--ink); border-color: rgba(232,207,142,.32) !important; }
+html[data-theme="dark"] :is(input, select, textarea):focus { box-shadow: 0 0 0 3px rgba(232,207,142,.22) !important; border-color: var(--gold) !important; }
+html[data-theme="dark"] ::placeholder { color: rgba(207,199,176,.55); }
+html[data-theme="dark"] ::selection { background: #e8cf8e; color: #0a1f15; }
+html[data-theme="dark"] :is(p, li, dd) > a:not([class]) { color: var(--gold-lt); }
+html[data-theme="dark"] hr, html[data-theme="dark"] .words > div { border-color: rgba(232,207,142,.18); }
 /* the theme switch */
 .theme-t { flex: none; width: 38px; height: 38px; border-radius: 50%; display: grid; place-items: center; cursor: pointer; padding: 0;
   border: 1px solid rgba(232,207,142,.45); background: rgba(6,20,14,.35); color: var(--gold-lt); }

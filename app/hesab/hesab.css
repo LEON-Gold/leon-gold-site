@@ -36,7 +36,7 @@
 .hs-bar-t { color: #d6ccb0; font-size: 14px; padding-inline-start: 12px; border-inline-start: 1px solid rgba(232,207,142,.3); }
 .hs-out { margin-inline-start: auto; min-height: 40px; padding: 0 16px; border-radius: 999px; border: 1px solid rgba(232,207,142,.45); background: transparent; color: var(--gold-lt); font: 600 14px/1 var(--text); cursor: pointer; }
 .hs-out:active { transform: scale(.97); }
-.hs-demo-band { background: #f3e4b8; color: #5a4313; text-align: center; font-size: 13px; padding: 8px 16px; border-bottom: 1px solid rgba(156,116,51,.3); }
+.hs-demo-band { background: #f3e4b8; color: var(--dk-text, #5a4313); text-align: center; font-size: 13px; padding: 8px 16px; border-bottom: 1px solid rgba(156,116,51,.3); }
 
 .hs-main { width: min(var(--hs-w), 100%); margin: 0 auto; padding: 28px 16px 48px; box-sizing: border-box; display: grid; grid-template-columns: minmax(0, 1fr); gap: 28px; }
 /* one long name or word never widens the page; the account chips scroll instead */
@@ -517,13 +517,13 @@ html.hs-locked, html.hs-locked body { overflow: hidden; }
 .hs-prof-dl { margin: 0; padding: 6px 18px; color: var(--ink); }
 .hs-prof-dl div { display: flex; justify-content: space-between; gap: 12px; padding: 12px 0; border-bottom: 1px solid rgba(156,116,51,.18); }
 .hs-prof-dl div:last-child { border-bottom: 0; }
-.hs-prof-dl dt { color: #6d6450; font-size: 14px; }
+.hs-prof-dl dt { color: var(--dk-text, #6d6450); font-size: 14px; }
 .hs-prof-dl dd { margin: 0; font-weight: 700; text-align: end; }
-.hs-prof-fine { font-size: 13.5px; line-height: 1.9; color: #6d6450; }
+.hs-prof-fine { font-size: 13.5px; line-height: 1.9; color: var(--dk-text, #6d6450); }
 .hs-login { display: grid; gap: 4px; padding: 20px 18px; color: var(--ink); }
 .hs-login .hs-h { font-size: 20px; margin-bottom: 6px; }
 .hs-login-row { display: flex; align-items: center; gap: 10px; min-height: 48px; border-bottom: 1px solid rgba(156,116,51,.18); }
-.hs-login-row span { color: #6d6450; font-size: 14px; }
+.hs-login-row span { color: var(--dk-text, #6d6450); font-size: 14px; }
 .hs-login-row b { flex: 1; text-align: end; unicode-bidi: isolate; overflow-wrap: anywhere; }
 .hs-login .hs-link { color: var(--gold-ink); text-decoration-color: rgba(156,116,51,.4); min-height: 44px; }
 .hs-login .hs-pass { padding: 14px 0 0; }
@@ -537,7 +537,7 @@ html.hs-locked, html.hs-locked body { overflow: hidden; }
 .hs-notify .hs-row { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 18px; }
 .hs-on { color: var(--cr); font-weight: 700; }
 .hs-steps-a2hs { margin: 0; padding-inline-start: 22px; display: grid; gap: 6px; font-size: 14.5px; line-height: 1.9; }
-.hs-why { font: 12px/1.5 ui-monospace, monospace; color: #6d6450; overflow-wrap: anywhere; }
+.hs-why { font: 12px/1.5 ui-monospace, monospace; color: var(--dk-text, #6d6450); overflow-wrap: anywhere; }
 
 /* ---------- one invoice on the ledger's own A4 sheet (components/hesab/Invoice.tsx: the ledger in its «#view» mode) ---------- */
 .hs-ledger-inv { position: fixed; inset: 0; z-index: 90; background: #06140e; }
