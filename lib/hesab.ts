@@ -14,7 +14,7 @@ export type Work = { ref: string; date: string; due: string; status: string; sta
 export type Account = { id: string; name: string; shop: string; phone?: string; vip?: boolean; kind: "customer" | "supplier" | "both"; biz?: string; group?: "colleague" | "retail" | ""; bal: { g: number; r: number }; ent: Entry[]; orders: Order[]; work: Work[] };
 // what the party wrote about itself (all optional) and its last signature of the rules (leon-gold-server/portal.mjs)
 export type Info = { fullName?: string; nationalId?: string; birth?: string; mobile?: string; phone?: string; shop?: string; address?: string; postal?: string; email?: string; at?: number };
-export type Me = { accounts: Account[]; updated?: string; demo?: boolean; username?: string; terms?: { hash: string; at: number } | null; info?: Info | null };
+export type Me = { accounts: Account[]; updated?: string; demo?: boolean; username?: string; photo?: string; terms?: { hash: string; at: number } | null; info?: Info | null };
 
 // ---------- session: the token only, in this browser ----------
 const KEY = "leon-hesab";
@@ -38,6 +38,9 @@ async function api<T>(path: string, json?: unknown): Promise<T> {
 // the rules as one text, the exact words the party signs; its SHA-256 tells whether it signed this version
 export const termsHash = async (text: string) => Array.from(new Uint8Array(await crypto.subtle.digest("SHA-256", new TextEncoder().encode(text)))).map(b => b.toString(16).padStart(2, "0")).join("");
 export const acceptTerms = (text: string, label: string) => api<{ ok: true; hash: string; at: number }>("/api/portal/terms/accept", { text, label });
+// the party's own profile photo (owner, 2026-11-09): shrunk to a small square-ish JPEG here, kept on the server
+export const setAvatar = (image: string) => api<{ ok: true; photo: string }>("/api/portal/avatar", { image });
+export const removeAvatar = () => api<{ ok: true }>("/api/portal/avatar/remove", {});
 export const saveInfo = (info: Info) => api<{ ok: true; info: Info }>("/api/portal/info", info);
 
 export async function login(u: string, p: string) { setToken((await api<{ token: string }>("/api/portal/login", { u, p })).token); }

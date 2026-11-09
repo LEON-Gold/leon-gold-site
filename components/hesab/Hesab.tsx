@@ -212,6 +212,7 @@ function Panel({ data, onOut, onReload }: { data: Me; onOut: () => void; onReloa
   useEffect(() => { if (location.search) history.replaceState(null, "", location.pathname + location.hash); }, []);
   const [menu, setMenu] = useState(false);
   const [username, setUsername] = useState(data.username);
+  const [photo, setPhoto] = useState(data.photo);
   const setTab = (t: Tab) => { setTabS(t); scrollTo({ top: 0 }); };
   // from the menu: a section, or a card on one (the bank cards, today's price)
   const go = useCallback((t: Tab, id?: string) => { setMenu(false); setTab(t); if (id) setTimeout(() => document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" }), 80); }, []);
@@ -238,7 +239,7 @@ function Panel({ data, onOut, onReload }: { data: Me; onOut: () => void; onReloa
         <a className="hs-brand" href="../"><img src="/leaf.png" alt="" width={28} height={28} /><span className="leaf">لئون گلد</span></a>
         <span className="hs-bar-t">حساب من</span>
         <ThemeToggle className="hs-theme" />
-        <Avatar name={a.name} current={tab === "profile"} onClick={() => setTab("profile")} />
+        <Avatar name={a.name} photo={photo} current={tab === "profile"} onClick={() => setTab("profile")} />
       </header>
       {data.demo && <p className="hs-demo-band" role="note">این یک حساب نمونه است، با رقم‌های ساختگی؛ فقط برای دیدن شکل پنل.</p>}
       <main className={"hs-main" + (tab === "vitrin" ? " hs-main-wide" : "")}>
@@ -268,7 +269,7 @@ function Panel({ data, onOut, onReload }: { data: Me; onOut: () => void; onReloa
             <p>رقمی با حساب شما نمی‌خواند؟ <a href={tg} target="_blank" rel="noopener">در تلگرام بگویید</a>؛ اشتباه از طرفین قابل برگشت است.</p>
           </footer>
         </>}
-        {tab === "profile" && <Profile a={a} data={{ ...data, username }} onUsername={setUsername} />}
+        {tab === "profile" && <Profile a={a} data={{ ...data, username, photo }} onUsername={setUsername} onPhoto={setPhoto} />}
         {tab === "vitrin" && <Vitrin demo={data.demo} openId={openId} onlyMine={!isCustomer} />}
         {tab === "orders" && blocks}
         {tab === "box" && <><JewelBox a={a} /><Summary ent={a.ent} /></>}

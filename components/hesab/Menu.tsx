@@ -4,7 +4,7 @@
 import { InfoForm } from "./Onboard";
 import { useEffect, useRef, useState } from "react";
 import { SHOP } from "@/lib/content";
-import { ApiError, changeLogin, faDigits, gram, jdate, jtime, rial, side, type Account, type Me } from "@/lib/hesab";
+import { ApiError, changeLogin, faDigits, gram, jdate, jtime, removeAvatar, rial, setAvatar, shrinkPhoto, side, type Account, type Me } from "@/lib/hesab";
 import { openRules } from "./Extras";
 import { MemberCard, type Tab } from "./Home";
 import { Notify } from "./Notify";
@@ -33,8 +33,35 @@ const P: Record<string, string> = {
 const Ico = ({ k }: { k: string }) => <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden><path d={P[k]} /></svg>;
 
 // the round initial in the header; opens the profile
-export function Avatar({ name, onClick, current }: { name: string; onClick: () => void; current: boolean }) {
-  return <button type="button" className="hs-ava" onClick={onClick} aria-label="پروفایل من" aria-current={current ? "page" : undefined}>{initial(name)}</button>;
+export function Avatar({ name, onClick, current, photo }: { name: string; onClick: () => void; current: boolean; photo?: string }) {
+  return <button type="button" className={"hs-ava" + (photo ? " has-photo" : "")} onClick={onClick} aria-label="پروفایل من" aria-current={current ? "page" : undefined}>{photo ? <img src={photo} alt="" /> : initial(name)}</button>;
+}
+
+// the profile photo: tap to choose one (camera or library), shrunk here before it goes up; removable
+function PhotoPick({ name, photo, demo, onPhoto }: { name: string; photo?: string; demo?: boolean; onPhoto: (p?: string) => void }) {
+  const [busy, setBusy] = useState(false), [err, setErr] = useState("");
+  const pick = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const f = e.target.files?.[0]; e.target.value = ""; if (!f) return;
+    setBusy(true); setErr("");
+    try { const img = await shrinkPhoto(f, 512, 0.85); if (demo) onPhoto(img); else onPhoto((await setAvatar(img)).photo); }
+    catch (x) { setErr(x instanceof ApiError && x.code === "too_large" ? "این عکس خیلی بزرگ است؛ عکس دیگری انتخاب کنید." : x instanceof ApiError && x.code === "offline" ? "به سرور وصل نشد؛ دوباره امتحان کنید." : "این عکس خوانده نشد؛ عکس دیگری انتخاب کنید."); }
+    finally { setBusy(false); }
+  };
+  const remove = async () => { setBusy(true); setErr(""); try { if (!demo) await removeAvatar(); onPhoto(undefined); } catch { setErr("حذف نشد؛ دوباره امتحان کنید."); } finally { setBusy(false); } };
+  return (
+    <div className="hs-pfp">
+      <label className={"hs-pfp-ring" + (busy ? " busy" : "")} aria-label="انتخاب عکس پروفایل">
+        {photo ? <img src={photo} alt="عکس پروفایل" /> : <span>{initial(name)}</span>}
+        <i aria-hidden>＋</i>
+        <input type="file" accept="image/*" onChange={pick} disabled={busy} hidden />
+      </label>
+      <div className="hs-pfp-act">
+        <label className="btn btn-line hs-pfp-b">{busy ? "در حال ذخیره…" : photo ? "عوض کردن عکس" : "گذاشتن عکس پروفایل"}<input type="file" accept="image/*" onChange={pick} disabled={busy} hidden /></label>
+        {photo && !busy && <button type="button" className="hs-link" onClick={remove}>حذف عکس</button>}
+        {err && <p className="hs-err" role="alert">{err}</p>}
+      </div>
+    </div>
+  );
 }
 
 type Go = (t: Tab, id?: string) => void;
@@ -120,12 +147,13 @@ const ERR: Record<string, string> = {
 };
 const errText = (e: unknown) => (e instanceof ApiError && ERR[e.code]) || "مشکلی پیش آمد. دوباره امتحان کنید.";
 
-export function Profile({ a, data, onUsername }: { a: Account; data: Me; onUsername: (u: string) => void }) {
+export function Profile({ a, data, onUsername, onPhoto }: { a: Account; data: Me; onUsername: (u: string) => void; onPhoto: (p?: string) => void }) {
   const g = side(a.bal.g, "g"), r = side(a.bal.r, "r");
   const balText = (v: number, u: "g" | "r", s: string) => s === "z" ? "تسویه" : (u === "g" ? gram(v) + " گرم" : rial(v) + " ریال") + (s === "dr" ? " بدهکار" : " بستانکار");
   return (
     <section className="hs-sec hs-prof" aria-labelledby="hs-prof">
       <h1 className="hs-h" id="hs-prof">پروفایل من</h1>
+      <PhotoPick name={a.name} photo={data.photo} demo={data.demo} onPhoto={onPhoto} />
       {a.kind !== "supplier" && <MemberCard a={a} />}
       <dl className="hs-prof-dl paper">
         <div><dt>نام در دفتر لئون</dt><dd>{a.name}</dd></div>
