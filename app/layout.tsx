@@ -19,14 +19,25 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = { themeColor: "#07130e", width: "device-width", initialScale: 1, viewportFit: "cover" };
 
-// between the site's pages (owner, 2026-11-10): the card or button you tap becomes the next page's title (globals.css
-// names it «lg-title» for the browser's view transition); the page's own title steps aside while that happens
-const VT_TAP = `document.addEventListener("click",function(e){var a=e.target.closest&&e.target.closest("a[href]");if(!a||a.target||e.metaKey||e.ctrlKey||a.origin!==location.origin)return;var c=a.closest(".vc-card,.card,.hs-vcard,.btn,.bar-ledger,.sheet-pill")||a;document.documentElement.classList.add("vt-tap");c.style.viewTransitionName="lg-title"},true);addEventListener("pageshow",function(){document.documentElement.classList.remove("vt-tap");document.querySelectorAll("[style*=lg-title]").forEach(function(x){x.style.viewTransitionName=""})});`;
+// between the site's pages (owner, 2026-11-10, second version): the browser's view transition, with the new page opening
+// as a circle from where the finger touched (kept for a moment in sessionStorage) and a gold ring on its edge; the
+// bar stays put (globals.css names it «lg-bar»), the old page sinks back. No tap (the back button): a soft cross-fade.
+const VT_REVEAL = `(function(){var E="cubic-bezier(0.77, 0, 0.175, 1)";
+document.addEventListener("click",function(e){var a=e.target.closest&&e.target.closest("a[href]");if(!a||a.target||a.origin!==location.origin)return;try{sessionStorage.setItem("lg-tap",JSON.stringify({x:e.clientX,y:e.clientY,t:Date.now()}))}catch(x){}},true);
+addEventListener("pagereveal",function(e){var vt=e.viewTransition;if(!vt)return;var t=null;try{t=JSON.parse(sessionStorage.getItem("lg-tap")||"null");sessionStorage.removeItem("lg-tap")}catch(x){}
+var rm=matchMedia("(prefers-reduced-motion: reduce)").matches;
+vt.ready.then(function(){var h=document.documentElement;
+if(!t||Date.now()-t.t>5000||rm){h.animate({opacity:[0,1]},{duration:rm?160:300,easing:"ease",pseudoElement:"::view-transition-new(root)"});return}
+var R=Math.hypot(Math.max(t.x,innerWidth-t.x),Math.max(t.y,innerHeight-t.y))+30;
+h.animate({clipPath:["circle(0px at "+t.x+"px "+t.y+"px)","circle("+R+"px at "+t.x+"px "+t.y+"px)"]},{duration:640,easing:E,pseudoElement:"::view-transition-new(root)"});
+h.animate({transform:["scale(1)","scale(.93)"],opacity:[1,.35],filter:["brightness(1)","brightness(.7)"]},{duration:640,easing:E,fill:"forwards",pseudoElement:"::view-transition-old(root)"});
+var r=document.createElement("div");r.className="lg-ring";document.body.appendChild(r);
+r.animate([{left:t.x+"px",top:t.y+"px",width:"0px",height:"0px",opacity:1},{left:t.x-R+20+"px",top:t.y-R+20+"px",width:2*R-40+"px",height:2*R-40+"px",opacity:.9,offset:.8},{left:t.x-R+20+"px",top:t.y-R+20+"px",width:2*R-40+"px",height:2*R-40+"px",opacity:0}],{duration:640,easing:E,fill:"forwards"}).onfinish=function(){r.remove()}})})})();`;
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="fa" dir="rtl" suppressHydrationWarning>
-      <head><script dangerouslySetInnerHTML={{ __html: THEME_BOOT }} /><style dangerouslySetInnerHTML={{ __html: LOADER_CSS + MORPH_CSS }} /><script dangerouslySetInnerHTML={{ __html: VT_TAP }} /></head>
+      <head><script dangerouslySetInnerHTML={{ __html: THEME_BOOT }} /><style dangerouslySetInnerHTML={{ __html: LOADER_CSS + MORPH_CSS }} /><script dangerouslySetInnerHTML={{ __html: VT_REVEAL }} /></head>
       <body style={GL_VARS as CSSProperties}>{children}</body>
     </html>
   );

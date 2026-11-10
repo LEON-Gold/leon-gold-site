@@ -1,7 +1,7 @@
 "use client";
 // «حساب من»: sign-in (the username and password Leon gave the party, or the owner's one-time link), then the party's
 // assay slip (gold and rial balance), their orders (customers), the work given to them (suppliers) and the statement, newest first.
-import { useCallback, useEffect, useMemo, useState, useRef } from "react";
+import { useCallback, useEffect, useMemo, useState, useRef, useLayoutEffect } from "react";
 import { SHOP } from "@/lib/content";
 import Door from "@/components/Door";
 import { LedgerInvoice } from "./Invoice";
@@ -222,10 +222,11 @@ function Panel({ data, onOut, onReload }: { data: Me; onOut: () => void; onReloa
   const [menu, setMenu] = useState(false);
   const [username, setUsername] = useState(data.username);
   const [photo, setPhoto] = useState(data.photo);
-  const setTab = (t: Tab) => { setTabS(t); scrollTo({ top: 0 }); };
+  // the move between sections: the page you leave is frozen at the tap, the new one opens from your finger (lib/morph.js)
+  const setTab = (t: Tab) => { MORPH.before(document.querySelector(".hs-main")); setTabS(t); scrollTo({ top: 0 }); };
   const first = useRef(true);
   useEffect(() => { MORPH.track(); }, []);
-  useEffect(() => { if (first.current) { first.current = false; return; } MORPH.go(document.querySelector(".hs-main")); }, [tab]);
+  useLayoutEffect(() => { if (first.current) { first.current = false; return; } MORPH.after(document.querySelector(".hs-main")); }, [tab]);
   // from the menu: a section, or a card on one (the bank cards, today's price)
   const go = useCallback((t: Tab, id?: string) => { setMenu(false); setTab(t); if (id) setTimeout(() => document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" }), 80); }, []);
   const closeMenu = useCallback(() => setMenu(false), []);
