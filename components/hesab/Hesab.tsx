@@ -9,6 +9,8 @@ import { chrono, monthTitle, num, sideWord, statementPdf, totals } from "./Repor
 import { Onboard, useSigned } from "./Onboard";
 import { setRulesGroup } from "@/lib/content";
 import AuthSwap from "./AuthSwap";
+import Market, { MarketCard } from "./Market";
+import { ICONS } from "./Home";
 import ThemeToggle from "@/components/ThemeToggle";
 import { HomeHint, InvoiceSheet, MyReceipts, PriceCard, Quick, Rules, Summary, dueText, openRules } from "./Extras";
 import { EntryIcon, JewelBox, Journey, MemberCard, PayCard, Seal, TabBar, type Tab } from "./Home";
@@ -212,7 +214,7 @@ function SignUp({ ref0 = "", onBack, onIn }: { ref0?: string; onBack: () => void
 function Panel({ data, onOut, onReload }: { data: Me; onOut: () => void; onReload?: () => void }) {
   const [ai, setAi] = useState(0);
   // a tapped notification opens on its section (?t=orders), then the address is cleaned
-  const [tab, setTabS] = useState<Tab>(() => { const t = typeof location === "undefined" ? "" : new URLSearchParams(location.search).get("t") || ""; return (["vitrin", "orders", "box", "stmt", "profile"].includes(t) ? t : "home") as Tab; });
+  const [tab, setTabS] = useState<Tab>(() => { const t = typeof location === "undefined" ? "" : new URLSearchParams(location.search).get("t") || ""; return (["vitrin", "orders", "box", "stmt", "profile", "market"].includes(t) ? t : "home") as Tab; });
   const [openId] = useState(() => typeof location === "undefined" ? "" : new URLSearchParams(location.search).get("p") || "");
   useEffect(() => { if (location.search) history.replaceState(null, "", location.pathname + location.hash); }, []);
   const [menu, setMenu] = useState(false);
@@ -246,6 +248,22 @@ function Panel({ data, onOut, onReload }: { data: Me; onOut: () => void; onReloa
         <ThemeToggle className="hs-theme" />
         <Avatar name={a.name} photo={photo} current={tab === "profile"} onClick={() => setTab("profile")} />
       </header>
+      <div className="hs-orbs" aria-hidden><i /><i /><i /></div>
+      {/* desktop: the sections in a floating panel (owner, 2026-11-10, after a reference dashboard); the phone keeps the bar and the tabs */}
+      <aside className="hs-side" aria-label="بخش‌های حساب من">
+        <a className="hs-side-brand" href="../"><img src="/leaf.png" alt="" width={30} height={30} /><span><b className="leaf">لئون گلد</b><small>حساب من</small></span></a>
+        <p className="hs-side-g">بخش‌ها</p>
+        {[...tabs, ...(a.market ? [["market", "تحلیل بازار"] as [Tab, string]] : []), ["profile", "پروفایل من"] as [Tab, string]].map(([k, t, n]) => (
+          <button key={k} type="button" className="hs-side-it" aria-current={tab === k ? "page" : undefined} onClick={() => setTab(k)}>
+            <svg viewBox="0 0 24 24" aria-hidden><path d={ICONS[k]} /></svg><span>{t}</span>{n ? <em>{faDigits(n)}</em> : null}
+          </button>
+        ))}
+        <button type="button" className="hs-side-it" onClick={() => setMenu(true)}><svg viewBox="0 0 24 24" aria-hidden><path d="M4 7h16M4 12h16M4 17h16" /></svg><span>همه‌ی کارها</span></button>
+        <div className="hs-side-foot">
+          <ThemeToggle className="hs-theme" />
+          <div className="hs-side-me"><Avatar name={a.name} photo={photo} current={tab === "profile"} onClick={() => setTab("profile")} /><span><b>{a.name}</b><small>{KIND[a.kind]}{a.vip ? " · VIP" : ""}</small></span></div>
+        </div>
+      </aside>
       {data.demo && <p className="hs-demo-band" role="note">این یک حساب نمونه است، با رقم‌های ساختگی؛ فقط برای دیدن شکل پنل.</p>}
       <main className={"hs-main" + (tab === "vitrin" ? " hs-main-wide" : "")}>
         {tab === "home" && <>
@@ -259,7 +277,9 @@ function Panel({ data, onOut, onReload }: { data: Me; onOut: () => void; onReloa
               </div>
             )}
           </div>
+          <div className="hs-dash">
           {isCustomer && <MemberCard a={a} />}
+          {a.market && <MarketCard onOpen={() => setTab("market")} />}
           {isCustomer && open.map(o => <Journey key={o.ref} o={o} />)}
           <Quick customer={isCustomer} />
           <Slip a={a} />
@@ -267,6 +287,7 @@ function Panel({ data, onOut, onReload }: { data: Me; onOut: () => void; onReloa
           {isCustomer && <PayCard a={a} />}
           {isCustomer && <ReceiptUpload opener={!(a.bal.r > 0.5)} demo={data.demo} />}
           <PriceCard />
+          </div>
           <footer className="hs-foot">
             <p>{data.updated ? `آخرین ثبت در دفتر: ${jdate(data.updated)}، ساعت ${jtime(data.updated)}` : ""}{onReload && <> · <button type="button" className="hs-link" onClick={onReload}>تازه کردن</button></>}</p>
             {username && <p>نام کاربری: <b dir="ltr">{username}</b> · <button type="button" className="hs-link" onClick={() => setTab("profile")}>تغییر نام کاربری یا رمز</button></p>}
@@ -277,6 +298,7 @@ function Panel({ data, onOut, onReload }: { data: Me; onOut: () => void; onReloa
         {tab === "profile" && <Profile a={a} data={{ ...data, username, photo }} onUsername={setUsername} onPhoto={setPhoto} />}
         {tab === "vitrin" && <Vitrin demo={data.demo} openId={openId} onlyMine={!isCustomer} />}
         {tab === "orders" && blocks}
+        {tab === "market" && a.market && <Market />}
         {tab === "box" && <><JewelBox a={a} /><Summary ent={a.ent} /></>}
         {tab === "stmt" && <>{isCustomer && <MyReceipts demo={data.demo} />}<Statement a={a} /></>}
       </main>

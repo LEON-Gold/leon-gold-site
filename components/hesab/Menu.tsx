@@ -22,6 +22,7 @@ const P: Record<string, string> = {
   card: "M3 6h18v12H3zM3 10h18M7 15h4",
   receipt: "M12 16V4M7 9l5-5 5 5M4 20h16",
   price: "M12 3v18M16 7H10a3 3 0 0 0 0 6h4a3 3 0 0 1 0 6H8",
+  market: "M3 17l5-6 4 3 5-7 4 4M3 21h18",
   rules: "M5 4h10l4 4v12H5zM15 4v4h4M8 12h8M8 16h6",
   tg: "M21 4 3 11l6 2 2 6 3-4 5 4zM9 13l9-7",
   phone: "M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2",
@@ -96,6 +97,7 @@ export function Menu({ open, onClose, a, data, tab, go, onReload, onOut }: {
       { k: "receipt", t: "ارسال رسید کارت‌به‌کارت", go: () => { go("home"); setTimeout(() => dispatchEvent(new Event("hs-receipt")), 80); } },
     ]] as [string, Item[]]] : []),
     ["لئون گلد", [
+      ...(a.market ? [tabItem("market", "تحلیل بازار (VIP)")] : []),
       { k: "price", t: "قیمت امروز طلا", go: () => go("home", "hs-price") },
       { k: "rules", t: "آیین‌نامه‌ی خرید و فروش", go: () => { onClose(); openRules(); } },
       { k: "tg", t: "پیام در تلگرام", href: SHOP.telegram, ext: true },

@@ -11,7 +11,7 @@ export type Sheet = { kind: "whole" | "retail"; doc: string; no: string; date: s
 export type Entry = { ts: string; date?: string; label: string; u: "g" | "r"; d: number; run: number; lines?: Line[]; sheet?: Sheet; gross?: number };
 export type Order = { ref: string; date: string; due: string; status: string; statusLabel: string; deposit: number; items: { desc: string; qty: number; weight: number; carat: number; photo?: string }[] };
 export type Work = { ref: string; date: string; due: string; status: string; statusLabel: string; desc: string; qty: number; weight: number; carat: number; photo?: string };
-export type Account = { id: string; name: string; shop: string; phone?: string; vip?: boolean; kind: "customer" | "supplier" | "both"; biz?: string; group?: "colleague" | "retail" | ""; bal: { g: number; r: number }; ent: Entry[]; orders: Order[]; work: Work[] };
+export type Account = { id: string; name: string; shop: string; phone?: string; vip?: boolean; market?: boolean; kind: "customer" | "supplier" | "both"; biz?: string; group?: "colleague" | "retail" | ""; bal: { g: number; r: number }; ent: Entry[]; orders: Order[]; work: Work[] };
 // what the party wrote about itself (all optional) and its last signature of the rules (leon-gold-server/portal.mjs)
 export type Info = { fullName?: string; nationalId?: string; birth?: string; mobile?: string; phone?: string; shop?: string; address?: string; postal?: string; email?: string; at?: number };
 export type Me = { accounts: Account[]; updated?: string; demo?: boolean; username?: string; photo?: string; terms?: { hash: string; at: number } | null; info?: Info | null };
@@ -155,7 +155,7 @@ export const SAMPLE: Me = {
   updated: new Date().toISOString(),
   accounts: [
     {
-      id: "demo-c", name: "مشتری نمونه", shop: "", phone: "09120000000", kind: "both", vip: true, bal: { g: 10.774, r: 208500000 },
+      id: "demo-c", name: "مشتری نمونه", shop: "", phone: "09120000000", kind: "both", vip: true, market: true, bal: { g: 10.774, r: 208500000 },
       ent: [
         { ts: "2026-10-22T10:00:00Z", date: "۱۴۰۵/۰۷/۳۰", label: "فروش طلا و نقدی · فاکتور عمده ۴۲", u: "r", d: 190000000, run: 208500000, sheet: SAMPLE_SHEET },
         { ts: "2026-10-22T10:00:00Z", date: "۱۴۰۵/۰۷/۳۰", label: "فاکتور عمده ۴۲", u: "g", d: 12.024, run: 10.774, lines: [{"desc":"النگو تراش","qty":2,"weight":12.4,"carat":750,"totalG":12.772},{"desc":"دستبند کارتیه","qty":1,"weight":6.8,"carat":750,"totalG":7.14},{"desc":"انگشتر ساده","qty":1,"weight":2.1,"carat":740,"totalG":2.072,"ret":true}], sheet: SAMPLE_SHEET },
