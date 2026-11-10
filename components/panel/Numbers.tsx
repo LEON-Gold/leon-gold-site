@@ -1,14 +1,14 @@
 "use client";
 // «اعداد»: the ledger's figures for a Persian day / week / month / year and their trend. Read-only.
 // Rial and grams stay in separate tiles and separate charts (one unit per chart, never two axes); grams are never priced.
-// Colours: green #446145 (sales, in, profit) and amber #98794a (purchases, out, loss), validated with the dataviz skill on the ivory card.
+// Colours: green #376e5f (sales, in, profit) and amber #a47f3e (purchases, out, loss), validated with the dataviz skill on the ivory card.
 import { useState } from "react";
 import "./numbers.css";
 import { fa, toman, type Store } from "@/lib/crm";
 import { XCAT, figures, period, series, type Figures, type Kind } from "@/lib/numbers";
 
 const KINDS: [Kind, string, string, number][] = [["d", "روز", "دیروز", 14], ["w", "هفته", "هفته‌ی قبل", 8], ["m", "ماه", "ماه قبل", 12], ["y", "سال", "سال قبل", 5]];
-const IN = "#446145", OUT = "#98794a";
+const IN = "#376e5f", OUT = "#a47f3e";
 const g3 = (v: number) => fa(v, Math.abs(v) < 10 ? 3 : 2);
 const tm = (rial: number) => (Math.abs(rial) < 10 ? "۰" : toman(Math.abs(rial)));
 // a figure that can go below zero says so in words, not only with a sign

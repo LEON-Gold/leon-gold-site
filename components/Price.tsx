@@ -174,8 +174,8 @@ export function PriceChart() {
       <div className="chart-plot">
       <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" className="chart-svg" onPointerMove={onMove} onPointerLeave={() => setHover(null)} role="img" aria-label={`نمودار قیمت گرم طلای ۱۸ عیار در ${fa(days.length)} روز اخیر`}>
         <defs>
-          <linearGradient id="chg" x1="0" x2="1"><stop offset="0" stopColor="#8c6f43" /><stop offset=".5" stopColor="#c5aa7d" /><stop offset="1" stopColor="#745a36" /></linearGradient>
-          <linearGradient id="chf" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#b59460" stopOpacity=".22" /><stop offset="1" stopColor="#b59460" stopOpacity="0" /></linearGradient>
+          <linearGradient id="chg" x1="0" x2="1"><stop offset="0" stopColor="#977538" /><stop offset=".5" stopColor="#d5b56d" /><stop offset="1" stopColor="#7d602d" /></linearGradient>
+          <linearGradient id="chf" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#c9a24c" stopOpacity=".22" /><stop offset="1" stopColor="#c9a24c" stopOpacity="0" /></linearGradient>
         </defs>
         {[0.25, 0.5, 0.75].map((t) => <line key={t} x1="0" x2={W} y1={pad + t * (H - pad * 2)} y2={pad + t * (H - pad * 2)} className="chart-grid" />)}
         <path d={`${line} L${x(days.length - 1)} ${H} L${x(0)} ${H}Z`} fill="url(#chf)" />

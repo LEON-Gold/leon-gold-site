@@ -112,12 +112,12 @@ export default function Museum() {
           <div className="stock" data-rise>
             <svg className="stock-svg" viewBox="0 0 380 200" role="img" aria-label="مکعب همه‌ی طلای استخراج‌شده، ۲۲ متر، کنار برج آزادی، ۴۵ متر">
               <defs>
-                <linearGradient id="stock-leaf" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor="#e7dbc3" /><stop offset=".5" stopColor="#c5aa7d" /><stop offset="1" stopColor="#8c6f43" /></linearGradient>
+                <linearGradient id="stock-leaf" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor="#eddfbd" /><stop offset=".5" stopColor="#d5b56d" /><stop offset="1" stopColor="#977538" /></linearGradient>
               </defs>
               <path className="stock-tower" d="M10 185 C60 158 92 100 100 42 L100 23 L147 23 L147 42 C155 100 187 158 237 185 Z M84 185 Q86 98 123.5 82 Q161 98 163 185 Z" fillRule="evenodd" />
               <g className="stock-cube">
-                <path d="M262 106 l16 -12 h79 l-16 12 Z" fill="#e7dbc3" />
-                <path d="M341 106 l16 -12 v79 l-16 12 Z" fill="#8c6f43" />
+                <path d="M262 106 l16 -12 h79 l-16 12 Z" fill="#eddfbd" />
+                <path d="M341 106 l16 -12 v79 l-16 12 Z" fill="#977538" />
                 <rect x="262" y="106" width="79" height="79" fill="url(#stock-leaf)" />
               </g>
               <path className="stock-ground" d="M0 185.5 H380" />

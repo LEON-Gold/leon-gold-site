@@ -38,26 +38,26 @@ const esc = (s: string) => s.replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;
 const fd = (s: string) => esc(faDigits(s));
 
 const CSS = `
-.rp-page{width:794px;height:1123px;box-sizing:border-box;padding:40px 42px 34px;background:#faf6ed;color:#192119;font:400 12px/1.65 Vazirmatn,Tahoma,sans-serif;direction:rtl;position:relative;display:flex;flex-direction:column;border:1px solid #b59460;box-shadow:inset 0 0 0 5px #faf6ed,inset 0 0 0 6px rgba(181,148,96,.55)}
-.rp-hd{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;padding-bottom:10px;border-bottom:1px solid rgba(181,148,96,.7);margin-bottom:12px}
-.rp-brand{font:700 26px/1.1 serif;letter-spacing:.14em;color:#745a36}
-.rp-brand small{display:block;font:600 12px/1.6 Vazirmatn,Tahoma,sans-serif;letter-spacing:0;color:#1e291e}
-.rp-title{text-align:left}.rp-title b{display:block;font:700 18px/1.4 Vazirmatn,Tahoma,sans-serif;color:#1e291e}.rp-title span{color:#5f6a5e;font-size:11.5px}
-.rp-who{display:grid;grid-template-columns:repeat(3,1fr);gap:4px 16px;padding:8px 12px;border:1px solid rgba(181,148,96,.5);border-radius:10px;background:rgba(255,255,255,.55);margin-bottom:12px}
+.rp-page{width:794px;height:1123px;box-sizing:border-box;padding:40px 42px 34px;background:#f9f6ee;color:#102a1c;font:400 12px/1.65 Vazirmatn,Tahoma,sans-serif;direction:rtl;position:relative;display:flex;flex-direction:column;border:1px solid #c9a24c;box-shadow:inset 0 0 0 5px #f9f6ee,inset 0 0 0 6px rgba(201,162,76,.55)}
+.rp-hd{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;padding-bottom:10px;border-bottom:1px solid rgba(201,162,76,.7);margin-bottom:12px}
+.rp-brand{font:700 26px/1.1 serif;letter-spacing:.14em;color:#7d602d}
+.rp-brand small{display:block;font:600 12px/1.6 Vazirmatn,Tahoma,sans-serif;letter-spacing:0;color:#133423}
+.rp-title{text-align:left}.rp-title b{display:block;font:700 18px/1.4 Vazirmatn,Tahoma,sans-serif;color:#133423}.rp-title span{color:#5f6a5e;font-size:11.5px}
+.rp-who{display:grid;grid-template-columns:repeat(3,1fr);gap:4px 16px;padding:8px 12px;border:1px solid rgba(201,162,76,.5);border-radius:10px;background:rgba(255,255,255,.55);margin-bottom:12px}
 .rp-who em{font-style:normal;color:#6b7468;margin-inline-end:6px}
 .rp-sum{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
-.rp-sum div{border:1px solid rgba(181,148,96,.55);border-radius:10px;padding:8px 12px;background:#1e291e;color:#e4d7bb}
-.rp-sum small{display:block;color:#d7c49f;font-size:11px}.rp-sum b{font-size:16px}
-.rp-h2{font:700 14px/1.6 Vazirmatn,Tahoma,sans-serif;color:#1e291e;margin:6px 0 4px}
+.rp-sum div{border:1px solid rgba(201,162,76,.55);border-radius:10px;padding:8px 12px;background:#133423;color:#ecdbb3}
+.rp-sum small{display:block;color:#e2cb94;font-size:11px}.rp-sum b{font-size:16px}
+.rp-h2{font:700 14px/1.6 Vazirmatn,Tahoma,sans-serif;color:#133423;margin:6px 0 4px}
 table.rp-t{width:100%;border-collapse:collapse;font-size:11.5px}
-.rp-t th{background:#1e291e;color:#e4d7bb;font-weight:600;padding:5px 4px;border:1px solid rgba(181,148,96,.4)}
-.rp-t td{padding:4px;border:1px solid rgba(181,148,96,.3);text-align:center;vertical-align:top;white-space:nowrap}
+.rp-t th{background:#133423;color:#ecdbb3;font-weight:600;padding:5px 4px;border:1px solid rgba(201,162,76,.4)}
+.rp-t td{padding:4px;border:1px solid rgba(201,162,76,.3);text-align:center;vertical-align:top;white-space:nowrap}
 .rp-t td.d{text-align:start;white-space:normal}
-.rp-t .dr{color:#8b2e22}.rp-t .cr{color:#2b3c2b}
-.rp-t tr.sub td{border-top:0;background:rgba(181,148,96,.07);color:#4b564e;font-size:10.5px}
-.rp-t tr.tot td{font-weight:700;background:rgba(181,148,96,.16);color:#1e291e}
-.rp-t tr.mo td{background:rgba(30,41,30,.07);color:#745a36;font-weight:700;text-align:start}
-.rp-foot{margin-top:auto;padding-top:8px;border-top:1px solid rgba(181,148,96,.5);display:flex;justify-content:space-between;color:#745a36;font-size:10px}
+.rp-t .dr{color:#8b2e22}.rp-t .cr{color:#1a4d3d}
+.rp-t tr.sub td{border-top:0;background:rgba(201,162,76,.07);color:#4b564e;font-size:10.5px}
+.rp-t tr.tot td{font-weight:700;background:rgba(201,162,76,.16);color:#133423}
+.rp-t tr.mo td{background:rgba(19,52,35,.07);color:#7d602d;font-weight:700;text-align:start}
+.rp-foot{margin-top:auto;padding-top:8px;border-top:1px solid rgba(201,162,76,.5);display:flex;justify-content:space-between;color:#7d602d;font-size:10px}
 `;
 
 export async function statementPdf(a: Account, share: boolean) {
@@ -113,7 +113,7 @@ export async function statementPdf(a: Account, share: boolean) {
   try {
     const J = w.jspdf!.jsPDF, doc = new J({ orientation: "portrait", unit: "mm", format: "a4", compress: true });
     for (let i = 0; i < pages.length; i++) {
-      const c = await w.html2canvas!(pages[i], { scale: 2, backgroundColor: "#faf6ed", width: 794, height: 1123, windowWidth: 900 });
+      const c = await w.html2canvas!(pages[i], { scale: 2, backgroundColor: "#f9f6ee", width: 794, height: 1123, windowWidth: 900 });
       if (i) doc.addPage();
       doc.addImage(c.toDataURL("image/jpeg", 0.92), "JPEG", 0, 0, 210, 297, undefined, "FAST");
     }

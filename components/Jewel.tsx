@@ -74,7 +74,7 @@ export default function Jewel({ kind, id }: { kind: keyof typeof KINDS | string;
     <svg className="jewel" viewBox="0 0 200 200" aria-hidden fill="none" strokeLinecap="round" strokeLinejoin="round">
       <defs>
         <linearGradient id={g} x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0" stopColor="#8c6f43" /><stop offset=".38" stopColor="#d4c19b" /><stop offset=".55" stopColor="#a58451" /><stop offset="1" stopColor="#6d5431" />
+          <stop offset="0" stopColor="#977538" /><stop offset=".38" stopColor="#e0c88f" /><stop offset=".55" stopColor="#b38d43" /><stop offset="1" stopColor="#755929" />
         </linearGradient>
       </defs>
       <g stroke={`url(#${g})`} strokeWidth="1.8" style={{ ["--stone" as string]: `url(#${g})` }}>
