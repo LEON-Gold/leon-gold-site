@@ -23,8 +23,11 @@ export const viewport: Viewport = { themeColor: "#07130e", width: "device-width"
 // as a circle from where the finger touched (kept for a moment in sessionStorage) and a gold ring on its edge; the
 // bar stays put (globals.css names it «lg-bar»), the old page sinks back. No tap (the back button): a soft cross-fade.
 const VT_REVEAL = `(function(){var E="cubic-bezier(0.77, 0, 0.175, 1)";
+function blocks(root){var out=[],vh=innerHeight;(function walk(n,d){for(var i=0;i<n.children.length&&out.length<16;i++){var c=n.children[i];if(c.matches(".bar,.door-bar,.mu-bar,.hs-bar,.pn-bar,.lg-old,.lg-ring,script,style"))continue;var r=c.getBoundingClientRect();if(r.bottom<0||r.top>vh||r.width<8||r.height<8)continue;var cs=getComputedStyle(c),plain=cs.backgroundColor==="rgba(0, 0, 0, 0)"&&cs.backgroundImage==="none"&&!parseFloat(cs.borderTopWidth)&&c.children.length>0;if(plain&&d<4)walk(c,d+1);else out.push(c)}})(root,0);return out}
+function name(on){var L=blocks(document.body);L.forEach(function(c,i){c.style.viewTransitionName=on?"lg-k"+i:""});return L}
+addEventListener("pageswap",function(e){if(e.viewTransition)name(true)});
 document.addEventListener("click",function(e){var a=e.target.closest&&e.target.closest("a[href]");if(!a||a.target||a.origin!==location.origin)return;try{sessionStorage.setItem("lg-tap",JSON.stringify({x:e.clientX,y:e.clientY,t:Date.now()}))}catch(x){}},true);
-addEventListener("pagereveal",function(e){var vt=e.viewTransition;if(!vt)return;var t=null;try{t=JSON.parse(sessionStorage.getItem("lg-tap")||"null");sessionStorage.removeItem("lg-tap")}catch(x){}
+addEventListener("pagereveal",function(e){var vt=e.viewTransition;if(!vt)return;var L=name(true);vt.finished.finally(function(){L.forEach(function(c){c.style.viewTransitionName=""})});var t=null;try{t=JSON.parse(sessionStorage.getItem("lg-tap")||"null");sessionStorage.removeItem("lg-tap")}catch(x){}
 var rm=matchMedia("(prefers-reduced-motion: reduce)").matches;
 vt.ready.then(function(){var h=document.documentElement;
 if(!t||Date.now()-t.t>5000||rm){h.animate({opacity:[0,1]},{duration:rm?160:300,easing:"ease",pseudoElement:"::view-transition-new(root)"});return}

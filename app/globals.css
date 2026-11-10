@@ -150,7 +150,9 @@ html[data-theme="light"] .theme-t { background:  rgba(250,247,240,.35); color: #
 @view-transition { navigation: auto; }
 .bar, .door-bar, .mu-bar, .hs-bar, .pn-bar { view-transition-name: lg-bar; }
 ::view-transition-old(root), ::view-transition-new(root) { animation: none; mix-blend-mode: normal; }
-::view-transition-group(lg-bar) { animation-duration: .64s; animation-timing-function: cubic-bezier(0.77, 0, 0.175, 1); }
+::view-transition-group(*) { animation-duration: .7s; animation-timing-function: cubic-bezier(0.77, 0, 0.175, 1); }
+::view-transition-old(*), ::view-transition-new(*) { animation-duration: .7s; animation-timing-function: cubic-bezier(0.77, 0, 0.175, 1); }
+::view-transition-old(root), ::view-transition-new(root) { animation: none; }
 @media (prefers-reduced-motion: reduce) { ::view-transition-group(*) { animation-duration: .01s !important; } }
 
 /* Brand faces, self-hosted so the site builds and loads without Google (Iranian hosting).
