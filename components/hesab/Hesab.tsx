@@ -10,6 +10,7 @@ import { Onboard, useSigned } from "./Onboard";
 import { setRulesGroup } from "@/lib/content";
 import AuthSwap from "./AuthSwap";
 import Market, { MarketCard } from "./Market";
+import Studio from "./Studio";
 import { ICONS } from "./Home";
 import Loader from "@/components/Loader";
 import MORPH from "@/lib/morph";
@@ -302,7 +303,8 @@ function Panel({ data, onOut, onReload }: { data: Me; onOut: () => void; onReloa
           </footer>
         </>}
         {tab === "profile" && <Profile a={a} data={{ ...data, username, photo }} onUsername={setUsername} onPhoto={setPhoto} />}
-        {tab === "vitrin" && <Vitrin demo={data.demo} openId={openId} onlyMine={!isCustomer} />}
+        {tab === "vitrin" && a.upload && <Studio demo={data.demo} />}
+        {tab === "vitrin" && !(a.upload && !isCustomer) && <Vitrin demo={data.demo} openId={openId} onlyMine={!isCustomer} noMine={a.upload} />}
         {tab === "orders" && blocks}
         {tab === "market" && a.market && <Market />}
         {tab === "box" && <><JewelBox a={a} /><Summary ent={a.ent} /></>}

@@ -80,7 +80,7 @@ export function CatGrid({ items, pub, href, onPick }: { items: VItem[] | null; p
 // pub: the public site's showcase (no sign-in; its order button leads to «حساب من»). openId: open this piece first
 // (from the site's order button, after signing in or signing up)
 // onlyMine: a supplier that does not buy sees only its own pieces («محصولات شما در لئون»), not Leon's prices
-export default function Vitrin({ demo, pub, openId, onlyMine }: { demo?: boolean; pub?: boolean; openId?: string; onlyMine?: boolean }) {
+export default function Vitrin({ demo, pub, openId, onlyMine, noMine }: { demo?: boolean; pub?: boolean; openId?: string; onlyMine?: boolean; noMine?: boolean }) {
   const [items, setItems] = useState<VItem[] | null>(null);
   const [mine, setMine] = useState<VItem[]>([]);
   const [err, setErr] = useState(false);
@@ -127,8 +127,8 @@ export default function Vitrin({ demo, pub, openId, onlyMine }: { demo?: boolean
   if (open) return <Product it={open} gp={feed?.gp || 0} demo={demo} pub={pub} onBack={() => show(null)} />;
   return (
     <>
-    {onlyMine && items && !mine.length && <section className="hs-sec hs-vit hs-mine"><div className="hs-box-head"><h2 className="hs-h">محصولات شما در لئون</h2><p>هنوز کاری از شما در ویترین لئون گلد نیست.</p></div></section>}
-    {mine.length > 0 && (
+    {!noMine && onlyMine && items && !mine.length && <section className="hs-sec hs-vit hs-mine"><div className="hs-box-head"><h2 className="hs-h">محصولات شما در لئون</h2><p>هنوز کاری از شما در ویترین لئون گلد نیست.</p></div></section>}
+    {!noMine && mine.length > 0 && (
       <section className="hs-sec hs-vit hs-mine" aria-labelledby="hs-mine">
         <div className="hs-box-head">
           <h2 className="hs-h" id="hs-mine">محصولات شما در لئون</h2>
