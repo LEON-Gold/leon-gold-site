@@ -5,17 +5,17 @@ import type { ReactNode } from "react";
 import ThemeToggle from "./ThemeToggle";
 
 // wide: a page with a lot to show (the public showcase) gets a wide card on a desktop instead of the narrow sign-in one
-export default function Door({ name, latin, fine, children, wide }: { name: string; latin: string; fine?: ReactNode; children: ReactNode; wide?: boolean }) {
+export default function Door({ name, latin, fine, children, wide, home = "../" }: { name: string; latin: string; fine?: ReactNode; children: ReactNode; wide?: boolean; home?: string }) {
   return (
     <div className="door">
       <header className="bar solid door-bar">
-        <a className="bar-brand" href="../" aria-label="لئون گلد، صفحه‌ی اصلی">
+        <a className="bar-brand" href={home} aria-label="لئون گلد، صفحه‌ی اصلی">
           <img src="/leaf.webp" alt="" width={18} height={34} />
           <span className="leaf">لئون گلد</span>
         </a>
         <span className="door-bar-t">{name}</span>
         <ThemeToggle className="door-theme" />
-        <a className="btn btn-line door-back" href="../">بازگشت به سایت</a>
+        <a className="btn btn-line door-back" href={home}>بازگشت به سایت</a>
       </header>
       <main className="door-in">
         <div className="door-dial" aria-hidden><i /></div>

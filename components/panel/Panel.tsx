@@ -1,4 +1,5 @@
 "use client";
+import Loader from "@/components/Loader";
 // The CRM panel: signs in to the sync server, keeps one copy of the store in memory (never in this browser's storage)
 // and moves between its pages by the address hash, so the phone's back gesture works.
 import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
@@ -108,7 +109,7 @@ export default function Panel() {
       </header>
       {state === "err" && <p className="pn-banner" role="status">به سرور وصل نشد. آنچه می‌بینی آخرین نسخه‌ی گرفته‌شده است. <button onClick={refresh}>دوباره</button></p>}
       <main className="pn-main">
-        {first ? <div className="pn-loading">در حال آوردن دفتر…</div>
+        {first ? <Loader label="در حال آوردن دفتر" />
           : route.page === "today" ? <Today st={st} all={all} />
           : route.page === "clients" ? <Clients all={all} />
           : route.page === "client" ? <ClientPage c={all.find((c) => c.party.id === route.id)} st={st} act={act} />

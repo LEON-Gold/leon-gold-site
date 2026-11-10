@@ -6,6 +6,7 @@ import { useEffect, useMemo, useState } from "react";
 import { SHOP, TAX, TAX_FA } from "@/lib/content";
 import { openRules } from "./Extras";
 import Jewel from "@/components/Jewel";
+import Loader from "@/components/Loader";
 import { refreshPrice, usePrice } from "@/lib/price";
 import { faDigits, gram, latin, mediaUrl, orderItem, orderPrice, orderStatus, publicMedia, publicVitrin, SAMPLE_VITRIN, toman, vitrin, ApiError, type VItem } from "@/lib/hesab";
 
@@ -199,7 +200,7 @@ export default function Vitrin({ demo, pub, openId, onlyMine }: { demo?: boolean
         )}
       </>)}
       {err ? <p className="hs-empty">ویترین باز نشد. اینترنت را بررسی کنید و دوباره سر بزنید.</p>
-        : !items ? <p className="hs-empty">در حال آوردن ویترین…</p>
+        : !items ? <Loader label="در حال آوردن ویترین" />
         : cat !== "all" && !all.some(i => catOf(i) === cat) ? <p className="hs-empty">فعلاً کاری در «{cat}» در ویترین نیست؛ به‌زودی می‌آید.{pub && <> اگر کار خاصی می‌خواهید، <a href="../#order">سفارش ساختش</a> را بدهید.</>}</p>
         : !all.length ? <p className="hs-empty">فعلاً کاری در ویترین نیست. به‌زودی کارهای تازه اینجا می‌آید.</p>
         : !shown.length ? <p className="hs-empty">با این انتخاب کاری نیست. <button type="button" className="hs-link" onClick={reset}>همه را نشان بده</button></p>

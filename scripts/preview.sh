@@ -13,4 +13,6 @@ done
 rm -rf out/t.html out/t2.html out/t3.html out/t4.html out/t-pr.html out/t-vt.html  # local screenshot helpers
 SITE=../leon-gold-app/site
 rm -rf "$SITE" && cp -r out "$SITE"
+# GitHub Pages answers any address it does not have with the repo root's 404.html: the site's own «not found»
+cp "$SITE/404.html" "$SITE/../404.html"
 echo "copied to $SITE"

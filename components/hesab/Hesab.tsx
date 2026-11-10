@@ -1,7 +1,7 @@
 "use client";
 // «حساب من»: sign-in (the username and password Leon gave the party, or the owner's one-time link), then the party's
 // assay slip (gold and rial balance), their orders (customers), the work given to them (suppliers) and the statement, newest first.
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState, useRef } from "react";
 import { SHOP } from "@/lib/content";
 import Door from "@/components/Door";
 import { LedgerInvoice } from "./Invoice";
@@ -11,6 +11,8 @@ import { setRulesGroup } from "@/lib/content";
 import AuthSwap from "./AuthSwap";
 import Market, { MarketCard } from "./Market";
 import { ICONS } from "./Home";
+import Loader from "@/components/Loader";
+import MORPH from "@/lib/morph";
 import ThemeToggle from "@/components/ThemeToggle";
 import { HomeHint, InvoiceSheet, MyReceipts, PriceCard, Quick, Rules, Summary, dueText, openRules } from "./Extras";
 import { EntryIcon, JewelBox, Journey, MemberCard, PayCard, Seal, TabBar, type Tab } from "./Home";
@@ -94,12 +96,12 @@ export default function Hesab() {
   const out = async () => { if (!data?.demo) { await dropDevice(); await logout(); } if (location.hash) history.replaceState(null, "", location.pathname); setData(null); setErr(""); setPhase("form"); };
 
   const hint = <HomeHint />;
-  if (phase === "in" && data && signed === null) return <Door name="حساب من" latin="LEON GOLD · MY ACCOUNT"><p className="hs-wait" aria-live="polite">در حال باز کردن…</p></Door>;
+  if (phase === "in" && data && signed === null) return <Door name="حساب من" latin="LEON GOLD · MY ACCOUNT"><Loader label="در حال باز کردن «حساب من»" /></Door>;
   if (phase === "in" && data && !signed && !passed) return <Onboard data={data} onDone={info => { if (info) setData({ ...data, info }); setPassed(true); }} />;
   if (phase === "in" && data) return <>{hint}<Panel data={data} onOut={out} onReload={data.demo ? undefined : load} /></>;
   return (
     <>{hint}<Door name="حساب من" latin="LEON GOLD · MY ACCOUNT" fine="فقط حساب خودتان را می‌بینید و در این صفحه چیزی تغییر نمی‌کند.">
-        {phase === "boot" ? <p className="hs-wait" aria-live="polite">در حال باز کردن…</p>
+        {phase === "boot" ? <Loader label="در حال باز کردن «حساب من»" />
           : <AuthSwap start={ref ? "up" : "in"} onSwap={() => setErr("")} render={(m, go) => m === "up"
               ? <SignUp ref0={ref} onBack={() => go("in")} onIn={load} />
               : <SignIn err={err} setErr={setErr} onIn={load} onUp={() => go("up")} />} />}
@@ -221,6 +223,9 @@ function Panel({ data, onOut, onReload }: { data: Me; onOut: () => void; onReloa
   const [username, setUsername] = useState(data.username);
   const [photo, setPhoto] = useState(data.photo);
   const setTab = (t: Tab) => { setTabS(t); scrollTo({ top: 0 }); };
+  const first = useRef(true);
+  useEffect(() => { MORPH.track(); }, []);
+  useEffect(() => { if (first.current) { first.current = false; return; } MORPH.go(document.querySelector(".hs-main")); }, [tab]);
   // from the menu: a section, or a card on one (the bank cards, today's price)
   const go = useCallback((t: Tab, id?: string) => { setMenu(false); setTab(t); if (id) setTimeout(() => document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" }), 80); }, []);
   const closeMenu = useCallback(() => setMenu(false), []);

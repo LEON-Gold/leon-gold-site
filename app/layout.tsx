@@ -2,6 +2,8 @@ import type { Metadata, Viewport } from "next";
 import type { CSSProperties } from "react";
 import { GL_VARS } from "@/lib/guilloche";
 import { THEME_BOOT } from "@/components/ThemeToggle";
+import { LOADER_CSS } from "@/lib/loader";
+import { MORPH_CSS } from "@/lib/morph";
 import "./globals.css";
 import "./site.css";
 
@@ -17,10 +19,14 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = { themeColor: "#07130e", width: "device-width", initialScale: 1, viewportFit: "cover" };
 
+// between the site's pages (owner, 2026-11-10): the card or button you tap becomes the next page's title (globals.css
+// names it «lg-title» for the browser's view transition); the page's own title steps aside while that happens
+const VT_TAP = `document.addEventListener("click",function(e){var a=e.target.closest&&e.target.closest("a[href]");if(!a||a.target||e.metaKey||e.ctrlKey||a.origin!==location.origin)return;var c=a.closest(".vc-card,.card,.hs-vcard,.btn,.bar-ledger,.sheet-pill")||a;document.documentElement.classList.add("vt-tap");c.style.viewTransitionName="lg-title"},true);addEventListener("pageshow",function(){document.documentElement.classList.remove("vt-tap");document.querySelectorAll("[style*=lg-title]").forEach(function(x){x.style.viewTransitionName=""})});`;
+
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="fa" dir="rtl" suppressHydrationWarning>
-      <head><script dangerouslySetInnerHTML={{ __html: THEME_BOOT }} /></head>
+      <head><script dangerouslySetInnerHTML={{ __html: THEME_BOOT }} /><style dangerouslySetInnerHTML={{ __html: LOADER_CSS + MORPH_CSS }} /><script dangerouslySetInnerHTML={{ __html: VT_TAP }} /></head>
       <body style={GL_VARS as CSSProperties}>{children}</body>
     </html>
   );
