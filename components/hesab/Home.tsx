@@ -116,7 +116,7 @@ export function PayCard({ a }: { a: Account }) {
         <div key={c.card} className="hs-bank">
           <p className="hs-bank-t"><b>بانک {c.bank}</b><span>به نام {c.name}</span></p>
           <div className="hs-bank-row"><span className="num" dir="ltr">{faDigits(group(c.card, 4))}</span><button type="button" onClick={() => copy(c.card, c.card)}>{copied === c.card ? "کپی شد ✓" : "کپی کارت"}</button></div>
-          <div className="hs-bank-row sh"><span dir="ltr">{group(c.sheba, 4)}</span><button type="button" onClick={() => copy(c.sheba, c.sheba)}>{copied === c.sheba ? "کپی شد ✓" : "کپی شبا"}</button></div>
+          <div className="hs-bank-row sh"><span className="num" dir="ltr">{faDigits(group(c.sheba, 4))}</span><button type="button" onClick={() => copy(c.sheba, c.sheba)}>{copied === c.sheba ? "کپی شد ✓" : "کپی شبا"}</button></div>
         </div>
       ))}
       <button type="button" className="btn btn-gold" onClick={() => dispatchEvent(new Event("hs-receipt"))}>واریز کردم؛ ارسال رسید</button>

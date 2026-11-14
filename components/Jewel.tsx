@@ -60,7 +60,8 @@ const KINDS: Record<string, React.ReactNode> = {
       <circle cx="100" cy="86" r="14" className="stone" />
       {Array.from({ length: 12 }, (_, i) => {
         const a = (i / 12) * Math.PI * 2;
-        return <path key={i} d={`M${100 + Math.cos(a) * 19} ${86 + Math.sin(a) * 19}L${100 + Math.cos(a) * 27} ${86 + Math.sin(a) * 27}`} />;
+        const r = (n: number) => Math.round(n * 100) / 100; // server and browser trig differ in the last digits (hydration #418)
+        return <path key={i} d={`M${r(100 + Math.cos(a) * 19)} ${r(86 + Math.sin(a) * 19)}L${r(100 + Math.cos(a) * 27)} ${r(86 + Math.sin(a) * 27)}`} />;
       })}
       <path d="M64 132c10-10 22-14 36-14s26 4 36 14" />
       <path d="M70 140h60" opacity=".6" />

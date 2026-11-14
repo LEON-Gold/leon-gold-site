@@ -9,7 +9,16 @@ const MOON = <svg viewBox="0 0 24 24" aria-hidden><path d="M20.5 14.2A8.5 8.5 0 
 
 export default function ThemeToggle({ className = "" }: { className?: string }) {
   const [dark, setDark] = useState<boolean | null>(null);
-  useEffect(() => { setDark(document.documentElement.dataset.theme === "dark"); }, []);
+  useEffect(() => {
+    // if React ever re-creates <html> (a hydration error recovers by rendering the root again), the boot script's
+    // data-theme is gone: set it again from the same rule, so the page and this icon never disagree
+    const el = document.documentElement;
+    if (el.dataset.theme !== "dark" && el.dataset.theme !== "light") {
+      let t: string | null = null; try { t = localStorage.getItem(KEY); } catch {}
+      el.dataset.theme = t === "dark" || t === "light" ? t : matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+    }
+    setDark(el.dataset.theme === "dark");
+  }, []);
   const flip = () => {
     const next = !(document.documentElement.dataset.theme === "dark");
     document.documentElement.dataset.theme = next ? "dark" : "light";

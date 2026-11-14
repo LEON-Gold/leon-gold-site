@@ -2,8 +2,9 @@
 // The purity bar: twenty-four parts, the gold ones lit. Picking a fineness fills the bar and tells where it is used.
 import { useState } from "react";
 import { KARATS } from "@/lib/museum";
+import { fa as faNum } from "@/lib/fa";
 
-const fa = (n: number, d = 1) => n.toLocaleString("fa-IR", { maximumFractionDigits: d, useGrouping: false });
+const fa = (n: number, d = 1) => faNum(n, d, false);
 
 export default function Karat() {
   const [i, setI] = useState(3); // 750, the shop's own

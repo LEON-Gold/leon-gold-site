@@ -12,11 +12,11 @@ import HeroGL from "@/components/HeroGL";
 import Titles from "@/components/Titles";
 import { STORE_LD } from "@/lib/seo";
 import { EXHIBITS, HERO, LEDGER, MELT, SHOP, STEPS, WORKBOX } from "@/lib/content";
+import { fa } from "@/lib/fa";
 
 // the rosettes are files from public/gl/ (see lib/guilloche.ts): the hero's first one is put inline once loaded so it can engrave itself, the rest are images
 const Rosette = ({ className, draw }: { className: string; draw?: boolean }) => draw ? <InlineSvg className={className} src="/gl/rose-draw.svg" />
   : <div className={className} aria-hidden><img src="/gl/rose.svg" alt="" width={400} height={400} loading="lazy" decoding="async" /></div>;
-const fa = (n: number) => n.toLocaleString("fa-IR");
 const DEPTH = [9, 8, 7, 6, 5, 4, 3, 2, 1];
 
 export const metadata = { alternates: { canonical: "./" } };

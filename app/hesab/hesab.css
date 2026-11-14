@@ -599,6 +599,8 @@ html.hs-locked, html.hs-locked body { overflow: hidden; }
 .hs-vsel.on select { background: var(--leaf); background-size: 180% 100%; color: #0c1d15; border-color: #ead8ad; }
 .hs-vsel.on::after { border-color: #0c1d15; }
 .hs-vsel select option { color: var(--ink); background: var(--paper); }
+/* narrow phones: two selects a row leave ~150px each; a slimmer inset keeps «همه‌ی وضعیت‌ها» whole (font stays 16px so iOS does not zoom) */
+@media (max-width: 430px) { .hs-vsel select { padding: 0 12px 0 28px; } .hs-vsel::after { left: 12px; } }
 .hs-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 
 /* ---------- «ثبت نام» (Hesab.tsx SignUp) ---------- */
@@ -842,7 +844,7 @@ html[data-theme="light"] .hs-steps li { color: #7a5c25; }
 html[data-theme="light"] .hs-steps li.now i { background:  #EFE7D6; }
 html[data-theme="light"] .hs-app { color: #1B1A17; }
 html[data-theme="light"] .hs-demo-band { color: #7a5c25; }
-html[data-theme="light"] .hs-who h1 { background-image: linear-gradient(100deg, #6b4f1d 0%, #b8913f 34%, #7a5a22 52%, #c9a24b 66%, #6b4f1d 100%); }
+html[data-theme="light"] .hs-who h1 { background-image: linear-gradient(100deg, #6b4f1d 0%, #9a7634 34%, #7a5a22 52%, #9a7634 66%, #6b4f1d 100%); }
 html[data-theme="light"] .hs-who p { color: #7a5c25; }
 html[data-theme="light"] .hs-kind { color: #7a5c25; }
 html[data-theme="light"] .hs-sec > .hs-sec-head .hs-h { color: #7a5c25; }
@@ -880,7 +882,7 @@ html[data-theme="light"] .hs-pic-none { background:  radial-gradient(circle at 5
 html[data-theme="light"] .hs-spark figcaption { color: #7a5c25; }
 html[data-theme="light"] .hs-month { color: #7a5c25; }
 html[data-theme="light"] .hs-prod-back { color: #7a5c25 !important; }
-html[data-theme="light"] .hs-prod-h h1 { background-image: linear-gradient(100deg, #6b4f1d 0%, #b8913f 34%, #7a5a22 52%, #c9a24b 66%, #6b4f1d 100%); }
+html[data-theme="light"] .hs-prod-h h1 { background-image: linear-gradient(100deg, #6b4f1d 0%, #9a7634 34%, #7a5a22 52%, #9a7634 66%, #6b4f1d 100%); }
 html[data-theme="light"] .hs-prod-k { color: #7a5c25; }
 html[data-theme="light"] .hs-chips span { background:  rgba(239,231,214,.08); }
 html[data-theme="light"] .hs-vstock { background:  rgba(250,247,240,.78); color: #7a5c25; }

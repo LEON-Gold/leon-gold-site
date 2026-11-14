@@ -4,8 +4,8 @@
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import type { Era, Piece } from "@/lib/museum";
+import { fa } from "@/lib/fa";
 
-const fa = (n: number) => n.toLocaleString("fa-IR");
 
 export default function Timeline({ eras }: { eras: Era[] }) {
   const pieces = eras.map((e) => e.piece).filter(Boolean) as Piece[];

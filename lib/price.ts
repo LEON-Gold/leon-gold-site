@@ -53,7 +53,8 @@ export function usePrice() {
 }
 
 export const MITHQAL = 4.3318;
-export const fa = (n: number, d = 0) => n.toLocaleString("fa-IR", { maximumFractionDigits: d, minimumFractionDigits: 0 });
+import { fa } from "./fa";
+export { fa };
 export const toman = (rial: number) => fa(Math.round(rial / 10));
 export const faDigits = (s: string) => s.replace(/\d/g, (d) => "۰۱۲۳۴۵۶۷۸۹"[+d]);
 export const parseNum = (s: string) => {

@@ -8,6 +8,7 @@ import MuseumMotion from "@/components/MuseumMotion";
 import { EXHIBITS, MELT, WORKBOX } from "@/lib/content";
 import { ASSAY, COLOURS, ELEMENT, ERAS, FACTS, HALLS, HANDS, MITHQAL, ORIGIN, SOURCES, STOCK, WORDS } from "@/lib/museum";
 import "./museum.css";
+import { fa } from "@/lib/fa";
 
 export const metadata: Metadata = {
   title: "موزه‌ی طلا · لئون گلد",
@@ -19,7 +20,6 @@ export const metadata: Metadata = {
 // the rosette file from public/gl/ (see lib/guilloche.ts), fetched once for every rosette on the page
 const Rosette = ({ className }: { className: string }) => <div className={className} aria-hidden><img src="/gl/rose.svg" alt="" width={400} height={400} loading="lazy" decoding="async" /></div>;
 const Corners = () => <><i className="corner c1" aria-hidden /><i className="corner c2" aria-hidden /><i className="corner c3" aria-hidden /><i className="corner c4" aria-hidden /></>;
-const fa = (n: number) => n.toLocaleString("fa-IR");
 const RHYTON = ERAS.find((e) => e.piece?.src.includes("lion-rhyton"))!.piece!;
 const OXUS = EXHIBITS[1];
 

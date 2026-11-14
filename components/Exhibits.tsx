@@ -4,6 +4,7 @@
 import Image from "next/image";
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { Exhibit } from "@/lib/content";
+import { fa } from "@/lib/fa";
 
 export default function Exhibits({ items }: { items: Exhibit[] }) {
   const [open, setOpen] = useState<number | null>(null);
@@ -45,7 +46,7 @@ export default function Exhibits({ items }: { items: Exhibit[] }) {
           <div className="case-in" key={x.src}>
             <div className="case-pic"><Image src={x.src} width={x.w} height={x.h} alt={x.name + "، " + x.place} sizes="70vw" /></div>
             <div className="case-text">
-              <span className="case-n num">{(open! + 1).toLocaleString("fa-IR")} از {items.length.toLocaleString("fa-IR")}</span>
+              <span className="case-n num">{fa(open! + 1)} از {fa(items.length)}</span>
               <h3 className="leaf">{x.name}</h3>
               <p>{x.note}</p>
               <em>{x.place}</em>
