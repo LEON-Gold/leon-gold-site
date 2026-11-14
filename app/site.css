@@ -285,6 +285,13 @@ section { position: relative; padding: clamp(88px, 11vw, 150px) var(--m); }
 .order-info a, .order-info span { color: #f1e7d2; font-size: 20px; text-decoration: none; }
 .order-info a[dir="ltr"] { font-size: clamp(26px, 2.6vw, 36px); justify-self: start; }
 .order-info a:hover { color: var(--gold-lt); }
+/* «دانلود اپ اندروید» (owner, 2026-11-14): only on an Android phone; a row of the contact column */
+.order-info .aa { gap: 10px; }
+.order-info .aa p, .order-info .aa li { margin: 0; font-size: 15px; line-height: 1.85; }
+.order-info .aa ol { margin: 0; padding: 0; list-style: none; display: grid; gap: 4px; font-size: 15px; }
+.aa-n { display: inline-grid; place-items: center; width: 22px; height: 22px; margin-inline-end: 8px; border-radius: 50%; border: 1px solid var(--gold); font-size: 12.5px; font-weight: 700; }
+.order-info a.aa-dl.btn { justify-self: start; min-height: 48px; padding: 0 22px; font-size: 15px; color: #0c1d15; }
+.order-info .aa .aa-fine { font-size: 13px; opacity: .85; }
 
 /* ---------- footer: the rosette rises from its foot, as in the ledger's drawer ---------- */
 .foot { position: relative; overflow: hidden; display: grid; justify-items: center; text-align: center; gap: 12px; padding: 96px var(--m) 36px; color: var(--cream);
