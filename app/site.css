@@ -2,6 +2,10 @@
 h1, h2, h3 { margin: 0; font-weight: 700; letter-spacing: 0; }
 p { margin: 0; }
 section { position: relative; padding: clamp(88px, 11vw, 150px) var(--m); }
+/* the order form's robot field: off screen, not display:none (some robots skip hidden fields) */
+.order-hp { position: absolute !important; inset-inline-start: -9999px; width: 1px; height: 1px; overflow: hidden; }
+.order-done { display: grid; gap: 14px; justify-items: start; }
+.order-err .btn-text { background: none; border: 0; padding: 0; font: inherit; font-weight: 600; color: inherit; cursor: pointer; text-decoration: underline; text-underline-offset: 4px; min-height: 0; }
 
 /* paper and vault, the two grounds of the ledger */
 .sec-paper { background: var(--gl-paperband) top / 100% 64px no-repeat var(--bg); }

@@ -128,6 +128,8 @@ const showcase = (r: Raw): Showcase => ({ items: r.items, mine: r.mine || [], ca
 export const vitrin = async () => showcase(await api<Raw>("/api/portal/vitrin"));
 // the public site's showcase (no sign-in): pieces the owner marked «روی سایت», at the site's wage
 export const publicVitrin = async () => showcase(await api<Raw>("/api/public/vitrin"));
+// the site's order form (owner, 2026-11-14): straight to the ledger as a new lead
+export const publicOrder = (d: { name: string; phone: string; what: string; note: string; website: string }) => api<{ ok: true }>("/api/public/order", d);
 export const publicMedia = (id: string) => SERVER + "/api/public/media/" + encodeURIComponent(id);
 // an order waits 120 s for Leon's confirmation (owner, 2026-11-09): its price goes with it and follows the rate
 export const orderItem = (id: string, note: string, gp?: number, total?: number) => api<{ ok: true; id: string; exp: number; wait: number }>("/api/portal/vitrin/order", { id, note, gp, total });
