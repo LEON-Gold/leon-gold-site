@@ -18,8 +18,8 @@ import AndroidApp from "@/components/AndroidApp";
 // the rosettes are files from public/gl/ (see lib/guilloche.ts): the hero's first one is put inline once loaded so it can engrave itself, the rest are images
 const Rosette = ({ className, draw }: { className: string; draw?: boolean }) => draw ? <InlineSvg className={className} src="/gl/rose-draw.svg" />
   : <div className={className} aria-hidden><img src="/gl/rose.svg" alt="" width={400} height={400} loading="lazy" decoding="async" /></div>;
-// the jewel's thickness: 5 copies behind the face, 2px apart (was 9 at 1px; speed, owner 2026-11-14)
-const DEPTH = [9, 7, 5, 3, 1];
+// the jewel's thickness: 9 copies behind the face; a weaker device shows every other one (site.css html[data-lite])
+const DEPTH = [9, 8, 7, 6, 5, 4, 3, 2, 1];
 
 export const metadata = { alternates: { canonical: "./" } };
 
