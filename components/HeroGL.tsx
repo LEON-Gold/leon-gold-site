@@ -66,7 +66,8 @@ function start(cv: HTMLCanvasElement, hero: HTMLElement): () => void {
   if (!wave || !spark) return () => {};
   const tri = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, tri); gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
   // each spark: x, start height, speed, size/brightness
-  const N = still ? 0 : phone ? 120 : 300, seeds = new Float32Array(N * 4);
+  const lowEnd = (navigator.hardwareConcurrency ?? 8) <= 4 || ((navigator as Navigator & { deviceMemory?: number }).deviceMemory ?? 8) <= 4;
+  const N = still ? 0 : lowEnd ? 60 : phone ? 100 : 240, seeds = new Float32Array(N * 4);
   for (let i = 0; i < N; i++) seeds.set([Math.random(), Math.random(), .35 + Math.random() * .65, Math.random()], i * 4);
   const sb = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, sb); gl.bufferData(gl.ARRAY_BUFFER, seeds, gl.STATIC_DRAW);
   const U = (p: WebGLProgram, n: string) => gl.getUniformLocation(p, n);
@@ -74,7 +75,10 @@ function start(cv: HTMLCanvasElement, hero: HTMLElement): () => void {
   const us = { rise: U(spark, "uRise"), time: U(spark, "uTime"), dpr: U(spark, "uDpr"), res: U(spark, "uRes") };
   const aw = gl.getAttribLocation(wave, "p"), as = gl.getAttribLocation(spark, "s");
 
-  const dpr = Math.min(devicePixelRatio || 1, phone ? 1.5 : 2);
+  // speed (owner, 2026-11-14: «slow on many devices»): the waves are soft, so they are drawn at a lower resolution and the
+  // browser scales them up; a weaker device (4 cores or less, or 4 GB or less) gets fewer pixels still and fewer sparks
+  const nav = navigator as Navigator & { deviceMemory?: number }, weak = (navigator.hardwareConcurrency ?? 8) <= 4 || (nav.deviceMemory ?? 8) <= 4;
+  const dpr = Math.min(devicePixelRatio || 1, weak ? .75 : phone ? 1 : 1.25);
   const size = () => { const w = Math.round(cv.clientWidth * dpr), h = Math.round(cv.clientHeight * dpr); if (cv.width !== w || cv.height !== h) { cv.width = w; cv.height = h; } gl.viewport(0, 0, w, h); };
   // the hero is pinned for two screens (Motion.tsx): that is the 0 to 1 the colours travel
   const scrollOf = () => Math.min(1, Math.max(0, scrollY / (2 * innerHeight)));
@@ -98,7 +102,8 @@ function start(cv: HTMLCanvasElement, hero: HTMLElement): () => void {
       gl.drawArrays(gl.POINTS, 0, N);
     }
   };
-  const loop = (now: number) => { draw(now); raf = still ? 0 : requestAnimationFrame(loop); };
+  let drawn = 0;
+  const loop = (now: number) => { if (now - drawn >= 32) { drawn = now; draw(now); } raf = still ? 0 : requestAnimationFrame(loop); };
   const run = () => { cancelAnimationFrame(raf); raf = 0; if (onScreen && document.visibilityState === "visible") { last = performance.now(); raf = requestAnimationFrame(loop); } };
   const io = new IntersectionObserver(([e]) => { onScreen = e.isIntersecting; run(); });
   io.observe(hero);
