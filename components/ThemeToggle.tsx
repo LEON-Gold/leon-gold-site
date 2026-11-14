@@ -33,4 +33,4 @@ export default function ThemeToggle({ className = "" }: { className?: string }) 
 }
 
 // before the first paint: the saved choice, else the device's
-export const THEME_BOOT = `try{var t=localStorage.getItem("${KEY}");if(t!=="dark"&&t!=="light")t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light";document.documentElement.dataset.theme=t}catch(e){}`;
+export const THEME_BOOT = `try{var t=localStorage.getItem("${KEY}");if(t!=="dark"&&t!=="light")t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light";document.documentElement.dataset.theme=t}catch(e){}try{var n=navigator,c=n.connection,m=n.deviceMemory,h=n.hardwareConcurrency,ap=/iPhone|iPad|Macintosh/.test(n.userAgent);if((c&&c.saveData)||(m&&m<=4)||(!ap&&h&&h<=4))document.documentElement.dataset.lite="1"}catch(e){}`;

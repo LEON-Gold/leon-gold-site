@@ -25,7 +25,7 @@ export default function AuthSwap({ render, onSwap, start = "in" }: { render: (mo
     <div className={"hs-auth" + (moving ? " is-moving" : "")} data-mode={mode} data-side={side}>
       <div className="hs-auth-form">{render(mode, go)}</div>
       <aside className="hs-auth-panel" aria-label={toUp ? "ثبت نام" : "ورود"}>
-        <img src="/leaf.webp" alt="" width={40} height={74} />
+        <img src="/leaf-sm.webp" alt="" width={40} height={74} />
         <p className="hs-auth-k" lang="en" dir="ltr">LEON GOLD</p>
         <h2 className="hs-auth-t">{toUp ? "خوش برگشتید" : "به لئون گلد بپیوندید"}</h2>
         <p className="hs-auth-p">{toUp ? "حساب طلایی و ریالی، سفارش‌ها و ویترینِ با قیمت روز، همه در یک جا." : "یک دقیقه تا حساب خودتان: ویترین با قیمت همین ساعت، سفارش و صورتحساب."}</p>

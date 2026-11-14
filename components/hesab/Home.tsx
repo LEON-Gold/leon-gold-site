@@ -63,7 +63,7 @@ export function MemberCard({ a, flip }: { a: Account; flip?: boolean }) {
 function CardFace({ a, since }: { a: Account; since: string }) {
   return <>
     <span className="hs-card-rose" aria-hidden />
-    <span className="hs-card-top"><img src="/leaf.webp" alt="" width={22} height={40} /><span lang="en" dir="ltr">{a.vip ? "LEON GOLD · PRIVÉ" : "LEON GOLD · MEMBER"}</span></span>
+    <span className="hs-card-top"><img src="/leaf-sm.webp" alt="" width={22} height={40} /><span lang="en" dir="ltr">{a.vip ? "LEON GOLD · PRIVÉ" : "LEON GOLD · MEMBER"}</span></span>
     {a.vip && <b className="hs-card-vip" lang="en" dir="ltr">VIP</b>}
     <span className="hs-card-name leaf">{a.name}</span>
     <span className="hs-card-foot">
