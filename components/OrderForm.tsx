@@ -15,7 +15,7 @@ export default function OrderForm() {
   const send = (e: React.FormEvent) => {
     e.preventDefault();
     const digits = phone.replace(/[۰-۹]/g, (c) => String("۰۱۲۳۴۵۶۷۸۹".indexOf(c))).replace(/[٠-٩]/g, (c) => String("٠١٢٣٤٥٦٧٨٩".indexOf(c))).replace(/\D/g, "");
-    if (!name.trim()) return setErr("نامتان را بنویسید.");
+    if (!name.trim()) return setErr("اسمت را بنویس.");
     if (digits.length < 10) return setErr("شماره‌ی تماس کامل نیست.");
     setErr("");
     const text = `سفارش از سایت لئون گلد\nنام: ${name.trim()}\nتلفن: ${phone.trim()}\nکار: ${what}${note.trim() ? "\nتوضیح: " + note.trim() : ""}`;
