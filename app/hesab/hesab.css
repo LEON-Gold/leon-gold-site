@@ -775,7 +775,7 @@ html[data-theme="light"] .hs-orbs i { opacity: .35; }
   .hs-main { padding-top: 34px; }
   .hs-dash { grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 20px; align-items: start; }
   .hs-dash > * { grid-column: span 6; min-width: 0; }
-  .hs-dash > .hs-slip { grid-column: span 8; order: 1; } .hs-dash > .hs-card { grid-column: span 4; order: 2; }
+  .hs-dash > .hs-slip { grid-column: span 8; order: 1; } .hs-dash > .hs-card, .hs-dash > .hs-flipwrap { grid-column: span 4; order: 2; }
   .hs-dash > .hs-trip { grid-column: span 8; order: 3; } .hs-dash > .hs-mkcard { grid-column: span 4; order: 4; }
   .hs-dash > .hs-quick { grid-column: span 12; order: 5; } .hs-dash > .hs-seal { grid-column: span 4; order: 6; }
   .hs-dash > .hs-pay { order: 7; } .hs-dash > .hs-price { order: 8; } .hs-dash > .hs-receipt, .hs-dash > .hs-receipt-open { order: 9; }
@@ -916,6 +916,50 @@ html[data-theme="light"] .hs-vmore-b { background:  rgba(250,247,240,.45); color
 @media (min-width: 900px) { html[data-theme="light"] .hs-auth-q { color: #7a5c25; } }
 @media (min-width: 900px) { html[data-theme="light"] .hs-auth-b { color: #7a5c25; } }
 /* ==== end ivory light mode ==== */
+
+/* ---------- the way to VIP (owner, 2026-11-13): a member who is not VIP taps its card and it turns over; the back
+   shows the three steps (ticked or not, how far along) and what a VIP gets. The card nods twice to say it can turn and
+   a small chip says «روی کارت خود بزنید»; with reduce motion it does neither and the faces simply swap. ---------- */
+.hs-flip { position: relative; perspective: 1400px; transition: height .5s var(--ease); }
+.hs-flip-in { position: relative; height: 100%; transform-style: preserve-3d; transition: transform .7s var(--ease); }
+.hs-flip.is-back .hs-flip-in { transform: rotateY(180deg); }
+.hs-flip-front, .hs-flip-back { width: 100%; box-sizing: border-box; -webkit-backface-visibility: hidden; backface-visibility: hidden; }
+.hs-flip-front { display: grid; font: inherit; text-align: start; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.hs-flip-front:focus-visible, .hs-vw-turn:focus-visible { outline: 2px solid var(--gold-lt); outline-offset: 3px; }
+.hs-flip-back { position: absolute; inset: 0 0 auto 0; transform: rotateY(180deg); aspect-ratio: auto; max-height: none; align-content: start; gap: 10px; padding: 18px 20px 14px; cursor: default; }
+.hs-flipwrap { display: grid; gap: 10px; min-width: 0; }
+.hs-flip-hint { justify-self: center; display: inline-flex; align-items: center; gap: 8px; margin: 0; padding: 6px 14px; border-radius: 999px; cursor: pointer;
+  background: var(--paper); border: 1px solid rgba(201,162,76,.55); color: var(--gold-ink); font: 600 13px/1.2 var(--text); white-space: nowrap; }
+.hs-flip-hint i { position: relative; width: 8px; height: 8px; border-radius: 50%; background: var(--gold); flex: none; }
+.hs-flip-hint i::after { content: ""; position: absolute; inset: -5px; border-radius: 50%; border: 1.5px solid var(--gold); opacity: 0; }
+@media (prefers-reduced-motion: no-preference) {
+  .hs-flip:not(.seen) .hs-flip-in { animation: hsNod 1.5s var(--ease) 1.1s 2 backwards; }
+  .hs-flip-hint i::after { animation: hsTap 1.8s ease-out infinite; }
+}
+@keyframes hsNod { 0%, 100% { transform: rotateY(0); } 35% { transform: rotateY(-16deg); } 70% { transform: rotateY(5deg); } }
+@keyframes hsTap { 0% { transform: scale(.6); opacity: .9; } 100% { transform: scale(1.6); opacity: 0; } }
+.hs-vw-head { position: relative; display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
+.hs-vw-head b { font: 700 24px/1.3 var(--display); color: var(--gold-lt); }
+.hs-vw-head small { font-size: 12.5px; color: #e6d1a0; white-space: nowrap; }
+.hs-vw-steps { position: relative; list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.hs-vw-steps li { display: grid; grid-template-columns: 26px minmax(0, 1fr); gap: 10px; align-items: start; font-size: 14.5px; line-height: 1.6; color: #f3ead9; }
+.hs-vw-steps i { width: 24px; height: 24px; margin-top: 2px; box-sizing: border-box; border-radius: 50%; border: 1.5px solid rgba(226,203,148,.6); display: grid; place-items: center; font: 800 14px/1 var(--text); color: #0c1d15; }
+.hs-vw-steps li.done i { background: var(--leaf); background-size: 180% 100%; border-color: #ead8ad; }
+.hs-vw-steps small { display: block; font-size: 12.5px; color: #e6d1a0; }
+.hs-vw-bar { display: block; height: 3px; margin-top: 5px; border-radius: 3px; background: rgba(226,203,148,.2); overflow: hidden; }
+.hs-vw-bar span { display: block; height: 100%; border-radius: inherit; background: linear-gradient(270deg, #a27e3d, #e2cb94); }
+.hs-vw-all { position: relative; margin: 0; padding: 8px 12px; border-radius: 12px; background: rgba(226,203,148,.14); border: 1px solid rgba(226,203,148,.42); color: #f3ead9; font-size: 13.5px; line-height: 1.7; }
+.hs-vw-gets-h { position: relative; margin: 4px 0 0; font: 700 18px/1.4 var(--display); color: var(--gold-lt); }
+.hs-vw-gets { position: relative; list-style: none; margin: 0; padding: 0; display: grid; gap: 3px; font-size: 13.5px; line-height: 1.75; color: #ece2cb; }
+.hs-vw-gets li::before { content: "◆"; display: inline-block; margin-inline-end: 8px; font-size: 8px; color: var(--gold); vertical-align: 2px; }
+.hs-vw-turn { position: relative; justify-self: start; min-height: 44px; margin-top: 2px; padding: 0 18px; border-radius: 999px; border: 1px solid rgba(226,203,148,.55); background: transparent; color: var(--gold-lt); font: 600 14px/1 var(--text); cursor: pointer; }
+.hs-vw-turn:active { transform: scale(.97); }
+@media (prefers-reduced-motion: reduce) {
+  .hs-flip, .hs-flip-in { transition: none; }
+  .hs-flip.is-back .hs-flip-in, .hs-flip-back { transform: none; }
+  .hs-flip-front, .hs-flip-back { -webkit-backface-visibility: visible; backface-visibility: visible; }
+  .hs-flip.is-back .hs-flip-front, .hs-flip:not(.is-back) .hs-flip-back { visibility: hidden; }
+}
 
 /* a supplier's piece (owner, 2026-11-13): its groups as ticks, and a new category of its own */
 .hs-st-groups { border: 0; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; }

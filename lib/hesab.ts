@@ -11,7 +11,11 @@ export type Sheet = { kind: "whole" | "retail"; doc: string; no: string; date: s
 export type Entry = { ts: string; date?: string; label: string; u: "g" | "r"; d: number; run: number; lines?: Line[]; sheet?: Sheet; gross?: number };
 export type Order = { ref: string; date: string; due: string; status: string; statusLabel: string; deposit: number; items: { desc: string; qty: number; weight: number; carat: number; photo?: string }[] };
 export type Work = { ref: string; date: string; due: string; status: string; statusLabel: string; desc: string; qty: number; weight: number; carat: number; photo?: string };
-export type Account = { id: string; name: string; shop: string; phone?: string; vip?: boolean; market?: boolean; upload?: boolean; kind: "customer" | "supplier" | "both"; biz?: string; group?: "colleague" | "retail" | ""; bal: { g: number; r: number }; ent: Entry[]; orders: Order[]; work: Work[] };
+// the way to VIP (owner, 2026-11-13; leon-gold-server/portal.mjs vipOf): for a party that is not VIP, its three steps;
+// a VIP gets only { is: true }. VIP itself stays the owner's own mark in the ledger.
+export type VipStep = { k: "settle" | "grams" | "invite"; have: number; need: number; done: boolean };
+export type VipWay = { is: boolean; steps?: VipStep[]; all?: boolean };
+export type Account = { id: string; name: string; shop: string; phone?: string; vip?: boolean; vipWay?: VipWay; market?: boolean; upload?: boolean; kind: "customer" | "supplier" | "both"; biz?: string; group?: "colleague" | "retail" | ""; bal: { g: number; r: number }; ent: Entry[]; orders: Order[]; work: Work[] };
 // what the party wrote about itself (all optional) and its last signature of the rules (leon-gold-server/portal.mjs)
 export type Info = { fullName?: string; nationalId?: string; birth?: string; mobile?: string; phone?: string; shop?: string; address?: string; postal?: string; email?: string; at?: number };
 export type Me = { accounts: Account[]; updated?: string; demo?: boolean; username?: string; photo?: string; terms?: { hash: string; at: number } | null; info?: Info | null };
