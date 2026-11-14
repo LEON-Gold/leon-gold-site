@@ -44,8 +44,9 @@ function start(gsap: G, ScrollTrigger: ST, Lenis: L) {
   gsap.registerPlugin(ScrollTrigger);
   const mm = gsap.matchMedia();
   mm.add("(prefers-reduced-motion: no-preference)", () => {
-    // Lenis only eases wheels and trackpads; on a touch-only phone it would run every frame for nothing
-    const lenis = matchMedia("(hover: hover) and (pointer: fine)").matches ? new Lenis({ lerp: 0.075, wheelMultiplier: 0.8, anchors: true, prevent: (n) => !!n.closest?.(".sheet, .case") }) : null;
+    // Lenis only eases wheels and trackpads; on a touch-only phone it would run every frame for nothing. allowNestedScroll:
+    // any box that scrolls on its own (a side menu, a sheet, a modal) keeps the wheel and trackpad, not just .sheet/.case
+    const lenis = matchMedia("(hover: hover) and (pointer: fine)").matches ? new Lenis({ lerp: 0.075, wheelMultiplier: 0.8, anchors: true, allowNestedScroll: true, prevent: (n) => !!n.closest?.(".sheet, .case") }) : null;
     lenis?.on("scroll", ScrollTrigger.update);
     const tick = (t: number) => lenis!.raf(t * 1000);
     if (lenis) { gsap.ticker.add(tick); gsap.ticker.lagSmoothing(0); }
