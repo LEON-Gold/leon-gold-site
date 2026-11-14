@@ -1,5 +1,6 @@
 import KidsDoor from "@/components/KidsDoor";
 import Vitrin from "@/components/hesab/Vitrin";
+import NameOrder from "@/components/NameOrder";
 import "../hesab/hesab.css";
 
 // «لئون کیدز» (owner, 2026-11-14): the showcase's «بچگانه» group on a page of its own, with its own look.
@@ -12,6 +13,7 @@ export const metadata = {
 export default function Page() {
   return (
     <KidsDoor fine="قیمت‌ها تقریبی است و با نرخ لحظه‌ی خرید قطعی می‌شود.">
+      <NameOrder />
       <Vitrin pub kids />
     </KidsDoor>
   );
