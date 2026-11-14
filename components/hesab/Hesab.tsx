@@ -261,7 +261,7 @@ function Panel({ data, onOut, onReload }: { data: Me; onOut: () => void; onReloa
     <div className="hs-app has-tabs">
       <header className="hs-bar">
         <button type="button" className="hs-burger" onClick={() => setMenu(true)} aria-label="منو" aria-expanded={menu} aria-haspopup="dialog"><i /><i /><i /></button>
-        <a className="hs-brand" href="../"><img src="/leaf-icon.png" alt="" width={28} height={28} /><span className="leaf">لئون گلد</span></a>
+        <a className="hs-brand" href="../"><img src="/leaf.png" alt="" width={28} height={28} /><span className="leaf">لئون گلد</span></a>
         <span className="hs-bar-t">حساب من</span>
         <ThemeToggle className="hs-theme" />
         <Avatar name={a.name} photo={photo} current={tab === "profile"} onClick={() => setTab("profile")} />
@@ -269,7 +269,7 @@ function Panel({ data, onOut, onReload }: { data: Me; onOut: () => void; onReloa
       <div className="hs-orbs" aria-hidden><i /><i /><i /></div>
       {/* desktop: the sections in a floating panel (owner, 2026-11-10, after a reference dashboard); the phone keeps the bar and the tabs */}
       <aside className="hs-side" aria-label="بخش‌های حساب من">
-        <a className="hs-side-brand" href="../"><img src="/leaf-icon.png" alt="" width={30} height={30} /><span><b className="leaf">لئون گلد</b><small>حساب من</small></span></a>
+        <a className="hs-side-brand" href="../"><img src="/leaf.png" alt="" width={30} height={30} /><span><b className="leaf">لئون گلد</b><small>حساب من</small></span></a>
         <p className="hs-side-g">بخش‌ها</p>
         {[...tabs, ...(a.market ? [["market", "تحلیل بازار"] as [Tab, string]] : []), ["profile", "پروفایل من"] as [Tab, string]].map(([k, t, n]) => (
           <button key={k} type="button" className="hs-side-it" aria-current={tab === k ? "page" : undefined} onClick={() => setTab(k)}>

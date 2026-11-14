@@ -364,7 +364,7 @@ section { position: relative; padding: clamp(88px, 11vw, 150px) var(--m); }
 
 /* ============ round 1: engraving, light, drawings, the hallmark ============ */
 /* the hero rosette engraves itself line by line, inner rings first */
-.hero-rose.r1 path { stroke-dasharray: 1; stroke-dashoffset: 1; animation: engrave 2.6s cubic-bezier(.45,0,.2,1) forwards; }
+.hero-rose.r1 polyline { stroke-dasharray: 1; stroke-dashoffset: 1; animation: engrave 2.6s cubic-bezier(.45,0,.2,1) forwards; }
 @keyframes engrave { to { stroke-dashoffset: 0; } }
 /* a lamp that follows the pointer across the vault */
 .hero-light { position: absolute; inset: 0; pointer-events: none; z-index: 0;
@@ -584,9 +584,6 @@ body::before { content: ""; position: fixed; inset: 0; z-index: -1; pointer-even
 /* section titles: each word rises out of a blur, one after another */
 .tw-wait .tw { display: inline-block; opacity: 0; translate: 0 50px; filter: blur(12px); transition: opacity .8s cubic-bezier(.25,1,.5,1), translate .8s cubic-bezier(.25,1,.5,1), filter .8s cubic-bezier(.25,1,.5,1); transition-delay: calc(var(--i) * .035s + .1s); }
 .tw-wait.tw-in .tw { opacity: 1; translate: 0 0; filter: none; }
-/* a weaker device (html[data-lite], owner 2026-11-14): no blur on each word, and half the jewel's layers */
-html[data-lite] .tw-wait .tw { filter: none; }
-html[data-lite] .jw-back:nth-child(even) { display: none; }
 /* four dashes on the edge of the page, each filling over a quarter of it */
 .dashes { position: fixed; z-index: 2; inset-inline-start: 18px; top: 50%; translate: 0 -50%; display: grid; gap: 12px; pointer-events: none; }
 .dashes i { position: relative; display: block; width: 2px; height: 40px; border-radius: 1px; background: rgba(226,203,148,.18); overflow: hidden; }

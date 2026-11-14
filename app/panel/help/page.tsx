@@ -11,7 +11,7 @@ export default function HelpPage() {
   return (
     <div className="hp">
       <header className="bar solid door-bar">
-        <a className="bar-brand" href="../"><img src="/leaf-sm.webp" alt="" width={18} height={34} /><span className="leaf">لئون گلد</span></a>
+        <a className="bar-brand" href="../"><img src="/leaf.webp" alt="" width={18} height={34} /><span className="leaf">لئون گلد</span></a>
         <span className="door-bar-t">راهنما</span>
         <a className="btn btn-line door-back" href="../">بازگشت به پنل</a>
       </header>

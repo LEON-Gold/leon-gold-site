@@ -38,7 +38,7 @@ export default function Header({ ledger }: { ledger: string }) {
   return (
     <header className={"bar" + (solid ? " solid" : "") + (open ? " open" : "")}>
       <a className="bar-brand" href="#top" aria-label="لئون گلد، بالای صفحه" onClick={close}>
-        <img src="/leaf-sm.webp" alt="" width={18} height={34} />
+        <img src="/leaf.webp" alt="" width={18} height={34} />
         <span className="leaf">لئون گلد</span>
       </a>
       <nav className="bar-links" aria-label="بخش‌های سایت">

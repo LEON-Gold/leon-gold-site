@@ -93,7 +93,7 @@ export default function Panel() {
   return (
     <div className="pn">
       <header className="pn-bar">
-        <a className="pn-brand" href="#/today"><img src="/leaf-icon.png" alt="" width={30} height={30} /><span className="leaf">لئون گلد</span><small>پنل مشتریان</small></a>
+        <a className="pn-brand" href="#/today"><img src="/leaf.png" alt="" width={30} height={30} /><span className="leaf">لئون گلد</span><small>پنل مشتریان</small></a>
         <nav className="pn-tabs" aria-label="بخش‌ها">
           {tabs.map(([k, t, h]) => (
             <a key={k} href={h} aria-current={here === k ? "page" : undefined}>

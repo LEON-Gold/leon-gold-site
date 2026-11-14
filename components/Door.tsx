@@ -10,7 +10,7 @@ export default function Door({ name, latin, fine, children, wide, home = "../" }
     <div className="door">
       <header className="bar solid door-bar">
         <a className="bar-brand" href={home} aria-label="لئون گلد، صفحه‌ی اصلی">
-          <img src="/leaf-sm.webp" alt="" width={18} height={34} />
+          <img src="/leaf.webp" alt="" width={18} height={34} />
           <span className="leaf">لئون گلد</span>
         </a>
         <span className="door-bar-t">{name}</span>
@@ -19,7 +19,7 @@ export default function Door({ name, latin, fine, children, wide, home = "../" }
       </header>
       <main className="door-in">
         <div className="door-dial" aria-hidden><i /></div>
-        <div className="door-seal" aria-hidden><img src="/leaf-sm.webp" alt="" width={30} height={56} /></div>
+        <div className="door-seal" aria-hidden><img src="/leaf.webp" alt="" width={30} height={56} /></div>
         <p className="door-latin" lang="en" dir="ltr">{latin}</p>
         <h1 className="door-title"><span className="leaf leaf-sweep">{name}</span></h1>
         <section className={"door-card paper" + (wide ? " door-wide" : "")} aria-label={name}>

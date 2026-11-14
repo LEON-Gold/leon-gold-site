@@ -1,32 +1,17 @@
 // Guilloché: the engraving of banknotes and gold certificates, the same formula the ledger app draws with.
 // Rings are phase-shifted polar sines r(t)=R+A·sin(N(t+φ))+a·sin(M(t−φ)); the band is the same weave laid flat.
 
-// one engraved line as a path of relative steps in tenths ("M350 200l12.4 2 7.5 2.1…"): the same points as before, about
-// half the bytes of a polyline's absolute "362.4,202.0" pairs (speed, owner 2026-11-14). Steps come from the rounded
-// points, so nothing drifts.
-const num = (t: number) => { const v = (t / 10).toFixed(1).replace(/\.0$/, "").replace(/^(-?)0\./, "$1."); return v === "-0" ? "0" : v; };
-function line(pts: [number, number][]) {
-  let d = "", px = 0, py = 0;
-  pts.forEach(([x, y], i) => {
-    const X = Math.round(x * 10), Y = Math.round(y * 10);
-    if (i === 0) d = "M" + num(X) + " " + num(Y) + "l";
-    else { const a = num(X - px), b = num(Y - py); d += (i > 1 && !a.startsWith("-") ? " " : "") + a + (b.startsWith("-") ? "" : " ") + b; }
-    px = X; py = Y;
-  });
-  return `<path d="${d}"/>`;
-}
-
 function ring(S: number, R: number, A: number, N: number, a: number, M: number, L: number, n: number) {
   const c = S / 2;
   let o = "";
   for (let j = 0; j < L; j++) {
     const ph = ((j / L) * Math.PI * 2) / N;
-    const p: [number, number][] = [];
+    let p = "";
     for (let i = 0; i <= n; i++) {
       const t = (i / n) * Math.PI * 2, r = R + A * Math.sin(N * (t + ph)) + a * Math.sin(M * (t - ph));
-      p.push([c + r * Math.cos(t), c + r * Math.sin(t)]);
+      p += (c + r * Math.cos(t)).toFixed(1) + "," + (c + r * Math.sin(t)).toFixed(1) + " ";
     }
-    o += line(p);
+    o += `<polyline points="${p}"/>`;
   }
   return o;
 }
@@ -35,12 +20,12 @@ function band(W: number, H: number, L: number, f: number, A: number, a: number) 
   let o = "";
   for (let j = 0; j < L; j++) {
     const ph = (j / L) * Math.PI * 2;
-    const p: [number, number][] = [];
+    let p = "";
     for (let x = 0; x <= W; x += 3) {
       const u = (x / W) * Math.PI * 2;
-      p.push([x, H / 2 + A * Math.sin(f * u + ph) * Math.cos(u * 0.5) + a * Math.sin(f * 3 * u - ph)]);
+      p += x + "," + (H / 2 + A * Math.sin(f * u + ph) * Math.cos(u * 0.5) + a * Math.sin(f * 3 * u - ph)).toFixed(1) + " ";
     }
-    o += line(p);
+    o += `<polyline points="${p}"/>`;
   }
   return o;
 }
@@ -56,9 +41,9 @@ const INK = "#977538";
 export const ROSETTE = svg(400, 400, ring(400, 150, 22, 24, 8, 72, 12, 520) + ring(400, 95, 16, 18, 5, 54, 10, 400) + ring(400, 48, 10, 12, 3, 36, 8, 260), GOLD, 0.5, 0.55);
 
 // the hero's rosette engraves itself on arrival: every line has a unit length and its own delay, inner rings first
-export const ROSETTE_DRAW = ROSETTE.replace(/<path /g, (() => {
+export const ROSETTE_DRAW = ROSETTE.replace(/<polyline /g, (() => {
   let k = 0;
-  return () => `<path pathLength='1' style='animation-delay:${(0.15 + (29 - k++) * 0.06).toFixed(2)}s' `;
+  return () => `<polyline pathLength='1' style='animation-delay:${(0.15 + (29 - k++) * 0.06).toFixed(2)}s' `;
 })());
 
 // the patterns are written to public/gl/ as files by next.config.ts, so a page links them (cached once for every page)
