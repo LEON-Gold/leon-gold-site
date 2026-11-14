@@ -106,11 +106,24 @@ export const sendReceipt = (image: string, amount?: number, date?: string) => ap
 export type VItem = { id: string; code: string; tags?: string[]; mine?: boolean; status?: "pending" | "live" | "hidden"; supAjrat?: number | null; name: string; cat: string; desc: string; weight: number; carat: number; ajrat: number; profit: number; settle: string[]; settleNote?: string; stock: "qty" | "order" | "none"; qty: number; sold: boolean; media: { id: string; type: "image" | "video" }[] };
 // a supplier the owner allows sends its own pieces (owner, 2026-11-10): a photo or film first, then the piece
 export const studioMedia = (data: string) => api<{ ok: true; id: string; type: "image" | "video" }>("/api/portal/studio/media", { data });
-export const studioSave = (d: { id?: string; name: string; cat: string; weight: string; carat: number; supAjrat: string; qty: string; desc: string; media: { id: string; type: string }[] }) => api<{ ok: true; id: string }>("/api/portal/studio/save", d);
+export const studioSave = (d: { id?: string; name: string; cat: string; groups: string[]; weight: string; carat: number; supAjrat: string; qty: string; desc: string; media: { id: string; type: string }[] }) => api<{ ok: true; id: string }>("/api/portal/studio/save", d);
+// a supplier's new category (owner, 2026-11-13): an existing one is reused (exists), else it waits for Leon (pending)
+export const studioCat = (name: string) => api<{ ok: true; cat: string; exists?: boolean; pending?: boolean }>("/api/portal/studio/cat", { name });
 export const studioRemove = (id: string) => api<{ ok: true }>("/api/portal/studio/remove", { id });
-export const vitrin = async () => { const r = await api<{ items: VItem[]; mine?: VItem[] }>("/api/portal/vitrin"); return { items: r.items, mine: r.mine || [] }; };
+// the showcase's «کتگوری»‌ها and «گروه»‌ها (owner, 2026-11-13) come with the pieces, from the owner's lists in the ledger; a
+// server that does not send them yet gets the defaults (the old fixed categories; لیزری، ریخته، پایه جواهر، بچگانه)
+export type VCat = { k: string; name: string; alias?: string[] };
+export type VGroup = { k: string; name: string };
+export const VCATS_DEFAULT: VCat[] = [["ring", "انگشتر"], ["necklace", "گردنبند"], ["bracelet", "دستبند"], ["earring", "گوشواره"], ["halfset", "نیم‌ست"], ["set", "سرویس"],
+  ["medal", "مدال"], ["chain", "زنجیر"], ["anklet", "پابند"], ["bangle", "النگو"], ["pendant", "پلاک و آویز"]].map(([k, name]) => ({ k, name }));
+export const VGROUPS_DEFAULT: VGroup[] = [{ k: "laser", name: "لیزری" }, { k: "cast", name: "ریخته" }, { k: "jewel", name: "پایه جواهر" }, { k: "kids", name: "بچگانه" }];
+export type Showcase = { items: VItem[]; mine: VItem[]; cats: VCat[]; groups: VGroup[]; myCats: string[] };
+type Raw = { items: VItem[]; mine?: VItem[]; cats?: VCat[]; groups?: VGroup[]; myCats?: string[] };
+const showcase = (r: Raw): Showcase => ({ items: r.items, mine: r.mine || [], cats: Array.isArray(r.cats) && r.cats.length ? r.cats : VCATS_DEFAULT,
+  groups: Array.isArray(r.groups) ? r.groups : VGROUPS_DEFAULT, myCats: Array.isArray(r.myCats) ? r.myCats : [] });
+export const vitrin = async () => showcase(await api<Raw>("/api/portal/vitrin"));
 // the public site's showcase (no sign-in): pieces the owner marked «روی سایت», at the site's wage
-export const publicVitrin = async () => (await api<{ items: VItem[] }>("/api/public/vitrin")).items;
+export const publicVitrin = async () => showcase(await api<Raw>("/api/public/vitrin"));
 export const publicMedia = (id: string) => SERVER + "/api/public/media/" + encodeURIComponent(id);
 // an order waits 120 s for Leon's confirmation (owner, 2026-11-09): its price goes with it and follows the rate
 export const orderItem = (id: string, note: string, gp?: number, total?: number) => api<{ ok: true; id: string; exp: number; wait: number }>("/api/portal/vitrin/order", { id, note, gp, total });
