@@ -116,7 +116,8 @@ html[data-theme="dark"] hr, html[data-theme="dark"] .words > div { border-color:
   box-shadow: 0 16px 30px -24px rgba(12,29,21,.55); transition: transform .25s var(--ease), box-shadow .25s var(--ease); }
 .vc-card:hover { transform: translateY(-3px); box-shadow: 0 22px 36px -24px rgba(12,29,21,.65); }
 .vc-card:active { transform: scale(.98); }
-.vc-pic { position: relative; display: block; aspect-ratio: 1; overflow: hidden; margin-bottom: 8px;
+/* 4:5 like every showcase photo (owner, 2026-11-14): a square cut the photos' top (the «LEON KIDS» line) and foot («LEON GOLD») */
+.vc-pic { position: relative; display: block; aspect-ratio: 4 / 5; overflow: hidden; margin-bottom: 8px;
   background: radial-gradient(circle at 50% 38%, #1e5d4d, #0f261a 72%); box-shadow: 0 -1px 0 rgba(201,162,76,.45) inset; }
 .vc-img { display: block; width: 100%; height: 100%; object-fit: cover; transition: scale .7s var(--ease); }
 .vc-pic .hs-pic-none, .vc-pic span.vc-img { display: grid; place-items: center; }
