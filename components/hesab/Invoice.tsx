@@ -23,11 +23,17 @@ export function LedgerInvoice({ e, onClose, onFail }: { e: Entry; onClose: () =>
       else if (x.data.leonView === "close") onClose();
       else if (x.data.leonView === "error") onFail();
     };
-    // a ledger that never answers (an old copy, no network): the simple invoice instead
-    let ok = false; const mark = (x: MessageEvent) => { if (x.data?.leonView === "shown") ok = true; };
-    const t = setTimeout(() => { if (!ok) onFail(); }, 20000);
+    // a ledger that never answers (an old copy, no network): the simple invoice instead. On a slow line (the Windows app, from
+    // Iran) the ledger page alone can take more than 20 s, and the simple invoice has only the totals of some invoices (owner,
+    // 2026-11-14): so wait while it is still loading (up to 90 s), and give it 15 s more once it has loaded.
+    let ok = false, t = 0;
+    const later = (ms: number) => { clearTimeout(t); t = window.setTimeout(() => { if (!ok) onFail(); }, ms); };
+    const mark = (x: MessageEvent) => { if (x.data?.leonView === "shown") ok = true; };
+    const loaded = () => { if (!ok) later(15000); };
+    const f = frame.current; f?.addEventListener("load", loaded);
+    later(90000);
     addEventListener("keydown", k); addEventListener("message", m); addEventListener("message", mark);
-    return () => { clearTimeout(t); removeEventListener("keydown", k); removeEventListener("message", m); removeEventListener("message", mark); document.body.classList.remove("hs-sheet-open"); };
+    return () => { clearTimeout(t); f?.removeEventListener("load", loaded); removeEventListener("keydown", k); removeEventListener("message", m); removeEventListener("message", mark); document.body.classList.remove("hs-sheet-open"); };
   }, [e, onClose, onFail]);
   return createPortal(
     <div className="hs-ledger-inv" role="dialog" aria-modal="true" aria-label={faDigits(e.label)}>
