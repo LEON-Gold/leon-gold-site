@@ -18,7 +18,10 @@ export type VipWay = { is: boolean; steps?: VipStep[]; all?: boolean };
 export type Account = { id: string; name: string; shop: string; phone?: string; vip?: boolean; vipWay?: VipWay; market?: boolean; upload?: boolean; kind: "customer" | "supplier" | "both"; biz?: string; group?: "colleague" | "retail" | ""; bal: { g: number; r: number }; ent: Entry[]; orders: Order[]; work: Work[] };
 // what the party wrote about itself (all optional) and its last signature of the rules (leon-gold-server/portal.mjs)
 export type Info = { fullName?: string; nationalId?: string; birth?: string; mobile?: string; phone?: string; shop?: string; address?: string; postal?: string; email?: string; at?: number };
-export type Me = { accounts: Account[]; updated?: string; demo?: boolean; username?: string; photo?: string; terms?: { hash: string; at: number } | null; info?: Info | null };
+export type Me = { accounts: Account[]; updated?: string; demo?: boolean; username?: string; photo?: string; terms?: { hash: string; at: number } | null; info?: Info | null; passNew?: boolean };
+// (owner, 2026-11-14) the details «حساب من» asks a party to complete (leon-gold-server portal.mjs INFO_NEED), and which are missing
+export const INFO_NEED: [keyof Info, string][] = [["fullName", "نام و نام خانوادگی"], ["mobile", "موبایل"], ["nationalId", "کد ملی"], ["birth", "تاریخ تولد"], ["postal", "کد پستی"], ["address", "نشانی"]];
+export const infoMissing = (i?: Info | null) => INFO_NEED.filter(([k]) => !String(i?.[k] ?? "").trim()).map(([, l]) => l);
 
 // ---------- session: the token only, in this browser ----------
 const KEY = "leon-hesab";

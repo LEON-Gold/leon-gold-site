@@ -11,7 +11,7 @@ import { setRulesGroup } from "@/lib/content";
 import AuthSwap from "./AuthSwap";
 import Market, { MarketCard } from "./Market";
 import Studio from "./Studio";
-import { ICONS } from "./Home";
+import { ICONS, Reminders } from "./Home";
 import Loader from "@/components/Loader";
 import MORPH from "@/lib/morph";
 import ThemeToggle from "@/components/ThemeToggle";
@@ -22,8 +22,7 @@ import { Avatar, KIND, Menu, Profile } from "./Menu";
 import { dropDevice, useHomeApp } from "./Notify";
 import {
   ApiError, SAMPLE, signup, refFromLink, publicBiz, nidOk, dayNum, faDigits, getToken, gram, jdate, jtime, latin, login, logout, me, photoUrl, redeem, rial, sendReceipt, shrinkPhoto, side, today, toman,
-  type Account, type BizType, type Entry, type Me,
-} from "@/lib/hesab";
+  type Account, type BizType, type Entry, type Me, infoMissing } from "@/lib/hesab";
 
 type Phase = "boot" | "form" | "in";
 const ERR: Record<string, string> = {
@@ -67,7 +66,7 @@ function Photo({ id }: { id: string }) {
 }
 
 // sample numbers only, for the demo («#demo-member»); a real party's steps come from the server
-const memberSample = (ready: boolean): Me => ({ ...SAMPLE, accounts: SAMPLE.accounts.map((a, i) => i ? a : { ...a, vip: false, market: false,
+const memberSample = (ready: boolean): Me => ({ ...SAMPLE, username: "demo.user", passNew: !ready, info: ready ? SAMPLE.info : { fullName: "مشتری نمونه", mobile: "09120000000" }, accounts: SAMPLE.accounts.map((a, i) => i ? a : { ...a, vip: false, market: false,
   vipWay: { is: false, all: ready, steps: [
     { k: "settle", have: ready ? 4 : 2, need: 4, done: ready },
     { k: "grams", have: ready ? 412.5 : 156.4, need: 400, done: ready },
@@ -232,6 +231,8 @@ function Panel({ data, onOut, onReload }: { data: Me; onOut: () => void; onReloa
   useEffect(() => { if (location.search) history.replaceState(null, "", location.pathname + location.hash); }, []);
   const [menu, setMenu] = useState(false);
   const [username, setUsername] = useState(data.username);
+  // (owner, 2026-11-14) the reminders: a password the owner made, details not complete; cleared as soon as they are done
+  const [passNew, setPassNew] = useState(!!data.passNew), [info, setInfo] = useState(data.info);
   const [photo, setPhoto] = useState(data.photo);
   // the move between sections: the page you leave is frozen at the tap, the new one opens from your finger (lib/morph.js)
   const setTab = (t: Tab) => { MORPH.before(document.querySelector(".hs-main")); setTabS(t); scrollTo({ top: 0 }); };
@@ -294,6 +295,7 @@ function Panel({ data, onOut, onReload }: { data: Me; onOut: () => void; onReloa
               </div>
             )}
           </div>
+          <Reminders pass={!!username && passNew} missing={infoMissing(info)} onPass={() => go("profile", "hs-login")} onInfo={() => go("profile", "hs-info-h")} />
           <div className="hs-dash">
           {isCustomer && <MemberCard a={a} flip />}
           {a.market && <MarketCard onOpen={() => setTab("market")} />}
@@ -312,7 +314,7 @@ function Panel({ data, onOut, onReload }: { data: Me; onOut: () => void; onReloa
             <p>رقمی با حساب شما نمی‌خواند؟ <a href={tg} target="_blank" rel="noopener">در تلگرام بگویید</a>؛ اشتباه از طرفین قابل برگشت است.</p>
           </footer>
         </>}
-        {tab === "profile" && <Profile a={a} data={{ ...data, username, photo }} onUsername={setUsername} onPhoto={setPhoto} />}
+        {tab === "profile" && <Profile a={a} data={{ ...data, username, photo, info }} onUsername={setUsername} onPhoto={setPhoto} passNew={passNew} onPassChanged={() => setPassNew(false)} onInfo={setInfo} />}
         {tab === "vitrin" && a.upload && <Studio demo={data.demo} />}
         {tab === "vitrin" && !(a.upload && !isCustomer) && <Vitrin demo={data.demo} openId={openId} onlyMine={!isCustomer} noMine={a.upload} />}
         {tab === "orders" && blocks}
