@@ -1,10 +1,11 @@
 # Real-time screenshots through the Chrome DevTools protocol.
+# Windows: powershell -File shot.ps1 …   macOS: pwsh -File shot.ps1 …
 # shot.ps1 -Urls "url1|out1.png;url2|out2.png" -Wait 6000 [-Dark]
 param([string]$Urls,[int]$Wait=6000,[switch]$Dark,[int]$W=390,[int]$H=844)
 $ErrorActionPreference='Stop'
-$prof = Join-Path $env:TEMP 'lgshot'
+$prof = Join-Path ($(if($env:TEMP){$env:TEMP}else{[IO.Path]::GetTempPath()})) 'lgshot'
 if (Test-Path $prof) { Remove-Item -Recurse -Force $prof }
-$chrome = 'C:\Program Files\Google\Chrome\Application\chrome.exe'
+$chrome = if($env:CHROME_PATH){$env:CHROME_PATH}elseif($IsMacOS){'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'}else{'C:\Program Files\Google\Chrome\Application\chrome.exe'}
 $p = Start-Process $chrome -ArgumentList @('--headless=new','--disable-gpu','--hide-scrollbars',"--user-data-dir=$prof",'--remote-debugging-port=9334',"--window-size=$W,$H",'about:blank') -PassThru
 try {
   $tgt=$null; for($i=0;$i -lt 50 -and -not $tgt;$i++){ Start-Sleep -Milliseconds 200; try { $tgt = (Invoke-RestMethod http://127.0.0.1:9334/json) | Where-Object { $_.type -eq 'page' } | Select-Object -First 1 } catch {} }
