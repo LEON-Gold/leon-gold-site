@@ -13,6 +13,7 @@ import Titles from "@/components/Titles";
 import { STORE_LD } from "@/lib/seo";
 import { EXHIBITS, HERO, LEDGER, MELT, SHOP, STEPS, WORKBOX } from "@/lib/content";
 import { fa } from "@/lib/fa";
+import AndroidApp from "@/components/AndroidApp";
 
 // the rosettes are files from public/gl/ (see lib/guilloche.ts): the hero's first one is put inline once loaded so it can engrave itself, the rest are images
 const Rosette = ({ className, draw }: { className: string; draw?: boolean }) => draw ? <InlineSvg className={className} src="/gl/rose-draw.svg" />
@@ -152,6 +153,7 @@ export default function Home() {
             <div><small>شهر</small><span>{SHOP.city}</span></div>
             <div><small>ساعت کاری</small><span>{SHOP.hours}</span></div>
             <div><small>شبکه‌ها</small><span><a href={SHOP.instagram} dir="ltr">@{SHOP.instagramId}</a> · <a href={SHOP.telegram} target="_blank" rel="noopener">تلگرام</a></span></div>
+            <AndroidApp where="site" />
           </div>
         </section>
       </main>

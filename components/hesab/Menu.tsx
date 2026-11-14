@@ -8,6 +8,7 @@ import { ApiError, changeLogin, invite, faDigits, gram, infoMissing, jdate, jtim
 import { openRules } from "./Extras";
 import { MemberCard, type Tab } from "./Home";
 import { Notify } from "./Notify";
+import AndroidApp from "@/components/AndroidApp";
 
 export const KIND: Record<Account["kind"], string> = { customer: "مشتری", supplier: "تأمین‌کننده", both: "مشتری و تأمین‌کننده" };
 const initial = (s: string) => (s.trim().replace(/^(آقای|خانم|جناب)\s+/, "")[0] || "ل");
@@ -207,6 +208,7 @@ export function Profile({ a, data, onUsername, onPhoto, passNew, onPassChanged, 
         <p className="hs-prof-fine">لئون گلد این‌ها را می‌بیند؛ حساب شما در دفتر با آن عوض نمی‌شود.</p>
         <InfoForm a={a} info={data.info} demo={data.demo} onSaved={i => onInfo?.(i)} />
       </section>
+      <AndroidApp where="hesab" />
       <Notify demo={data.demo} />
     </section>
   );

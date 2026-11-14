@@ -7,6 +7,7 @@ import { createPortal } from "react-dom";
 import { SHOP, rulesFor, rulesGroupNow, rulesTitleFor } from "@/lib/content";
 import { usePrice, MITHQAL, toman as tomanOf } from "@/lib/price";
 import { faDigits, gram, jdate, latin, myReceipts, photoUrl, toman, type Entry, type Line, type MyReceipt } from "@/lib/hesab";
+import { AndroidSteps, inAndroidApp } from "@/components/AndroidApp";
 
 // ---------- Persian calendar: day numbers, to count the days to a due date ----------
 function jalCal(jy: number) {
@@ -179,7 +180,8 @@ export function HomeHint() {
     const ua = navigator.userAgent, ios = /iPhone|iPad|iPod/.test(ua) || (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1), android = /Android/.test(ua);
     const standalone = matchMedia("(display-mode: standalone)").matches || !!(navigator as Navigator & { standalone?: boolean }).standalone;
     let later = false; try { later = !!sessionStorage.getItem("hs-a2hs-later"); } catch {}
-    if (!standalone && !later && (ios || android)) setOs(ios ? "ios" : "android");
+    // (owner, 2026-11-14) inside the Android app itself: nothing to add
+    if (!standalone && !later && !inAndroidApp(ua) && (ios || android)) setOs(ios ? "ios" : "android");
   }, []);
   useEffect(() => { if (!os) return; document.body.classList.add("hs-sheet-open"); return () => document.body.classList.remove("hs-sheet-open"); }, [os]);
   if (!os) return null;
@@ -187,18 +189,19 @@ export function HomeHint() {
   return createPortal(
     <div className="hs-sheet-bg hs-a2hs-bg">
       <section className="hs-inv hs-a2hs paper" role="dialog" aria-modal="true" aria-labelledby="hs-a2hs-h">
+        {os === "android" ? <>
+          {/* (owner, 2026-11-14) on Android the app itself; adding to the home screen from Chrome stays as a second way */}
+          <h2 id="hs-a2hs-h" className="hs-a2hs-t">اپ اندروید «حساب من» را نصب کنید</h2>
+          <div className="aa-hesab"><AndroidSteps /></div>
+          <p className="hs-a2hs-p hs-a2hs-alt">یا در کروم، منوی <b aria-label="منو">⋮</b> و بعد «افزودن به صفحه‌ی اصلی».</p>
+        </> : <>
         <h2 id="hs-a2hs-h" className="hs-a2hs-t">اول «حساب من» را به صفحه‌ی اصلی گوشی اضافه کنید</h2>
         <p className="hs-a2hs-p">«حساب من» از آیکن صفحه‌ی اصلی کامل کار می‌کند: اعلان‌ها می‌رسند، وارد می‌مانید و مثل یک برنامه باز می‌شود.</p>
-        {os === "ios" ? <ol className="hs-steps-a2hs">
+        <ol className="hs-steps-a2hs">
             <li>پایین صفحه در سافاری دکمه‌ی اشتراک <b aria-label="اشتراک">⬆︎</b> را بزنید.</li>
             <li>«افزودن به صفحه‌ی اصلی» (Add to Home Screen) را بزنید، بعد «افزودن».</li>
             <li>از آیکن تازه‌ی «حساب من» روی صفحه‌ی اصلی وارد شوید.</li>
-          </ol>
-          : <ol className="hs-steps-a2hs">
-            <li>بالای صفحه در کروم منوی <b aria-label="منو">⋮</b> را بزنید.</li>
-            <li>«افزودن به صفحه‌ی اصلی» یا «نصب برنامه» (Install app) را بزنید.</li>
-            <li>از آیکن تازه‌ی «حساب من» روی صفحه‌ی اصلی وارد شوید.</li>
-          </ol>}
+          </ol></>}
         <button type="button" className="hs-link hs-a2hs-later" onClick={later}>فعلاً در مرورگر ادامه می‌دهم</button>
       </section>
     </div>, document.body);
