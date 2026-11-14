@@ -8,6 +8,7 @@ import { openRules } from "./Extras";
 import Jewel from "@/components/Jewel";
 import Loader from "@/components/Loader";
 import { refreshPrice, usePrice } from "@/lib/price";
+import "./kids.css";
 import { faDigits, gram, latin, mediaUrl, orderItem, orderPrice, orderStatus, publicMedia, publicVitrin, SAMPLE_VITRIN, toman, vitrin, ApiError, VCATS_DEFAULT, VGROUPS_DEFAULT, type VCat, type VGroup, type VItem } from "@/lib/hesab";
 
 // today's price of a piece, the way the site's own calculator does it: gold at the hour's rate (by its 750-equivalent
@@ -104,32 +105,46 @@ function CatPills({ items, cats, sel, pub, onPick }: { items: VItem[]; cats: VCa
 // pub: the public site's showcase (no sign-in; its order button leads to «حساب من»). openId: open this piece first
 // (from the site's order button, after signing in or signing up)
 // onlyMine: a supplier that does not buy sees only its own pieces («محصولات شما در لئون»), not Leon's prices
-export default function Vitrin({ demo, pub, openId, onlyMine, noMine }: { demo?: boolean; pub?: boolean; openId?: string; onlyMine?: boolean; noMine?: boolean }) {
+// «لئون کیدز» (owner, 2026-11-14): the «بچگانه» group (key kids) is its own place with its own look (components/hesab/kids.css):
+// on the site it is a page of its own (kids/, components/KidsDoor.tsx), in «حساب من» the same look is put on in place.
+const KIDS0 = (VGROUPS_DEFAULT.find(g => g.k === "kids") || { name: "" }).name;
+export const kidsNameOf = (groups: VGroup[]) => (groups.find(g => g.k === "kids") || { name: "" }).name;
+const KidsBanner = () => <p className="kd-banner"><img src="/kidsart/mark.webp" alt="" width={87} height={160} /><span><b>لئون کیدز</b><small>زیرمجموعه‌ی لئون گلد</small></span></p>;
+
+// kids: the «لئون کیدز» page of the site (the group is fixed to «بچگانه»)
+export default function Vitrin({ demo, pub, openId, onlyMine, noMine, kids }: { demo?: boolean; pub?: boolean; openId?: string; onlyMine?: boolean; noMine?: boolean; kids?: boolean }) {
   const [items, setItems] = useState<VItem[] | null>(null);
   const [mine, setMine] = useState<VItem[]>([]);
   const [err, setErr] = useState(false);
   const [open, setOpen] = useState<VItem | null>(null);
   const [cat, setCat] = useState("all");
-  const [grp, setGrp] = useState(onlyMine ? "all" : "");
+  const [grp, setGrp] = useState(kids ? KIDS0 : onlyMine ? "all" : "");
   const [cats, setCats] = useState<VCat[]>(VCATS_DEFAULT);
   const [groups, setGroups] = useState<VGroup[]>(VGROUPS_DEFAULT);
   // on the site the group and the category are in the address (vitrin/?g=بچگانه&c=دستبند), so a link from the home page
   // opens them and «back» returns
   const url = (g: string, c: string, keep?: boolean) => {
     if (!pub || typeof history === "undefined") return;
-    const q = new URLSearchParams(); if (g) q.set("g", g); if (c) q.set("c", c);
+    const q = new URLSearchParams(); if (g && !kids) q.set("g", g); if (c) q.set("c", c);
     history[keep ? "replaceState" : "pushState"](null, "", q.toString() ? "?" + q : location.pathname);
   };
   // a group is a step («back» returns to the groups); a category inside it only changes the address
-  const goGrp = (g: string) => { setGrp(g); setCat("all"); url(g, ""); scrollTo({ top: 0 }); };
+  const goGrp = (g: string) => {
+    if (pub && !kids && g && g === kidsNameOf(groups)) { location.href = "../kids/"; return; }
+    if (kids && g === "") { location.href = "../vitrin/"; return; }
+    setGrp(g); setCat("all"); url(g, ""); scrollTo({ top: 0 });
+  };
   const goCat = (c: string) => { setCat(c); url(grp, c === "all" ? "" : c, true); };
   useEffect(() => {
     if (!pub) return;
     // an old link (vitrin/?c=دستبند) opens that category in «همه»
-    const read = () => { const q = new URLSearchParams(location.search), c = q.get("c") || ""; setCat(c || "all"); setGrp(q.get("g") || (c ? "all" : "")); setOpen(null); };
+    const read = () => { const q = new URLSearchParams(location.search), c = q.get("c") || ""; setCat(c || "all"); if (!kids) setGrp(q.get("g") || (c ? "all" : "")); setOpen(null); };
     read(); addEventListener("popstate", read);
     return () => removeEventListener("popstate", read);
-  }, [pub]);
+  }, [pub, kids]);
+  const kidsName = kidsNameOf(groups), isKids = !!kids || (!!kidsName && grp === kidsName);
+  // an address that names the kids group on the showcase page (vitrin/?g=بچگانه) belongs to the kids page
+  useEffect(() => { if (pub && !kids && kidsName && grp === kidsName) location.replace("../kids/" + (cat !== "all" ? "?c=" + encodeURIComponent(cat) : "")); }, [pub, kids, grp, kidsName]); // eslint-disable-line react-hooks/exhaustive-deps
   const [st, setSt] = useState("all");
   const [tag, setTag] = useState("all");
   const [more, setMore] = useState(false);
@@ -138,7 +153,7 @@ export default function Vitrin({ demo, pub, openId, onlyMine, noMine }: { demo?:
   const { feed } = usePrice();
   useEffect(() => {
     if (demo) { setItems(SAMPLE_VITRIN); return; }
-    (pub ? publicVitrin() : vitrin()).then(({ items: L, mine: M, cats: C, groups: G }) => { setItems(L); setMine(M); setCats(C); setGroups(G); const o = openId && L.find(x => x.id === openId); if (o) { setOpen(o); setGrp("all"); setCat(catOf(o, C) || "all"); } }, () => setErr(true));
+    (pub ? publicVitrin() : vitrin()).then(({ items: L, mine: M, cats: C, groups: G }) => { setItems(L); setMine(M); setCats(C); setGroups(G); if (kids) setGrp(kidsNameOf(G) || KIDS0); const o = openId && L.find(x => x.id === openId); if (o) { setOpen(o); setGrp("all"); setCat(catOf(o, C) || "all"); } }, () => setErr(true));
   }, [demo, pub, openId]);
   const all = useMemo(() => items || [], [items]);
   const gNames = useMemo(() => groups.map(g => g.name), [groups]);
@@ -155,7 +170,7 @@ export default function Vitrin({ demo, pub, openId, onlyMine, noMine }: { demo?:
   const reset = () => { setSt("all"); setTag("all"); setR({ wMin: "", wMax: "", aMin: "", aMax: "", aNear: "" }); };
   const show = (it: VItem | null) => { setOpen(it); scrollTo({ top: 0 }); };
 
-  if (open) return <Product it={open} gp={feed?.gp || 0} demo={demo} pub={pub} onBack={() => show(null)} />;
+  if (open) { const P = <Product it={open} gp={feed?.gp || 0} demo={demo} pub={pub} onBack={() => show(null)} />; return isKids && !kids ? <div className="kids kd-in-place">{P}</div> : P; }
   return (
     <>
     {!noMine && onlyMine && items && !mine.length && <section className="hs-sec hs-vit hs-mine"><div className="hs-box-head"><h2 className="hs-h">محصولات شما در لئون</h2><p>هنوز کاری از شما در ویترین لئون گلد نیست.</p></div></section>}
@@ -186,8 +201,9 @@ export default function Vitrin({ demo, pub, openId, onlyMine, noMine }: { demo?:
       </div>
       <GroupGrid items={err ? null : items} groups={groups} pub={pub} onPick={goGrp} />
     </section>}
-    {!onlyMine && grp !== "" && <section className="hs-sec hs-vit" aria-labelledby="hs-vit">
-      <button type="button" className="hs-link vc-back" onClick={() => goGrp("")}>→ همه‌ی گروه‌ها</button>
+    {!onlyMine && grp !== "" && <section className={"hs-sec hs-vit" + (isKids && !kids ? " kids kd-in-place" : "")} aria-labelledby="hs-vit">
+      <button type="button" className="hs-link vc-back" onClick={() => goGrp("")}>{kids ? "→ ویترین لئون گلد" : "→ همه‌ی گروه‌ها"}</button>
+      {isKids && !kids && <KidsBanner />}
       <div className="hs-box-head">
         <h2 className="hs-h" id="hs-vit">{grp === "all" ? "همه‌ی کارها" : grp}</h2>
         <p>کارهای موجود، با قیمت تقریبیِ همین ساعت{feed?.time ? ` (نرخ اتحادیه، ساعت ${faDigits(feed.time)})` : ""}.{pub ? " برای سفارش، روی هر کار بزنید." : ""}</p>

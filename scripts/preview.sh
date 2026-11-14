@@ -8,8 +8,8 @@ cd "$(dirname "$0")/.."
 rm -rf out .next
 # Git Bash would rewrite a leading-slash env value into a Windows path (the extra variable is harmless on macOS)
 MSYS2_ENV_CONV_EXCL=PREVIEW_BASE PREVIEW_BASE=$BASE npx next build
-grep -rlE '/(museum|fonts|products|gl)/|/hesab/icon-|/leaf(-hd)?\.(png|webp)' out --include='*.html' --include='*.css' --include='*.js' --include='*.txt' | while read f; do
-  sed -i.lgbak -E "s#([\"'(])/(museum|fonts|products|gl)/#\1$BASE/\2/#g; s#([\"'(])/hesab/icon-#\1$BASE/hesab/icon-#g; s#([\"'(])/leaf(-hd)?\.(png|webp)#\1$BASE/leaf\2.\3#g" "$f" && rm -f "$f.lgbak"
+grep -rlE '/(museum|fonts|products|gl|kidsart)/|/hesab/icon-|/leaf(-hd)?\.(png|webp)' out --include='*.html' --include='*.css' --include='*.js' --include='*.txt' | while read f; do
+  sed -i.lgbak -E "s#([\"'(])/(museum|fonts|products|gl|kidsart)/#\1$BASE/\2/#g; s#([\"'(])/hesab/icon-#\1$BASE/hesab/icon-#g; s#([\"'(])/leaf(-hd)?\.(png|webp)#\1$BASE/leaf\2.\3#g" "$f" && rm -f "$f.lgbak"
 done  # -i.lgbak works with both GNU sed and macOS (BSD) sed
 rm -rf out/t.html out/t2.html out/t3.html out/t4.html out/t-pr.html out/t-vt.html  # local screenshot helpers
 SITE=../leon-gold-app/site
