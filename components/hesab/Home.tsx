@@ -73,6 +73,21 @@ function CardFace({ a, since }: { a: Account; since: string }) {
   </>;
 }
 
+// ---------- reminders (owner, 2026-11-14): a password the owner made, and details not complete; each opens its place in
+// «پروفایل من». They stay until done. ----------
+export function Reminders({ pass, missing, onPass, onInfo }: { pass: boolean; missing: string[]; onPass: () => void; onInfo: () => void }) {
+  if (!pass && !missing.length) return null;
+  return (
+    <section className="hs-remind paper" aria-labelledby="hs-remind-h">
+      <h2 className="hs-remind-h" id="hs-remind-h"><svg viewBox="0 0 24 24" aria-hidden><path d="M6 9a6 6 0 0 1 12 0c0 4.5 2 6 2 6H4s2-1.5 2-6M10 19a2 2 0 0 0 4 0" /></svg>یادآوری</h2>
+      {pass && <div className="hs-remind-it"><p><b>رمز خودتان را بگذارید</b><span>رمز ورود شما را لئون گلد ساخته؛ برای امنیت حساب، رمز تازه‌ای بگذارید که فقط خودتان بدانید.</span></p>
+        <button type="button" className="btn btn-gold" onClick={onPass}>تغییر رمز</button></div>}
+      {missing.length > 0 && <div className="hs-remind-it"><p><b>اطلاعات خود را کامل کنید</b><span>هنوز ثبت نشده: {missing.join("، ")}</span></p>
+        <button type="button" className={"btn " + (pass ? "btn-line" : "btn-gold")} onClick={onInfo}>تکمیل اطلاعات</button></div>}
+    </section>
+  );
+}
+
 // ---------- the way to VIP (owner, 2026-11-13, .briefs/vip-card.md): a member who is not VIP is invited to tap its card;
 // the card turns over and its back shows the three steps (each ticked or not, with how far along it is) and what a VIP
 // gets. The words are the owner's own; nothing is added. VIP itself stays the owner's mark in the ledger. ----------

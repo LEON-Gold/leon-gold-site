@@ -917,6 +917,19 @@ html[data-theme="light"] .hs-vmore-b { background:  rgba(250,247,240,.45); color
 @media (min-width: 900px) { html[data-theme="light"] .hs-auth-b { color: #7a5c25; } }
 /* ==== end ivory light mode ==== */
 
+/* reminders (owner, 2026-11-14): set one's own password, complete one's details; on the home page until done */
+.hs-remind { display: grid; gap: 12px; padding: 16px 18px; border-inline-start: 3px solid var(--gold); }
+.hs-remind-h { display: flex; align-items: center; gap: 8px; margin: 0; font: 700 20px/1.3 var(--display); color: var(--emerald); }
+.hs-remind-h svg { width: 22px; height: 22px; fill: none; stroke: var(--gold-d); stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+.hs-remind-it { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px 14px; align-items: center; }
+.hs-remind-it + .hs-remind-it { padding-top: 12px; border-top: 1px dashed var(--line); }
+.hs-remind-it p { margin: 0; display: grid; gap: 2px; }
+.hs-remind-it b { font-size: 15.5px; color: var(--ink); }
+.hs-remind-it span { font-size: 13.5px; line-height: 1.7; color: var(--muted); text-wrap: pretty; }
+.hs-remind-it .btn { min-height: 44px; padding: 0 18px; font-size: 14px; white-space: nowrap; }
+@media (max-width: 430px) { .hs-remind-it { grid-template-columns: 1fr; } .hs-remind-it .btn { justify-self: start; } }
+.hs-remind-note { margin: 0; padding: 8px 12px; border-radius: 12px; background: rgba(201,162,76,.14); border: 1px solid rgba(201,162,76,.45); color: var(--ink); font-size: 13.5px; line-height: 1.7; }
+
 /* ---------- the way to VIP (owner, 2026-11-13): a member who is not VIP taps its card and it turns over; the back
    shows the three steps (ticked or not, how far along) and what a VIP gets. The card nods twice to say it can turn and
    a small chip says «روی کارت خود بزنید»; with reduce motion it does neither and the faces simply swap. ---------- */

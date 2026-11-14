@@ -4,7 +4,7 @@
 import { InfoForm } from "./Onboard";
 import { useEffect, useRef, useState } from "react";
 import { SHOP } from "@/lib/content";
-import { ApiError, changeLogin, invite, faDigits, gram, jdate, jtime, removeAvatar, rial, setAvatar, shrinkPhoto, side, type Account, type Me } from "@/lib/hesab";
+import { ApiError, changeLogin, invite, faDigits, gram, infoMissing, jdate, jtime, removeAvatar, rial, setAvatar, shrinkPhoto, side, type Account, type Info, type Me } from "@/lib/hesab";
 import { openRules } from "./Extras";
 import { MemberCard, type Tab } from "./Home";
 import { Notify } from "./Notify";
@@ -177,7 +177,8 @@ function Invite({ demo }: { demo?: boolean }) {
   );
 }
 
-export function Profile({ a, data, onUsername, onPhoto }: { a: Account; data: Me; onUsername: (u: string) => void; onPhoto: (p?: string) => void }) {
+export function Profile({ a, data, onUsername, onPhoto, passNew, onPassChanged, onInfo }: { a: Account; data: Me; onUsername: (u: string) => void; onPhoto: (p?: string) => void; passNew?: boolean; onPassChanged?: () => void; onInfo?: (i: Info) => void }) {
+  const missing = infoMissing(data.info);
   const g = side(a.bal.g, "g"), r = side(a.bal.r, "r");
   const balText = (v: number, u: "g" | "r", s: string) => s === "z" ? "تسویه" : (u === "g" ? gram(v) + " گرم" : rial(v) + " ریال") + (s === "dr" ? " بدهکار" : " بستانکار");
   return (
@@ -197,21 +198,22 @@ export function Profile({ a, data, onUsername, onPhoto }: { a: Account; data: Me
         {data.updated && <div><dt>آخرین ثبت در دفتر</dt><dd className="num">{jdate(data.updated)}، ساعت {jtime(data.updated)}</dd></div>}
       </dl>
       <p className="hs-prof-fine">نام، فروشگاه و شماره‌ی موبایل را لئون گلد در دفتر ثبت می‌کند. اگر چیزی درست نیست، <a href={SHOP.telegram} target="_blank" rel="noopener">در تلگرام بگویید</a>.</p>
-      {data.demo ? <Login username="demo.user" demo onUsername={() => {}} />
-        : data.username ? <Login username={data.username} onUsername={onUsername} />
+      {data.demo ? <Login username="demo.user" demo onUsername={() => {}} passNew={passNew} onPass={onPassChanged} />
+        : data.username ? <Login username={data.username} onUsername={onUsername} passNew={passNew} onPass={onPassChanged} />
         : <p className="hs-prof-fine">شما با لینک یک‌باره وارد شده‌اید. برای داشتن نام کاربری و رمز، از لئون گلد بخواهید.</p>}
       <section className="hs-login paper" aria-labelledby="hs-info-h">
         <h2 className="hs-h" id="hs-info-h">اطلاعات من</h2>
-        <p className="hs-prof-fine">پر کردن هیچ‌کدام اجباری نیست. لئون گلد این‌ها را می‌بیند؛ حساب شما در دفتر با آن عوض نمی‌شود.</p>
-        <InfoForm a={a} info={data.info} demo={data.demo} onSaved={() => {}} />
+        {missing.length > 0 && <p className="hs-remind-note">برای کامل شدن اطلاعات، این‌ها را بنویسید یا تأیید کنید و «ذخیره» را بزنید: {missing.join("، ")}</p>}
+        <p className="hs-prof-fine">لئون گلد این‌ها را می‌بیند؛ حساب شما در دفتر با آن عوض نمی‌شود.</p>
+        <InfoForm a={a} info={data.info} demo={data.demo} onSaved={i => onInfo?.(i)} />
       </section>
       <Notify demo={data.demo} />
     </section>
   );
 }
 
-function Login({ username, demo, onUsername }: { username: string; demo?: boolean; onUsername: (u: string) => void }) {
-  const [what, setWhat] = useState<"" | "user" | "pass">("");
+function Login({ username, demo, onUsername, passNew, onPass }: { username: string; demo?: boolean; onUsername: (u: string) => void; passNew?: boolean; onPass?: () => void }) {
+  const [what, setWhat] = useState<"" | "user" | "pass">(passNew ? "pass" : "");
   const [un, setUn] = useState(username);
   const [old, setOld] = useState("");
   const [nu, setNu] = useState("");
@@ -223,12 +225,12 @@ function Login({ username, demo, onUsername }: { username: string; demo?: boolea
     e.preventDefault(); if (busy) return;
     if (!old) return setMsg({ ok: false, t: "رمز فعلی را بنویسید." });
     if (what === "pass" && nu !== nu2) return setMsg({ ok: false, t: "رمز تازه و تکرارش یکی نیستند." });
-    if (demo) { setMsg({ ok: true, t: "در حساب نمونه چیزی ذخیره نمی‌شود." }); close(); return; }
+    if (demo) { setMsg({ ok: true, t: "در حساب نمونه چیزی ذخیره نمی‌شود." }); if (what === "pass") onPass?.(); close(); return; }
     setBusy(true); setMsg(null);
     try {
       const r = await changeLogin(old, what === "user" ? { username: un.trim() } : { password: nu });
       if (what === "user") { onUsername(r.username); setMsg({ ok: true, t: "نام کاربری عوض شد. از این به بعد با «" + r.username + "» وارد شوید." }); }
-      else setMsg({ ok: true, t: "رمز عوض شد. از این به بعد با رمز تازه وارد شوید؛ دستگاه‌های دیگرتان از حساب خارج شدند." });
+      else { setMsg({ ok: true, t: "رمز عوض شد. از این به بعد با رمز تازه وارد شوید؛ دستگاه‌های دیگرتان از حساب خارج شدند." }); onPass?.(); }
       setWhat(""); setOld(""); setNu(""); setNu2("");
     } catch (x) { setMsg({ ok: false, t: errText(x) }); }
     finally { setBusy(false); }
@@ -236,6 +238,7 @@ function Login({ username, demo, onUsername }: { username: string; demo?: boolea
   return (
     <section className="hs-login paper" aria-labelledby="hs-login">
       <h2 className="hs-h" id="hs-login">ورود به حساب</h2>
+      {passNew && <p className="hs-remind-note">رمز فعلی را لئون گلد ساخته؛ رمز تازه‌ای بگذارید که فقط خودتان بدانید.</p>}
       <div className="hs-login-row"><span>نام کاربری</span><b dir="ltr">{username}</b>
         {what !== "user" && <button type="button" className="hs-link" onClick={() => { close(); setMsg(null); setWhat("user"); }}>تغییر</button>}</div>
       <div className="hs-login-row"><span>رمز</span><b aria-label="پنهان">••••••</b>
