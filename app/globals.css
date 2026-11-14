@@ -130,9 +130,8 @@ html[data-theme="dark"] hr, html[data-theme="dark"] .words > div { border-color:
 .vc-card.empty .vc-art { opacity: .85; }
 .vc-all { text-align: center; margin-top: 22px; }
 .vc-back { justify-self: start; display: inline-block; margin-bottom: 6px; padding: 6px 0; }
-/* «گروه»‌ها (owner, 2026-11-13): one row of paper pills above the category tiles («همه»، لیزری، ریخته، پایه جواهر، بچگانه),
-   each with its newest piece in an emerald medallion; it slides sideways on a phone. The chosen one is gold leaf, like a
-   chosen filter. */
+/* inside a showcase group (owner, 2026-11-13): its categories as one row of small paper pills («همه» first), each with its
+   newest piece in an emerald medallion; it slides sideways on a phone. The chosen one is gold leaf, like a chosen filter. */
 .vg-row { list-style: none; margin: 0 0 18px; padding: 2px 2px 10px; display: flex; gap: 10px; overflow-x: auto; scroll-snap-type: x proximity; overscroll-behavior-x: contain; scrollbar-width: none; }
 .vg-row::-webkit-scrollbar { display: none; }
 .vg-row li { flex: none; scroll-snap-align: start; }
@@ -152,7 +151,8 @@ html[data-theme="dark"] hr, html[data-theme="dark"] .words > div { border-color:
 .vg-card.empty small { color: var(--gold-ink); }
 .vg-card.on { background: var(--leaf); background-size: 180% 100%; border-color: #ead8ad; }
 .vg-card.on b, .vg-card.on small { color: #0c1d15; }
-.vg-chip { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px; margin: 6px 0 0; font-size: 14px; }
+.vg-art { display: grid; place-items: center; width: 100%; height: 100%; }
+.vg-art .jewel { width: 74%; height: 74%; }
 @media (min-width: 900px) { .vg-row { gap: 14px; } .vg-card { min-height: 68px; grid-template-columns: 56px auto; } .vg-pic { width: 56px; height: 56px; } .vg-card b { font-size: 20px; } }
 @media (prefers-reduced-motion: reduce) { .vg-card { transition: none; } .vg-card:hover { transform: none; } }
 @media (min-width: 900px) { .vc-grid { grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 20px; } .vc-card b { font-size: 25px; } }
