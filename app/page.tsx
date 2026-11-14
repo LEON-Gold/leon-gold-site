@@ -162,7 +162,7 @@ export default function Home() {
         <p className="foot-latin leaf" lang="en" dir="ltr">LEON GOLD</p>
         <p className="foot-fa">طلا و جواهرات · تهران</p>
         <nav className="foot-links" aria-label="پیوندها">
-          <a href="#price">قیمت امروز</a><a href="#collection">مجموعه</a><a href="#wholesale">همکاران</a><a href="#order">تماس</a>
+          <a href="#price">قیمت امروز</a><a href="#vitrin">مجموعه</a><a href="#wholesale">همکاران</a><a href="#order">تماس</a>
           <a href={LEDGER}>دفتر لئون</a>
         </nav>
         <p className="foot-credit">

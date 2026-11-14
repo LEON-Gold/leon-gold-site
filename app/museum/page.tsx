@@ -244,7 +244,7 @@ export default function Museum() {
           <h2 id="mu-end-h" className="leaf" data-rise>از موزه، به ویترین</h2>
           <p data-rise>هر کار لئون گلد همان ۷۵۰ است که در تالار دوم دیدید، با وزن روی برچسب و قیمت به نرخ همان ساعت اتحادیه.</p>
           <div className="mu-end-cta" data-rise>
-            <a className="btn btn-gold" href="../#collection">دیدن مجموعه</a>
+            <a className="btn btn-gold" href="../vitrin/">دیدن مجموعه</a>
             <a className="btn btn-line" href="../#price">قیمت امروز</a>
           </div>
         </section>
