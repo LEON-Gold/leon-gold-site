@@ -3,16 +3,16 @@
 // a film, weight, karat, its own wage and how many it has. What it sends waits in the ledger as «در انتظار بررسی»
 // and nobody sees it until Leon sets the price and shows it. It never sees anyone else's pieces, nor Leon's wage or price.
 import { useEffect, useState } from "react";
-import { ApiError, faDigits, gram, latin, mediaUrl, shrinkPhoto, studioMedia, studioRemove, studioSave, vitrin, type VItem } from "@/lib/hesab";
-import { VCATS } from "./Vitrin";
+import { ApiError, faDigits, gram, latin, mediaUrl, shrinkPhoto, studioCat, studioMedia, studioRemove, studioSave, vitrin, VCATS_DEFAULT, VGROUPS_DEFAULT, type VCat, type VGroup, type VItem } from "@/lib/hesab";
 import Loader from "@/components/Loader";
 
 type M = { id: string; type: "image" | "video"; local?: string };
-type Draft = { id?: string; name: string; cat: string; weight: string; carat: string; supAjrat: string; qty: string; desc: string; media: M[] };
-const EMPTY: Draft = { name: "", cat: "", weight: "", carat: "750", supAjrat: "", qty: "0", desc: "", media: [] };
+type Draft = { id?: string; name: string; cat: string; groups: string[]; weight: string; carat: string; supAjrat: string; qty: string; desc: string; media: M[] };
+const EMPTY: Draft = { name: "", cat: "", groups: [], weight: "", carat: "750", supAjrat: "", qty: "0", desc: "", media: [] };
+const NEW_CAT = "__new__";
 const ST: Record<string, [string, string]> = { pending: ["در انتظار بررسی لئون", "wait"], live: ["در ویترین لئون", "live"], hidden: ["پنهان", "off"] };
 const VIDEO_MAX = 40 * 1024 * 1024;
-const ERR: Record<string, string> = { no_photo: "دست‌کم یک عکس بگذارید.", bad_name: "نام کار را بنویسید.", bad_weight: "وزن را به گرم بنویسید (مثلاً ۴٫۲).", too_large: "این فایل خیلی بزرگ است.", bad_type: "این فایل عکس یا فیلم نیست.", too_many: "امروز خیلی زیاد فرستادید؛ فردا دوباره امتحان کنید.", no_upload: "لئون هنوز اجازه‌ی فرستادن محصول را برای شما روشن نکرده.", offline: "به سرور وصل نشد؛ اینترنت را بررسی کنید." };
+const ERR: Record<string, string> = { no_photo: "دست‌کم یک عکس بگذارید.", bad_name: "نام کار را بنویسید.", bad_weight: "وزن را به گرم بنویسید (مثلاً ۴٫۲).", too_large: "این فایل خیلی بزرگ است.", bad_type: "این فایل عکس یا فیلم نیست.", too_many: "امروز خیلی زیاد فرستادید؛ فردا دوباره امتحان کنید.", no_upload: "لئون هنوز اجازه‌ی فرستادن محصول را برای شما روشن نکرده.", too_many_cats: "پنج کتگوری تازه‌ی شما هنوز منتظر تأیید لئون است؛ بعد از تأیید، کتگوری دیگری بسازید.", offline: "به سرور وصل نشد؛ اینترنت را بررسی کنید." };
 const errText = (x: unknown) => x instanceof ApiError ? ERR[x.code] || "انجام نشد؛ دوباره امتحان کنید." : "انجام نشد؛ دوباره امتحان کنید.";
 const asData = (f: File) => new Promise<string>((res, rej) => { const r = new FileReader(); r.onload = () => res(String(r.result)); r.onerror = rej; r.readAsDataURL(f); });
 
@@ -27,10 +27,14 @@ export default function Studio({ demo }: { demo?: boolean }) {
   const [items, setItems] = useState<VItem[] | null>(null);
   const [d, setD] = useState<Draft | null>(null);
   const [busy, setBusy] = useState(""), [err, setErr] = useState(""), [done, setDone] = useState(""), [ask, setAsk] = useState(false);
-  const load = () => (demo ? Promise.resolve({ mine: [] as VItem[] }) : vitrin()).then(r => setItems(r.mine), () => setItems([]));
+  // the owner's categories and groups (owner, 2026-11-13), and the categories this supplier asked for that still wait for Leon
+  const [cats, setCats] = useState<VCat[]>(VCATS_DEFAULT), [groups, setGroups] = useState<VGroup[]>(VGROUPS_DEFAULT), [myCats, setMyCats] = useState<string[]>([]);
+  const [newCat, setNewCat] = useState<string | null>(null), [catMsg, setCatMsg] = useState("");
+  const load = () => (demo ? Promise.resolve({ mine: [] as VItem[], cats: VCATS_DEFAULT, groups: VGROUPS_DEFAULT, myCats: [] as string[] }) : vitrin())
+    .then(r => { setItems(r.mine); setCats(r.cats); setGroups(r.groups); setMyCats(r.myCats); }, () => setItems([]));
   useEffect(() => { load(); }, []); // eslint-disable-line react-hooks/exhaustive-deps
   const set = (k: keyof Draft) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => setD(x => x && { ...x, [k]: e.target.value });
-  const open = (it?: VItem) => { setErr(""); setDone(""); setAsk(false); setD(it ? { id: it.id, name: it.name, cat: it.cat, weight: String(it.weight || ""), carat: String(it.carat || 750), supAjrat: it.supAjrat == null ? "" : String(it.supAjrat), qty: String(it.qty || 0), desc: it.desc || "", media: it.media.map(m => ({ ...m })) } : { ...EMPTY }); scrollTo({ top: 0 }); };
+  const open = (it?: VItem) => { setErr(""); setDone(""); setAsk(false); setNewCat(null); setCatMsg(""); setD(it ? { id: it.id, name: it.name, cat: it.cat, groups: groups.filter(g => it.tags?.includes(g.name)).map(g => g.k), weight: String(it.weight || ""), carat: String(it.carat || 750), supAjrat: it.supAjrat == null ? "" : String(it.supAjrat), qty: String(it.qty || 0), desc: it.desc || "", media: it.media.map(m => ({ ...m })) } : { ...EMPTY }); scrollTo({ top: 0 }); };
   // photos are made small here before they go up; a film goes as it is (up to 40 MB)
   const add = async (e: React.ChangeEvent<HTMLInputElement>, video: boolean) => {
     const input = e.target, files = Array.from(input.files || []); if (!files.length || !d) return;
@@ -46,6 +50,17 @@ export default function Studio({ demo }: { demo?: boolean }) {
     }
     setBusy(""); input.value = "";
   };
+  const ask4cat = async () => {
+    const name = (newCat || "").replace(/\s+/g, " ").trim(); if (name.length < 2) return setCatMsg("نام کتگوری را بنویسید.");
+    setCatMsg("");
+    try {
+      const r = demo ? { ok: true as const, cat: name, pending: true } : await studioCat(name);
+      if (r.pending && !myCats.includes(r.cat)) setMyCats([...myCats, r.cat]);
+      setD(x => x && { ...x, cat: r.cat }); setNewCat(null);
+      setCatMsg(r.exists ? `«${r.cat}» از قبل بود؛ همان انتخاب شد.` : `«${r.cat}» فرستاده شد؛ تا تأیید لئون فقط شما آن را می‌بینید.`);
+    } catch (x) { setCatMsg(errText(x)); }
+  };
+  const togG = (k: string) => setD(x => x && { ...x, groups: x.groups.includes(k) ? x.groups.filter(g => g !== k) : [...x.groups, k] });
   const save = async () => {
     if (!d) return; setErr("");
     if (d.name.trim().length < 2) return setErr(ERR.bad_name);
@@ -53,7 +68,7 @@ export default function Studio({ demo }: { demo?: boolean }) {
     if (!d.media.some(m => m.type === "image")) return setErr(ERR.no_photo);
     setBusy("در حال ذخیره…");
     try {
-      if (!demo) await studioSave({ id: d.id, name: d.name.trim(), cat: d.cat, weight: latin(d.weight), carat: +d.carat || 750, supAjrat: latin(d.supAjrat), qty: latin(d.qty), desc: d.desc.trim(), media: d.media.map(m => ({ id: m.id, type: m.type })) });
+      if (!demo) await studioSave({ id: d.id, name: d.name.trim(), cat: d.cat, groups: d.groups, weight: latin(d.weight), carat: +d.carat || 750, supAjrat: latin(d.supAjrat), qty: latin(d.qty), desc: d.desc.trim(), media: d.media.map(m => ({ id: m.id, type: m.type })) });
       setDone(d.id ? "ویرایش فرستاده شد؛ لئون آن را بررسی می‌کند." : "کار تازه فرستاده شد؛ بعد از بررسی و قیمت‌گذاری لئون در ویترین دیده می‌شود.");
       setD(null); await load();
     } catch (x) { setErr(errText(x)); } finally { setBusy(""); }
@@ -83,7 +98,22 @@ export default function Studio({ demo }: { demo?: boolean }) {
       </div>
       <div className="hs-form hs-st-form">
         <label className="hs-field"><span>نام کار *</span><input value={d.name} onChange={set("name")} maxLength={80} placeholder="مثلاً النگو طرح برگ" /></label>
-        <label className="hs-field"><span>دسته</span><select className="hs-select" value={d.cat} onChange={set("cat")}><option value="">— انتخاب کنید —</option>{VCATS.map(c => <option key={c} value={c}>{c}</option>)}</select></label>
+        {groups.length > 0 && <fieldset className="hs-st-groups"><legend>گروه <small>(هر چند تا که می‌خورد)</small></legend>
+          {groups.map(g => <label key={g.k} className={"hs-st-g" + (d.groups.includes(g.k) ? " on" : "")}><input type="checkbox" checked={d.groups.includes(g.k)} onChange={() => togG(g.k)} />{g.name}</label>)}
+        </fieldset>}
+        <label className="hs-field"><span>دسته</span><select className="hs-select" value={newCat != null ? NEW_CAT : d.cat} onChange={e => { setCatMsg(""); if (e.target.value === NEW_CAT) setNewCat(""); else { setNewCat(null); set("cat")(e); } }}>
+          <option value="">— انتخاب کنید —</option>
+          {cats.map(c => <option key={c.k} value={c.name}>{c.name}</option>)}
+          {myCats.filter(c => !cats.some(x => x.name === c)).map(c => <option key={"m" + c} value={c}>{c} (منتظر تأیید لئون)</option>)}
+          {d.cat && !cats.some(x => x.name === d.cat) && !myCats.includes(d.cat) && <option value={d.cat}>{d.cat}</option>}
+          <option value={NEW_CAT}>+ کتگوری تازه…</option>
+        </select></label>
+        {newCat != null && <div className="hs-st-newcat">
+          <label className="hs-field"><span>نام کتگوری تازه</span><input value={newCat} onChange={e => setNewCat(e.target.value)} maxLength={24} placeholder="مثلاً حلقه‌ی ازدواج" autoFocus /></label>
+          <button type="button" className="btn btn-line" onClick={ask4cat}>ساختن</button>
+          <p className="hs-prof-fine">کتگوری تازه بعد از تأیید لئون برای همه دیده می‌شود؛ تا آن موقع فقط شما آن را می‌بینید.</p>
+        </div>}
+        {catMsg && <p className="hs-sent" role="status">{catMsg}</p>}
         <div className="hs-st-row">
           <label className="hs-field"><span>وزن (گرم) *</span><input value={d.weight} onChange={set("weight")} inputMode="decimal" dir="ltr" placeholder="۴٫۲" /></label>
           <label className="hs-field"><span>عیار</span><select className="hs-select" value={d.carat} onChange={set("carat")}><option value="750">۱۸ (۷۵۰)</option><option value="875">۲۱ (۸۷۵)</option><option value="999">۲۴ (۹۹۹)</option><option value="585">۱۴ (۵۸۵)</option></select></label>

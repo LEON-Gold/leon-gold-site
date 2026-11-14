@@ -915,6 +915,17 @@ html[data-theme="light"] .hs-vmore-b { background:  rgba(250,247,240,.45); color
 @media (min-width: 900px) { html[data-theme="light"] .hs-auth-b { color: #7a5c25; } }
 /* ==== end ivory light mode ==== */
 
+/* a supplier's piece (owner, 2026-11-13): its groups as ticks, and a new category of its own */
+.hs-st-groups { border: 0; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; }
+.hs-st-groups legend { padding: 0; margin-bottom: 8px; font-size: 14px; font-weight: 600; }
+.hs-st-groups legend small { font-weight: 400; opacity: .75; }
+.hs-st-g { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 16px; border: 1px solid rgba(201,162,76,.5); border-radius: 999px; cursor: pointer; font-size: 15px; }
+.hs-st-g input { width: 18px; height: 18px; margin: 0; accent-color: #977538; }
+.hs-st-g.on { background: rgba(201,162,76,.16); border-color: #c9a24c; }
+.hs-st-newcat { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px 10px; align-items: end; }
+.hs-st-newcat .hs-prof-fine { grid-column: 1 / -1; margin: 0; }
+.hs-st-newcat .btn { min-height: 48px; }
+
 /* The emerald panel of «ورود ⇄ ثبت نام» stays emerald in light mode, so its words keep the dark-mode colours (AA on
    #0f261a…#226151). Hand-written, outside the generated block; .hs-auth-panel wins over the generated rules. */
 @media (min-width: 900px) {

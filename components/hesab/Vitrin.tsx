@@ -8,7 +8,7 @@ import { openRules } from "./Extras";
 import Jewel from "@/components/Jewel";
 import Loader from "@/components/Loader";
 import { refreshPrice, usePrice } from "@/lib/price";
-import { faDigits, gram, latin, mediaUrl, orderItem, orderPrice, orderStatus, publicMedia, publicVitrin, SAMPLE_VITRIN, toman, vitrin, ApiError, type VItem } from "@/lib/hesab";
+import { faDigits, gram, latin, mediaUrl, orderItem, orderPrice, orderStatus, publicMedia, publicVitrin, SAMPLE_VITRIN, toman, vitrin, ApiError, VCATS_DEFAULT, VGROUPS_DEFAULT, type VCat, type VGroup, type VItem } from "@/lib/hesab";
 
 // today's price of a piece, the way the site's own calculator does it: gold at the hour's rate (by its 750-equivalent
 // weight), plus the wage, plus the profit, plus the tax (TAX, 3%) on all of it
@@ -22,11 +22,14 @@ export const stockOf = (it: VItem) => it.stock || (it.sold ? "none" : "order");
 // the two filters (owner, 2026-11-09): how soon it can be had, and what kind of piece. A category typed «نیم ست» or
 // «پا بند» in the ledger counts as «نیم‌ست» / «پابند».
 const STOCKS = [["qty", "آماده‌ی تحویل آنی"], ["order", "قابل سفارش"], ["none", "ناموجود"]] as const;
-export const VCATS = ["انگشتر", "گردنبند", "دستبند", "گوشواره", "نیم‌ست", "سرویس", "مدال", "زنجیر", "پابند", "النگو", "پلاک و آویز"];
-const catKey = (s: string) => s.replace(/[\s\u200c]/g, "");
-export const catOf = (it: VItem) => { const k = catKey(it.cat || ""); return VCATS.find(c => catKey(c) === k) || it.cat || ""; };
-// «نوع کار» (owner, 2026-11-09): the owner's tags in the ledger; a piece may have several
-export const VTAGS = ["لوکس", "مینیمال", "لیزری", "ریخته"];
+// The categories are the owner's list in the ledger (owner, 2026-11-13), sent with the pieces; a renamed one keeps its old
+// names (alias), so a piece filed under the old name stays in it. Spaces, half-spaces and Arabic ي/ك do not matter.
+const catKey = (s: string) => s.replace(/[\s\u200c\u200d]/g, "").replace(/ي/g, "ی").replace(/ك/g, "ک").toLowerCase();
+export const catOf = (it: VItem, cats: VCat[] = VCATS_DEFAULT) => { const k = catKey(it.cat || ""), c = cats.find(c => catKey(c.name) === k || (c.alias || []).some(a => catKey(a) === k)); return c ? c.name : it.cat || ""; };
+// «گروه»‌ها (owner, 2026-11-13): لیزری، ریخته، پایه جواهر، بچگانه; a piece may be in several (they are tags, sent by name)
+export const inGroup = (it: VItem, g: string) => !g || !!it.tags?.includes(g);
+// «نوع کار» (owner, 2026-11-09): the owner's other tags in the ledger; a piece may have several
+export const VTAGS = ["لوکس", "مینیمال"];
 const numIn = (s: string) => { const v = parseFloat(latin(s).replace(/[٫,]/g, ".").replace(/[^\d.]/g, "")); return isFinite(v) ? v : null; };
 // a wage the buyer types: the pieces at that wage and at the nearest wage below and above it, nearest first
 function nearWage(L: VItem[], x: number) {
@@ -54,24 +57,45 @@ export const Cover = ({ it, className, pub }: { it: VItem; className: string; pu
   return m ? <Media m={m} className={className} pub={pub} /> : <span className={className + " hs-pic-none"} aria-hidden><img src="/leaf.webp" alt="" /></span>;
 };
 
-// the categories first (owner, 2026-11-09): every category, each with a photo of its newest piece, or its drawing
-// when it has none yet («به‌زودی»); a tap opens that category's pieces. Used on the home page and atop «ویترین».
-const ART: Record<string, string> = { "انگشتر": "ring", "گردنبند": "necklace", "دستبند": "bracelet", "گوشواره": "earring", "نیم‌ست": "set", "سرویس": "set", "مدال": "coin", "زنجیر": "necklace", "پابند": "bracelet", "النگو": "bracelet", "پلاک و آویز": "necklace" };
-export const catsOf = (all: VItem[]) => [...VCATS, ...new Set(all.map(catOf).filter(c => c && !VCATS.includes(c)))];
-export function CatGrid({ items, pub, href, onPick }: { items: VItem[] | null; pub?: boolean; href?: (c: string) => string; onPick?: (c: string) => void }) {
+// The showcase's first view (owner, 2026-11-13): big tiles for the groups only («همه»، لیزری، ریخته، پایه جواهر، بچگانه),
+// each with a photo of its newest piece, or a drawing and «به‌زودی» when it has none; «همه» is every piece. A group opens
+// with its categories as small pills (only those that have pieces in it) and its pieces under them. Home page and «ویترین».
+const ART: Record<string, string> = { ring: "ring", necklace: "necklace", bracelet: "bracelet", earring: "earring", halfset: "set", set: "set", medal: "coin", chain: "necklace", anklet: "bracelet", bangle: "bracelet", pendant: "necklace" };
+const GART: Record<string, string> = { all: "set", laser: "necklace", cast: "bracelet", jewel: "ring", kids: "coin" };
+export const catsOf = (all: VItem[], cats: VCat[] = VCATS_DEFAULT) => { const names = cats.map(c => c.name); return [...names, ...new Set(all.map(i => catOf(i, cats)).filter(c => c && !names.includes(c)))]; };
+const faceOf = (L: VItem[]) => L.find(it => stockOf(it) !== "none" && it.media.some(m => m.type === "image")) || L.find(it => it.media.some(m => m.type === "image")) || L.find(it => it.media.length);
+// a group's value: "all" for «همه», else its name (pieces carry their groups by name)
+const gval = (g: VGroup) => g.k === "all" ? "all" : g.name;
+export function GroupGrid({ items, groups = VGROUPS_DEFAULT, pub, href, onPick }: { items: VItem[] | null; groups?: VGroup[]; pub?: boolean; href?: (g: string) => string; onPick?: (g: string) => void }) {
   const all = items || [];
   return (
     <ul className="vc-grid">
-      {catsOf(all).map((c, i) => {
-        const L = all.filter(it => catOf(it) === c), n = L.length;
-        const face = L.find(it => stockOf(it) !== "none" && it.media.some(m => m.type === "image")) || L.find(it => it.media.some(m => m.type === "image")) || L.find(it => it.media.length);
+      {[{ k: "all", name: "همه" }, ...groups].map((g, i) => {
+        const v = gval(g), L = all.filter(it => v === "all" || inGroup(it, v)), n = L.length, face = faceOf(L);
         const inner = <>
-          <span className="vc-pic">{face ? <Cover it={face} className="vc-img" pub={pub} /> : <span className="vc-art"><Jewel kind={ART[c] || "ring"} id={"vc" + i} /></span>}</span>
-          <b>{c}</b>
+          <span className="vc-pic">{face ? <Cover it={face} className="vc-img" pub={pub} /> : <span className="vc-art"><Jewel kind={GART[g.k] || "ring"} id={"vg" + i} /></span>}</span>
+          <b>{g.name}</b>
           <small className="num">{!items ? "\u00a0" : n ? `${faDigits(n)} کار` : "به‌زودی"}</small>
         </>;
         const cls = "vc-card" + (items && !n ? " empty" : "");
-        return <li key={c}>{href ? <a className={cls} href={href(c)}>{inner}</a> : <button type="button" className={cls} onClick={() => onPick?.(c)}>{inner}</button>}</li>;
+        return <li key={g.k}>{href ? <a className={cls} href={href(v)}>{inner}</a> : <button type="button" className={cls} onClick={() => onPick?.(v)}>{inner}</button>}</li>;
+      })}
+    </ul>
+  );
+}
+// inside a group: «همه» and the categories that have pieces in it, small, in one row that slides sideways on a phone
+function CatPills({ items, cats, sel, pub, onPick }: { items: VItem[]; cats: VCat[]; sel: string; pub?: boolean; onPick: (c: string) => void }) {
+  const names = catsOf(items, cats).filter(c => items.some(it => catOf(it, cats) === c));
+  return (
+    <ul className="vg-row" aria-label="دسته‌ها">
+      {["all", ...names].map((c, i) => {
+        const L = c === "all" ? items : items.filter(it => catOf(it, cats) === c), face = faceOf(L), on = sel === c;
+        const art = c === "all" ? "set" : ART[(cats.find(x => x.name === c) || { k: "" }).k] || "ring";
+        return <li key={c}><button type="button" className={"vg-card" + (on ? " on" : "")} aria-pressed={on} onClick={() => onPick(c)}>
+          <span className="vg-pic">{face ? <Cover it={face} className="vg-img" pub={pub} /> : <span className="vg-art"><Jewel kind={art} id={"vp" + i} /></span>}</span>
+          <b>{c === "all" ? "همه" : c}</b>
+          <small className="num">{faDigits(L.length)} کار</small>
+        </button></li>;
       })}
     </ul>
   );
@@ -85,16 +109,24 @@ export default function Vitrin({ demo, pub, openId, onlyMine, noMine }: { demo?:
   const [mine, setMine] = useState<VItem[]>([]);
   const [err, setErr] = useState(false);
   const [open, setOpen] = useState<VItem | null>(null);
-  const [cat, setCat] = useState(onlyMine ? "all" : "");
-  // on the site the category is in the address (vitrin/?c=دستبند), so a link from the home page opens it and «back» returns
-  const goCat = (c: string, keep?: boolean) => {
-    setCat(c);
-    if (pub && typeof history !== "undefined") history[keep ? "replaceState" : "pushState"](null, "", c ? "?c=" + encodeURIComponent(c) : location.pathname);
-    if (!keep) scrollTo({ top: 0 });
+  const [cat, setCat] = useState("all");
+  const [grp, setGrp] = useState(onlyMine ? "all" : "");
+  const [cats, setCats] = useState<VCat[]>(VCATS_DEFAULT);
+  const [groups, setGroups] = useState<VGroup[]>(VGROUPS_DEFAULT);
+  // on the site the group and the category are in the address (vitrin/?g=بچگانه&c=دستبند), so a link from the home page
+  // opens them and «back» returns
+  const url = (g: string, c: string, keep?: boolean) => {
+    if (!pub || typeof history === "undefined") return;
+    const q = new URLSearchParams(); if (g) q.set("g", g); if (c) q.set("c", c);
+    history[keep ? "replaceState" : "pushState"](null, "", q.toString() ? "?" + q : location.pathname);
   };
+  // a group is a step («back» returns to the groups); a category inside it only changes the address
+  const goGrp = (g: string) => { setGrp(g); setCat("all"); url(g, ""); scrollTo({ top: 0 }); };
+  const goCat = (c: string) => { setCat(c); url(grp, c === "all" ? "" : c, true); };
   useEffect(() => {
     if (!pub) return;
-    const read = () => { setCat(new URLSearchParams(location.search).get("c") || ""); setOpen(null); };
+    // an old link (vitrin/?c=دستبند) opens that category in «همه»
+    const read = () => { const q = new URLSearchParams(location.search), c = q.get("c") || ""; setCat(c || "all"); setGrp(q.get("g") || (c ? "all" : "")); setOpen(null); };
     read(); addEventListener("popstate", read);
     return () => removeEventListener("popstate", read);
   }, [pub]);
@@ -106,19 +138,18 @@ export default function Vitrin({ demo, pub, openId, onlyMine, noMine }: { demo?:
   const { feed } = usePrice();
   useEffect(() => {
     if (demo) { setItems(SAMPLE_VITRIN); return; }
-    (pub ? publicVitrin().then(items => ({ items, mine: [] as VItem[] })) : vitrin()).then(({ items: L, mine: M }) => { setItems(L); setMine(M); const o = openId && L.find(x => x.id === openId); if (o) { setOpen(o); setCat(catOf(o) || "all"); } }, () => setErr(true));
+    (pub ? publicVitrin() : vitrin()).then(({ items: L, mine: M, cats: C, groups: G }) => { setItems(L); setMine(M); setCats(C); setGroups(G); const o = openId && L.find(x => x.id === openId); if (o) { setOpen(o); setGrp("all"); setCat(catOf(o, C) || "all"); } }, () => setErr(true));
   }, [demo, pub, openId]);
   const all = useMemo(() => items || [], [items]);
-  const cats = useMemo(() => [...VCATS, ...new Set(all.map(catOf).filter(c => c && !VCATS.includes(c)))], [all]);
-  const tags = useMemo(() => [...VTAGS.filter(t => all.some(i => i.tags?.includes(t))), ...new Set(all.flatMap(i => i.tags || []).filter(t => !VTAGS.includes(t)))], [all]);
+  const gNames = useMemo(() => groups.map(g => g.name), [groups]);
+  const tags = useMemo(() => [...VTAGS.filter(t => all.some(i => i.tags?.includes(t))), ...new Set(all.flatMap(i => i.tags || []).filter(t => !VTAGS.includes(t) && !gNames.includes(t)))], [all, gNames]);
   // weight and wage: a range, or a wage typed (with its nearest neighbours)
   const wMin = numIn(r.wMin), wMax = numIn(r.wMax), aMin = numIn(r.aMin), aMax = numIn(r.aMax), aNear = numIn(r.aNear);
   const inRange = (i: VItem) => (wMin == null || i.weight >= wMin) && (wMax == null || i.weight <= wMax) && (aMin == null || i.ajrat >= aMin) && (aMax == null || i.ajrat <= aMax);
-  const okSt = (i: VItem) => st === "all" || stockOf(i) === st, okCat = (i: VItem) => cat === "all" || cat === "" || catOf(i) === cat, okTag = (i: VItem) => tag === "all" || !!i.tags?.includes(tag);
-  const nCat = (c: string) => all.filter(i => catOf(i) === c && okSt(i) && okTag(i) && inRange(i)).length;
-  const nSt = (k: string) => all.filter(i => stockOf(i) === k && okCat(i) && okTag(i) && inRange(i)).length;
-  const nTag = (t: string) => all.filter(i => i.tags?.includes(t) && okSt(i) && okCat(i) && inRange(i)).length;
-  const pool = all.filter(i => okSt(i) && okCat(i) && okTag(i) && inRange(i));
+  const okSt = (i: VItem) => st === "all" || stockOf(i) === st, okCat = (i: VItem) => cat === "all" || cat === "" || catOf(i, cats) === cat, okTag = (i: VItem) => tag === "all" || !!i.tags?.includes(tag), okG = (i: VItem) => grp === "all" || inGroup(i, grp);
+  const nSt = (k: string) => all.filter(i => stockOf(i) === k && okG(i) && okCat(i) && okTag(i) && inRange(i)).length;
+  const nTag = (t: string) => all.filter(i => i.tags?.includes(t) && okG(i) && okSt(i) && okCat(i) && inRange(i)).length;
+  const pool = all.filter(i => okG(i) && okSt(i) && okCat(i) && okTag(i) && inRange(i));
   const shown = aNear == null ? pool : nearWage(pool, aNear);
   const nMore = [r.wMin, r.wMax, r.aMin, r.aMax, r.aNear].filter(v => v.trim()).length;
   const reset = () => { setSt("all"); setTag("all"); setR({ wMin: "", wMax: "", aMin: "", aMax: "", aNear: "" }); };
@@ -148,32 +179,26 @@ export default function Vitrin({ demo, pub, openId, onlyMine, noMine }: { demo?:
         </ul>
       </section>
     )}
-    {!onlyMine && cat === "" && <section className="hs-sec hs-vit" aria-labelledby="hs-vit">
+    {!onlyMine && grp === "" && <section className="hs-sec hs-vit" aria-labelledby="hs-vit">
       <div className="hs-box-head">
         <h2 className="hs-h" id="hs-vit">ویترین لئون گلد</h2>
-        <p>{err ? "ویترین باز نشد. اینترنت را بررسی کنید و دوباره سر بزنید." : "یک دسته را انتخاب کنید تا کارهایش را با قیمت همین ساعت ببینید."}</p>
+        <p>{err ? "ویترین باز نشد. اینترنت را بررسی کنید و دوباره سر بزنید." : "یک گروه را انتخاب کنید تا دسته‌ها و کارهایش را با قیمت همین ساعت ببینید."}</p>
       </div>
-      <CatGrid items={err ? null : items} pub={pub} onPick={c => goCat(c)} />
-      {all.length > 0 && <p className="vc-all"><button type="button" className="btn btn-line" onClick={() => goCat("all")}>همه‌ی کارها با هم ({faDigits(all.length)})</button></p>}
+      <GroupGrid items={err ? null : items} groups={groups} pub={pub} onPick={goGrp} />
     </section>}
-    {!onlyMine && cat !== "" && <section className="hs-sec hs-vit" aria-labelledby="hs-vit">
-      <button type="button" className="hs-link vc-back" onClick={() => goCat("")}>→ همه‌ی دسته‌ها</button>
+    {!onlyMine && grp !== "" && <section className="hs-sec hs-vit" aria-labelledby="hs-vit">
+      <button type="button" className="hs-link vc-back" onClick={() => goGrp("")}>→ همه‌ی گروه‌ها</button>
       <div className="hs-box-head">
-        <h2 className="hs-h" id="hs-vit">{cat === "all" ? "همه‌ی کارهای ویترین" : cat}</h2>
+        <h2 className="hs-h" id="hs-vit">{grp === "all" ? "همه‌ی کارها" : grp}</h2>
         <p>کارهای موجود، با قیمت تقریبیِ همین ساعت{feed?.time ? ` (نرخ اتحادیه، ساعت ${faDigits(feed.time)})` : ""}.{pub ? " برای سفارش، روی هر کار بزنید." : ""}</p>
       </div>
-      {all.length > 0 && (<>
+      {all.some(okG) && <CatPills items={all.filter(okG)} cats={cats} sel={cat} pub={pub} onPick={goCat} />}
+      {all.some(okG) && (<>
         <div className="hs-vfilter hs-vfilter4">
           <label className={"hs-vsel" + (st !== "all" ? " on" : "")}><span className="hs-sr">وضعیت</span>
             <select value={st} onChange={e => setSt(e.target.value)} aria-label="وضعیت">
               <option value="all">همه‌ی وضعیت‌ها</option>
               {STOCKS.map(([k, t]) => { const n = nSt(k); return <option key={k} value={k} disabled={!n && st !== k}>{t} ({faDigits(n)})</option>; })}
-            </select>
-          </label>
-          <label className={"hs-vsel" + (cat !== "all" ? " on" : "")}><span className="hs-sr">دسته</span>
-            <select value={cat} onChange={e => goCat(e.target.value, true)} aria-label="دسته">
-              <option value="all">همه‌ی دسته‌ها</option>
-              {cats.map(c => { const n = nCat(c); return <option key={c} value={c} disabled={!n && cat !== c}>{c} ({faDigits(n)})</option>; })}
             </select>
           </label>
           <label className={"hs-vsel" + (tag !== "all" ? " on" : "")}><span className="hs-sr">نوع کار</span>
@@ -201,8 +226,9 @@ export default function Vitrin({ demo, pub, openId, onlyMine, noMine }: { demo?:
       </>)}
       {err ? <p className="hs-empty">ویترین باز نشد. اینترنت را بررسی کنید و دوباره سر بزنید.</p>
         : !items ? <Loader label="در حال آوردن ویترین" />
-        : cat !== "all" && !all.some(i => catOf(i) === cat) ? <p className="hs-empty">فعلاً کاری در «{cat}» در ویترین نیست؛ به‌زودی می‌آید.{pub && <> اگر کار خاصی می‌خواهید، <a href="../#order">سفارش ساختش</a> را بدهید.</>}</p>
+        : cat !== "all" && !all.some(i => catOf(i, cats) === cat && okG(i)) ? <p className="hs-empty">فعلاً کاری در «{cat}»{grp ? ` (${grp})` : ""} در ویترین نیست؛ به‌زودی می‌آید.{pub && <> اگر کار خاصی می‌خواهید، <a href="../#order">سفارش ساختش</a> را بدهید.</>}</p>
         : !all.length ? <p className="hs-empty">فعلاً کاری در ویترین نیست. به‌زودی کارهای تازه اینجا می‌آید.</p>
+        : !all.some(okG) ? <p className="hs-empty">فعلاً کاری در گروه «{grp}» نیست؛ به‌زودی می‌آید.{pub && <> اگر کار خاصی می‌خواهید، <a href="../#order">سفارش ساختش</a> را بدهید.</>}</p>
         : !shown.length ? <p className="hs-empty">با این انتخاب کاری نیست. <button type="button" className="hs-link" onClick={reset}>همه را نشان بده</button></p>
         : (
           <ul className="hs-vgrid">
