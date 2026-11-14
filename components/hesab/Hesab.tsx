@@ -66,6 +66,14 @@ function Photo({ id }: { id: string }) {
   return url ? <img className="hs-photo" src={url} alt="" /> : null;
 }
 
+// sample numbers only, for the demo («#demo-member»); a real party's steps come from the server
+const memberSample = (ready: boolean): Me => ({ ...SAMPLE, accounts: SAMPLE.accounts.map((a, i) => i ? a : { ...a, vip: false, market: false,
+  vipWay: { is: false, all: ready, steps: [
+    { k: "settle", have: ready ? 4 : 2, need: 4, done: ready },
+    { k: "grams", have: ready ? 412.5 : 156.4, need: 400, done: ready },
+    { k: "invite", have: ready ? 3 : 1, need: 3, done: ready },
+  ] } }) });
+
 export default function Hesab() {
   const [phase, setPhase] = useState<Phase>("boot");
   const [data, setData] = useState<Me | null>(null);
@@ -86,6 +94,8 @@ export default function Hesab() {
     if (k) history.replaceState(null, "", location.pathname);
     (async () => {
       if (h === "#demo") { setData(SAMPLE); setPhase("in"); return; }
+      // the sample account as a member who is not VIP yet, halfway along the way to VIP (or with every step done)
+      if (h === "#demo-member" || h === "#demo-member-ready") { setData(memberSample(h.endsWith("ready"))); setPhase("in"); return; }
       if (k) {
         try { await redeem(k); }
         catch (e) { setErr(e instanceof ApiError && e.code === "expired" ? "این لینک ورود قبلاً استفاده شده یا وقتش گذشته. لینک تازه را از لئون گلد بخواهید." : errText(e)); setPhase("form"); return; }
@@ -285,7 +295,7 @@ function Panel({ data, onOut, onReload }: { data: Me; onOut: () => void; onReloa
             )}
           </div>
           <div className="hs-dash">
-          {isCustomer && <MemberCard a={a} />}
+          {isCustomer && <MemberCard a={a} flip />}
           {a.market && <MarketCard onOpen={() => setTab("market")} />}
           {isCustomer && open.map(o => <Journey key={o.ref} o={o} />)}
           <Quick customer={isCustomer} />

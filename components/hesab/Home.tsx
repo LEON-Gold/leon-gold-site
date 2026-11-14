@@ -3,9 +3,9 @@
 // their Leon membership card, the order on its way (photo, steps, days left), the balance (stamped «تسویه» with a
 // small celebration when it is settled), and a quiet way to pay. The jewellery box shows every piece they bought;
 // the statement is grouped by month with an icon for each kind of document and a line of the balance over time.
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { SHOP } from "@/lib/content";
-import { faDigits, gram, jdate, latin, photoUrl, toman, type Account, type Entry, type Order } from "@/lib/hesab";
+import { faDigits, gram, jdate, latin, photoUrl, toman, type Account, type Entry, type Order, type VipStep } from "@/lib/hesab";
 import { daysLeft } from "./Extras";
 
 export type Tab = "home" | "vitrin" | "orders" | "box" | "stmt" | "profile" | "market";
@@ -49,20 +49,82 @@ export function TabBar({ tab, setTab, tabs }: { tab: Tab; setTab: (t: Tab) => vo
 
 // ---------- the membership card: a vault plate with the customer's name in gold leaf, and since when; a VIP
 // (the owner marks one on its ledger card) gets the onyx-and-gold card with «VIP» on it ----------
-export function MemberCard({ a }: { a: Account }) {
+export function MemberCard({ a, flip }: { a: Account; flip?: boolean }) {
   const first = a.ent.length ? a.ent[a.ent.length - 1] : null; // the statement comes newest first
   const since = first ? dateOf(first).slice(0, 4) : "";
+  const way = a.vipWay;
+  if (flip && !a.vip && way && !way.is && way.steps?.length) return <VipWayCard a={a} since={since} steps={way.steps} all={!!way.all} />;
   return (
     <section className={"hs-card" + (a.vip ? " vip" : "")} aria-label={a.vip ? "کارت VIP لئون گلد" : "کارت مشتری لئون گلد"}>
-      <div className="hs-card-rose" aria-hidden />
-      <div className="hs-card-top"><img src="/leaf.webp" alt="" width={22} height={40} /><span lang="en" dir="ltr">{a.vip ? "LEON GOLD · PRIVÉ" : "LEON GOLD · MEMBER"}</span></div>
-      {a.vip && <b className="hs-card-vip" lang="en" dir="ltr">VIP</b>}
-      <p className="hs-card-name leaf">{a.name}</p>
-      <div className="hs-card-foot">
-        <span>{a.vip ? (since ? `مشتری ویژه‌ی لئون گلد از ${faDigits(since)}` : "مشتری ویژه‌ی لئون گلد") : since ? `مشتری لئون گلد از ${faDigits(since)}` : "مشتری لئون گلد"}</span>
-        <span className="num" dir="ltr">№ {a.id.slice(-6).toUpperCase()}</span>
+      <CardFace a={a} since={since} />
+    </section>
+  );
+}
+function CardFace({ a, since }: { a: Account; since: string }) {
+  return <>
+    <span className="hs-card-rose" aria-hidden />
+    <span className="hs-card-top"><img src="/leaf.webp" alt="" width={22} height={40} /><span lang="en" dir="ltr">{a.vip ? "LEON GOLD · PRIVÉ" : "LEON GOLD · MEMBER"}</span></span>
+    {a.vip && <b className="hs-card-vip" lang="en" dir="ltr">VIP</b>}
+    <span className="hs-card-name leaf">{a.name}</span>
+    <span className="hs-card-foot">
+      <span>{a.vip ? (since ? `مشتری ویژه‌ی لئون گلد از ${faDigits(since)}` : "مشتری ویژه‌ی لئون گلد") : since ? `مشتری لئون گلد از ${faDigits(since)}` : "مشتری لئون گلد"}</span>
+      <span className="num" dir="ltr">№ {a.id.slice(-6).toUpperCase()}</span>
+    </span>
+  </>;
+}
+
+// ---------- the way to VIP (owner, 2026-11-13, .briefs/vip-card.md): a member who is not VIP is invited to tap its card;
+// the card turns over and its back shows the three steps (each ticked or not, with how far along it is) and what a VIP
+// gets. The words are the owner's own; nothing is added. VIP itself stays the owner's mark in the ledger. ----------
+const VIP_STEP: Record<VipStep["k"], string> = {
+  settle: "تسویه‌ی نقدی ۴ بار",
+  grams: "حد نصاب سفارش: حداقل ۴۰۰ گرم (جمع کل فاکتورها)",
+  invite: "دعوت ۳ نفر به لئون گلد، با تأیید سفارش اولشان",
+};
+const VIP_GETS = ["۰٫۲٪ تخفیف روی هر فاکتور", "اجناس تست اول با فی نقدی", "تسویه‌ی ۲ تا ۳ هفته‌ای", "تحویل کار در سریع‌ترین زمان", "مشاوره‌ی خرید با کیفیت از طرف تیم لئون گلد"];
+const stepHave = (s: VipStep) => s.k === "grams" ? `${gram(Math.min(s.have, s.need))} از ${faDigits(s.need)} گرم` : `${faDigits(Math.min(s.have, s.need))} از ${faDigits(s.need)}`;
+function VipWayCard({ a, since, steps, all }: { a: Account; since: string; steps: VipStep[]; all: boolean }) {
+  const [back, setBack] = useState(false), [seen, setSeen] = useState(false);
+  const [h, setH] = useState<number | null>(null);
+  const front = useRef<HTMLButtonElement>(null), rear = useRef<HTMLDivElement>(null), turnBack = useRef<HTMLButtonElement>(null);
+  const done = steps.filter(s => s.done).length;
+  // the card grows to its back's height when turned (the back holds more than the front)
+  useLayoutEffect(() => {
+    const el = back ? rear.current : front.current; if (!el) return;
+    const set = () => setH(el.offsetHeight); set();
+    const ro = new ResizeObserver(set); ro.observe(el); return () => ro.disconnect();
+  }, [back]);
+  const turn = (to: boolean) => { setBack(to); setSeen(true); requestAnimationFrame(() => (to ? turnBack.current : front.current)?.focus({ preventScroll: true })); };
+  return (
+    <div className="hs-flipwrap">
+    <section className={"hs-flip" + (back ? " is-back" : "") + (seen ? " seen" : "")} style={h ? { height: h } : undefined} aria-label="کارت مشتری لئون گلد و راه VIP شدن">
+      <div className="hs-flip-in">
+        <button ref={front} type="button" className="hs-card hs-flip-front" inert={back} aria-hidden={back} aria-expanded={back} aria-controls="hs-vipway"
+          onClick={() => turn(true)} aria-label={`کارت مشتری لئون گلد، ${a.name}. برای دیدن راه VIP شدن بزنید.`}>
+          <CardFace a={a} since={since} />
+        </button>
+        <div ref={rear} id="hs-vipway" className="hs-card hs-flip-back" inert={!back} aria-hidden={!back} onClick={e => { if (!(e.target as HTMLElement).closest("button")) turn(false); }}>
+          <span className="hs-card-rose" aria-hidden />
+          <span className="hs-vw-head"><b>راه VIP شدن</b><small className="num">{faDigits(done)} از {faDigits(steps.length)} انجام شده</small></span>
+          <ol className="hs-vw-steps">
+            {steps.map(s => (
+              <li key={s.k} className={s.done ? "done" : ""}>
+                <i aria-hidden>{s.done ? "✓" : ""}</i>
+                <span>{VIP_STEP[s.k]}<small className="num">{s.done ? "انجام شده · " : ""}{stepHave(s)}</small>
+                  <span className="hs-vw-bar" aria-hidden><span style={{ width: `${Math.min(100, s.need ? s.have / s.need * 100 : 0)}%` }} /></span></span>
+                <span className="hs-sr">{s.done ? "انجام شده" : "هنوز انجام نشده"}</span>
+              </li>
+            ))}
+          </ol>
+          {all && <p className="hs-vw-all" role="status">هر سه شرط انجام شده؛ به لئون گلد خبر داده شد.</p>}
+          <p className="hs-vw-gets-h">بعد از VIP شدن:</p>
+          <ul className="hs-vw-gets">{VIP_GETS.map(g => <li key={g}>{g}</li>)}</ul>
+          <button ref={turnBack} type="button" className="hs-vw-turn" onClick={() => turn(false)}>برگرداندن کارت</button>
+        </div>
       </div>
     </section>
+    {!back && <p className="hs-flip-hint" aria-hidden onClick={() => turn(true)}><i />روی کارت خود بزنید</p>}
+    </div>
   );
 }
 

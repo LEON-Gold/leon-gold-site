@@ -176,6 +176,6 @@ html[data-theme="light"] .theme-t { background:  rgba(250,247,240,.35); color: #
 /* Emerald surfaces stay emerald in light mode (DESIGN.md §2: bars, the «حساب من» side bar, the VIP card), so what sits
    on them keeps the dark-mode colours. Hand-written, outside the generated block: the extra ancestor class outranks the
    generated light rules (.leaf, .btn-line, .theme-t) wherever they land. */
-html[data-theme="light"] :is(.bar, .hs-bar, .hs-side, .hs-card.vip) .leaf { background-image: var(--leaf); }
+html[data-theme="light"] :is(.bar, .hs-bar, .hs-side, .hs-card) .leaf { background-image: var(--leaf); }
 html[data-theme="light"] :is(.bar, .hs-bar, .hs-side) .btn-line { color: var(--gold-lt); }
 html[data-theme="light"] :is(.bar, .hs-bar, .hs-side) .theme-t { background: rgba(7,19,14,.35); color: var(--gold-lt); }
