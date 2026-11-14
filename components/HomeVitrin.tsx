@@ -3,7 +3,7 @@
 // لیزری، ریخته، پایه جواهر، بچگانه), each with a photo of its newest piece (or a drawing, «به‌زودی»); a tap opens that group
 // on the showcase page (vitrin/?g=…), with its categories and pieces
 import { useEffect, useState } from "react";
-import { GroupGrid } from "@/components/hesab/Vitrin";
+import { GroupGrid, kidsNameOf } from "@/components/hesab/Vitrin";
 import { publicVitrin, VGROUPS_DEFAULT, type Showcase } from "@/lib/hesab";
 
 export default function HomeVitrin() {
@@ -11,7 +11,7 @@ export default function HomeVitrin() {
   useEffect(() => { publicVitrin().then(setS, () => {}); }, []);
   return (
     <>
-      <GroupGrid items={s ? s.items : null} groups={s ? s.groups : VGROUPS_DEFAULT} pub href={g => "vitrin/?g=" + encodeURIComponent(g)} />
+      <GroupGrid items={s ? s.items : null} groups={s ? s.groups : VGROUPS_DEFAULT} pub href={g => g === kidsNameOf(s ? s.groups : VGROUPS_DEFAULT) ? "kids/" : "vitrin/?g=" + encodeURIComponent(g)} />
       <p className="vc-all"><a className="btn btn-line" href="vitrin/">ورود به ویترین</a></p>
     </>
   );

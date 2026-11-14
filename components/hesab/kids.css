@@ -1,0 +1,107 @@
+/* «لئون کیدز» (owner, 2026-11-14): the look of the children's pieces, from the owner's logo (rose gold pressed in cream
+   paper) and mood boards: blush paper, soft watercolour clouds in pink, sky, mint and lilac, small stars. Everything
+   inside .kids takes it, in the light and the dark theme alike (html:root .kids.kids outranks the theme rules). It is the
+   one place that leaves the emerald-and-gold «Assay Ledger» look, by the owner's word; see DESIGN.md §10. */
+html:root .kids.kids {
+  color-scheme: light;
+  --bg: #fbf3ec; --paper: #fffdfb; --paper-2: #fdf4ef; --vault: #fbf3ec; --cream: #4a2f2a;
+  --ink: #4a2f2a; --muted: #866c65; --line: #f0d6cb;
+  --gold: #c98b78; --gold-d: #a8644f; --gold-lt: #99523f; --gold-ink: #99523f; --emerald: #7a4a3e; --emerald-bg: #f9dfe4;
+  --leaf: linear-gradient(100deg, #b9735e 0%, #f1d0c3 34%, #d59b88 52%, #f6e1d8 66%, #b9735e 100%);
+  --lift: 0 1px 0 rgba(255,255,255,.9) inset, 0 14px 30px -22px rgba(168,100,79,.55);
+  --k-pink: #fbdde3; --k-sky: #d9eef5; --k-mint: #dbf1e4; --k-lilac: #e7e0f5; --k-butter: #fbeecb;
+  color: var(--ink);
+}
+
+/* ---------- the page (site: kids/) ---------- */
+html:has(.kd), html:has(.kd) body { background: #fbf3ec; }
+.kd { position: relative; min-height: 100svh; overflow: clip; background: #fbf3ec; isolation: isolate; }
+/* watercolour clouds and a few stars, still (no motion) */
+.kd::before { content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none;
+  background:
+    radial-gradient(38vmax 30vmax at 88% 6%, rgba(251,221,227,.9), transparent 70%),
+    radial-gradient(34vmax 28vmax at 6% 22%, rgba(217,238,245,.85), transparent 70%),
+    radial-gradient(36vmax 30vmax at 96% 52%, rgba(219,241,228,.8), transparent 70%),
+    radial-gradient(34vmax 30vmax at 2% 78%, rgba(231,224,245,.85), transparent 70%),
+    radial-gradient(30vmax 26vmax at 70% 98%, rgba(251,238,203,.8), transparent 70%); }
+.kd::after { content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none; opacity: .4;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='260' height='300' viewBox='0 0 260 300' fill='%23d59b88'%3E%3Cpath d='M40 30l2.6 6.4 6.9.5-5.3 4.4 1.7 6.7-5.9-3.7-5.9 3.7 1.7-6.7-5.3-4.4 6.9-.5z'/%3E%3Cpath d='M205 120l1.8 4.4 4.7.3-3.6 3 1.1 4.6-4-2.5-4 2.5 1.1-4.6-3.6-3 4.7-.3z' opacity='.7'/%3E%3Cpath d='M110 232l2.2 5.4 5.8.4-4.5 3.7 1.4 5.6-4.9-3.1-4.9 3.1 1.4-5.6-4.5-3.7 5.8-.4z' opacity='.8'/%3E%3Ccircle cx='150' cy='60' r='1.6'/%3E%3Ccircle cx='60' cy='150' r='1.3'/%3E%3Ccircle cx='225' cy='250' r='1.5'/%3E%3C/svg%3E") 0 0 / 390px 450px; }
+.kd-bar { position: sticky; top: 0; z-index: 30; display: flex; align-items: center; gap: 10px; min-height: 60px; box-sizing: border-box;
+  padding: 8px max(16px, env(safe-area-inset-right)) 8px max(16px, env(safe-area-inset-left)); padding-top: max(8px, env(safe-area-inset-top));
+  background: rgba(253,246,241,.86); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); border-bottom: 1px solid #f0d6cb; }
+.kd-brand { display: flex; align-items: center; gap: 8px; text-decoration: none; margin-inline-end: auto; min-height: 44px; }
+.kd-brand img { height: 38px; width: auto; }
+.kd-brand span { font: 700 22px/1.2 var(--display); color: #99523f; white-space: nowrap; }
+.kd-back { display: inline-flex; align-items: center; min-height: 44px; box-sizing: border-box; padding: 0 16px; border-radius: 999px; border: 1px solid #e3b5a6; color: #8a4737; background: rgba(255,253,251,.7);
+  font: 600 13.5px/1 var(--text); text-decoration: none; white-space: nowrap; transition: background .2s var(--ease); }
+.kd-back:hover { background: #fbe6e0; }
+.kd-main { display: grid; justify-items: center; padding: clamp(10px, 3vh, 28px) 16px calc(40px + env(safe-area-inset-bottom)); }
+.kd-hero { margin: 0; width: min(230px, 58vw); }
+.kd-hero img { width: 100%; height: auto; }
+.kd-sub { margin: 10px 0 20px; font: 500 14px/1.6 var(--text); color: #99523f; }
+.kd-card { width: min(1240px, 100%); box-sizing: border-box; padding: 22px 14px 20px; border-radius: 28px; background: rgba(255,253,251,.82); border: 1px solid #f3dcd2;
+  box-shadow: 0 30px 60px -40px rgba(168,100,79,.6); text-align: start; }
+.kd-fine { margin: 16px 0 0; font-size: 13px; color: #866c65; text-align: center; }
+@media (min-width: 900px) { .kd-card { padding: 34px 40px 30px; } .kd-hero { width: 280px; } .kd-bar { padding-inline: 56px; } }
+@media (max-width: 380px) { .kd-home { display: none; } }
+
+/* ---------- the same look put on in place («حساب من») ---------- */
+html:root .kd-in-place { position: relative; padding: 16px 12px 18px; border-radius: 26px; border: 1px solid #f3dcd2; overflow: hidden;
+  background: radial-gradient(60% 34% at 92% 0%, var(--k-pink), transparent 72%), radial-gradient(60% 34% at 4% 30%, var(--k-sky), transparent 72%),
+    radial-gradient(60% 34% at 96% 66%, var(--k-mint), transparent 72%), radial-gradient(60% 34% at 2% 100%, var(--k-lilac), transparent 72%), #fbf3ec; }
+.kd-banner { display: flex; align-items: center; justify-content: center; gap: 10px; margin: 4px 0 12px; }
+.kd-banner img { height: 54px; width: auto; }
+.kd-banner span { display: grid; }
+.kd-banner b { font: 700 26px/1.25 var(--display); color: #99523f; }
+.kd-banner small { font-size: 12.5px; color: #866c65; }
+
+/* ---------- the showcase's parts, in the kids look ---------- */
+html:root:root .kids section:not(.kd-card), html:root:root .kids .hs-sec { padding: 0; }
+html:root:root .kids .hs-vstock, html:root:root .kids .hs-vsold { white-space: nowrap; }
+html:root:root .kids :is(.paper, .door-card, .card) { background: #fffdfb !important; border-color: #f3dcd2; }
+html:root:root .kids :is(.paper, .card) :is(h1, h2, h3, .hs-h), html:root:root .kids .hs-box-head .hs-h { color: #99523f; text-shadow: none; }
+html:root:root .kids :is(input, select, textarea):not([type=checkbox]):not([type=radio]) { background-color: #fffdfb !important; color: #6d3a30; border-color: #e7c2b5 !important; }
+html:root:root .kids :is(input, select, textarea):focus { box-shadow: 0 0 0 3px rgba(201,139,120,.28) !important; border-color: #c98b78 !important; }
+html:root:root .kids .hs-vsel.on select { background-color: #f9d9df !important; border-color: #e7a9b3 !important; }
+html:root:root .kids ::selection { background: #f9d9df; color: #4a2f2a; }
+html:root:root .kids .leaf { background-image: linear-gradient(100deg, #8f5140 0%, #b9735e 34%, #99523f 52%, #b9735e 66%, #8f5140 100%); }
+html:root:root .kids .corner { display: none; }
+html:root:root .kids .hs-h { color: #99523f; background: none; -webkit-text-fill-color: currentColor; }
+html:root:root .kids .hs-box-head p, html:root:root .kids .hs-empty { color: var(--muted); }
+html:root:root .kids .hs-empty { background: rgba(255,253,251,.7); border-color: #ecc9bc; }
+html:root:root .kids .hs-link, html:root .kids.kids a { color: #99523f; text-decoration-color: rgba(153,82,63,.4); }
+html:root:root .kids .paper { background: #fffdfb; box-shadow: var(--lift); border-radius: 22px; }
+html:root:root .kids .paper::before, html:root:root .kids .paper::after { border-color: rgba(201,139,120,.3); }
+/* category pills: a pastel medallion each, the chosen one in blush */
+html:root:root .kids .vg-card { background: #fffdfb; border-color: #f0d6cb; color: var(--ink); box-shadow: 0 10px 22px -18px rgba(168,100,79,.6); }
+html:root:root .kids .vg-card b { color: #7a4a3e; }
+html:root:root .kids .vg-card small { color: var(--muted); }
+html:root:root .kids .vg-pic { background: var(--k-pink); box-shadow: 0 0 0 1px #f0d6cb; }
+html:root:root .kids .vg-row li:nth-child(4n+2) .vg-pic { background: var(--k-sky); }
+html:root:root .kids .vg-row li:nth-child(4n+3) .vg-pic { background: var(--k-mint); }
+html:root:root .kids .vg-row li:nth-child(4n+4) .vg-pic { background: var(--k-lilac); }
+html:root:root .kids .vg-card.on { background: #f9d9df; border-color: #e7a9b3; }
+html:root:root .kids .vg-card.on b, html:root:root .kids .vg-card.on small { color: #6d3a30; }
+/* filters */
+html:root:root .kids .hs-vsel select, html:root:root .kids .hs-vmore-b { background: #fffdfb; color: #6d3a30; border-color: #e7c2b5; -webkit-text-fill-color: #6d3a30; }
+html:root:root .kids .hs-vsel::after { border-color: #b9735e; }
+html:root:root .kids .hs-vsel.on select, html:root:root .kids .hs-vmore-b.on { background: #f9d9df; border-color: #e7a9b3; color: #6d3a30; }
+html:root:root .kids .hs-vmore input, html:root:root .kids .hs-field input, html:root:root .kids .hs-field textarea { background: #fffdfb; color: var(--ink); border-color: #e7c2b5; }
+/* piece cards */
+html:root:root .kids .hs-vcard { border: 1px solid #f3dcd2; color: var(--ink); }
+html:root:root .kids .hs-vcard b { color: #5c342b; }
+html:root:root .kids .hs-vcard .num, html:root:root .kids .hs-vcard span { color: var(--muted); }
+html:root:root .kids .hs-vcard strong { color: #7a4a3e; }
+html:root:root .kids .hs-vcard strong small { color: var(--muted); }
+html:root:root .kids .hs-vtags { color: #99523f; }
+html:root:root .kids .hs-vcard-pic { border-radius: 16px; overflow: hidden; }
+html:root:root .kids .hs-vstock { background: rgba(255,253,251,.92); color: #6d3a30; border: 1px solid #f0d6cb; }
+html:root:root .kids .hs-vsold { background: rgba(109,58,48,.82); color: #fff; }
+/* buttons */
+html:root:root .kids .btn-gold { background: linear-gradient(100deg, #c98b78, #eec3b4 45%, #d59b88 70%, #c98b78); color: #4a2219; border-color: #e7b7a6; box-shadow: 0 12px 26px -14px rgba(168,100,79,.8); }
+html:root:root .kids .btn-line, html:root:root .kids .btn-ink { background: #fffdfb; color: #8a4737; border-color: #e3b5a6; }
+/* a piece's own page */
+html:root:root .kids .hs-prod-h h1 { background: none; -webkit-text-fill-color: currentColor; color: #99523f; }
+html:root:root .kids .hs-prod-k, html:root:root .kids .hs-prod-pk, html:root:root .kids .hs-prod-fine, html:root:root .kids .hs-prod-desc { color: var(--muted); }
+html:root:root .kids .hs-prod-pv, html:root:root .kids .hs-prod-price b, html:root:root .kids .hs-prod-spec b { color: #5c342b; }
+@media (prefers-reduced-motion: reduce) { .kd-back { transition: none; } }
