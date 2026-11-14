@@ -700,7 +700,7 @@ html.hs-locked, html.hs-locked body { overflow: hidden; }
     transition: transform .76s cubic-bezier(.7, 0, .2, 1), clip-path .76s cubic-bezier(.7, 0, .2, 1), padding .76s; }
   .hs-auth[data-side="up"] .hs-auth-panel { transform: translateX(78.6%); clip-path: polygon(16% 0, 100% 0, 100% 100%, 0 100%); padding: 40px 56px 40px 70px; }
   .hs-auth-panel img { filter: drop-shadow(0 8px 18px rgba(0,0,0,.45)); }
-  .hs-auth-k { font: 600 12px/1 var(--latin, serif); letter-spacing: .32em; color: var(--gold); margin: 4px 0 0; }
+  .hs-auth-k { font: 600 12px/1 var(--latin, serif); letter-spacing: .32em; color: var(--gold-lt); margin: 4px 0 0; }
   .hs-auth-t { font: 700 34px/1.3 var(--display); margin: 0; background: var(--leaf); background-size: 220% 100%; -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
   .hs-auth-p { font-size: 14.5px; line-height: 1.9; color: #e6d1a0; max-width: 26em; margin: 0; }
   .hs-auth-q { margin: 14px 0 0; font-size: 13px; color: var(--gold-lt); }

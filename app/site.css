@@ -667,9 +667,3 @@ html[data-theme="light"] .door-latin { color: #7a5c25; }
 html[data-theme="light"] .door-fine { color: #7a5c25; }
 html[data-theme="light"] .door-card input::placeholder { color: #7a5c25; }
 /* ==== end ivory light mode ==== */
-
-/* The door's bar stays emerald in light mode (DESIGN.md §2), so what sits on it keeps the dark-mode colours.
-   Hand-written, outside the generated block; the extra .door-bar wins over the generated rules wherever they land. */
-html[data-theme="light"] .door-bar .btn-line { color: var(--gold-lt); }
-html[data-theme="light"] .door-bar .theme-t { background: rgba(7,19,14,.35); color: var(--gold-lt); }
-html[data-theme="light"] .door-bar .leaf { background-image: var(--leaf); }
