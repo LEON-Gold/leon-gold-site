@@ -4,8 +4,13 @@ import { GL_VARS } from "@/lib/guilloche";
 import { THEME_BOOT } from "@/components/ThemeToggle";
 import { LOADER_CSS } from "@/lib/loader";
 import { MORPH_CSS } from "@/lib/morph";
+import { readFileSync } from "node:fs";
+import path from "node:path";
 import "./globals.css";
 import "./site.css";
+
+// pull-to-refresh in the installed apps (lib/ptr.js, the same file as in the ledger), read once at build time
+const PTR = readFileSync(path.join(process.cwd(), "lib", "ptr.js"), "utf8");
 
 export const metadata: Metadata = {
   title: "لئون گلد · خرید طلا و جواهرات ۱۸ عیار در تهران",
@@ -40,7 +45,7 @@ r.animate([{left:t.x+"px",top:t.y+"px",width:"0px",height:"0px",opacity:1},{left
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="fa" dir="rtl" suppressHydrationWarning>
-      <head><script dangerouslySetInnerHTML={{ __html: THEME_BOOT }} /><style dangerouslySetInnerHTML={{ __html: LOADER_CSS + MORPH_CSS }} /><script dangerouslySetInnerHTML={{ __html: VT_REVEAL }} /></head>
+      <head><script dangerouslySetInnerHTML={{ __html: THEME_BOOT }} /><style dangerouslySetInnerHTML={{ __html: LOADER_CSS + MORPH_CSS }} /><script dangerouslySetInnerHTML={{ __html: VT_REVEAL }} /><script dangerouslySetInnerHTML={{ __html: PTR }} /></head>
       <body style={GL_VARS as CSSProperties}>{children}</body>
     </html>
   );
