@@ -33,7 +33,7 @@ export function Onboard({ data, onDone }: { data: Me; onDone: (info?: Info) => v
   const sign = async () => {
     if (!tick || busy) return; setBusy(true); setErr("");
     try { await acceptTerms(rulesText(g), AGREE); setStep("info"); }
-    catch (e) { setErr(e instanceof ApiError && e.code === "offline" ? "به سرور وصل نشد. اینترنت را بررسی کنید و دوباره بزنید." : "ثبت نشد. یک بار دیگر بزنید."); }
+    catch (e) { setErr(e instanceof ApiError && e.code === "offline" ? "به سرور وصل نشدیم. اینترنت را بررسی کنید و دوباره بزنید." : "ثبت نشد. یک بار دیگر بزنید."); }
     finally { setBusy(false); }
   };
   if (step === "info") return (

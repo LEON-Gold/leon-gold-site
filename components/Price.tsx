@@ -96,14 +96,14 @@ export function PricePanel() {
             </div>
           ))}
         </div>
-        <p className="pp-note">به تومان، به جز انس که به دلار است.</p>
+        <p className="pp-note">به تومان، به‌جز انس که به دلار است.</p>
       </div>
 
       <PriceChart />
 
       <form className="calc" onSubmit={(e) => e.preventDefault()} aria-labelledby="calc-h">
         <div className="calc-head">
-          <h3 id="calc-h" className="leaf">قیمت یک کار را حساب کن</h3>
+          <h3 id="calc-h" className="leaf">قیمت یک کار را حساب کنید</h3>
           <p>همان حسابی که روی فاکتور لئون گلد می‌آید.</p>
         </div>
         <div className="calc-in">

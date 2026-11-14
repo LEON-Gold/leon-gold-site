@@ -60,7 +60,7 @@ export default function Home() {
         <section id="price" className="sec-paper" aria-labelledby="price-h">
           <div className="sec-head" data-rise>
             <h2 id="price-h"><i aria-hidden>◆</i>قیمت امروز</h2>
-            <p>نرخ تابلوی اتحادیه‌ی طلا و جواهر تهران، زنده. وزن و اجرت هر کار را بنویس تا قیمتش را همین حالا ببینی.</p>
+            <p>نرخ تابلوی اتحادیه‌ی طلا و جواهر تهران، زنده. وزن و اجرت هر کار را بنویسید تا قیمتش را همین حالا ببینید.</p>
           </div>
           <PricePanel />
         </section>
@@ -78,7 +78,7 @@ export default function Home() {
           <Rosette className="her-rose" />
           <div className="sec-head on-dark" data-rise>
             <h2 id="her-h" className="leaf">شیر، در طلای ایران</h2>
-            <p>لئون یعنی شیر. زرگرهای این سرزمین بیست و پنج قرن است شیر را در طلا می‌سازند؛ این‌ها چند تا از کارهایشان است که امروز در موزه‌ها مانده.</p>
+            <p>لئون یعنی شیر. زرگرهای این سرزمین بیست‌وپنج قرن است شیر را در طلا می‌سازند؛ این‌ها چند تا از کارهایشان است که امروز در موزه‌ها مانده.</p>
           </div>
           <Exhibits items={EXHIBITS} />
           <div className="her-more" data-rise>
@@ -144,7 +144,7 @@ export default function Home() {
           <div className="order-card paper" data-rise>
             <i className="corner c1" aria-hidden /><i className="corner c2" aria-hidden /><i className="corner c3" aria-hidden /><i className="corner c4" aria-hidden />
             <h2 id="order-h"><i aria-hidden>◆</i>ثبت سفارش</h2>
-            <p className="order-sub">بگو چه کاری می‌خواهی؛ در ساعت کاری تماس می‌گیریم.</p>
+            <p className="order-sub">بگویید چه کاری می‌خواهید؛ در ساعت کاری تماس می‌گیریم.</p>
             <OrderForm />
           </div>
           <div className="order-info" data-rise>
