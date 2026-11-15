@@ -627,6 +627,13 @@ html.hs-locked, html.hs-locked body { overflow: hidden; }
 
 /* ---------- the showcase's filters: kind of work (tags), weight and wage (owner, 2026-11-09) ---------- */
 .hs-vfilter4 { grid-template-columns: 1fr 1fr; }
+/* search (owner, 2026-11-15): one field over the filters */
+.hs-vsearch { display: block; margin: 0 0 10px; }
+.hs-vsearch input { width: 100%; box-sizing: border-box; min-height: 46px; padding: 0 18px; border-radius: 999px; border: 1px solid rgba(226,203,148,.4); background: rgba(7,19,14,.45); color: #f0e4c9; font: 600 15px/1.2 var(--text); }
+.hs-vsearch input::placeholder { color: rgba(240,228,201,.6); }
+.hs-vsearch input:focus { outline: none; border-color: #ead8ad; box-shadow: 0 0 0 3px rgba(201,162,76,.28); }
+.door-card .hs-vsearch input { background: var(--paper-2); color: var(--ink); border-color: rgba(151,117,56,.45); }
+.door-card .hs-vsearch input::placeholder { color: var(--muted); }
 .hs-vmore-b { min-height: 46px; border-radius: 999px; border: 1px solid rgba(226,203,148,.4); background: rgba(7,19,14,.45); color: #f0e4c9; font: 600 15px/1.2 var(--text); cursor: pointer; padding: 0 14px; }
 .hs-vmore-b.on { background: var(--leaf); background-size: 180% 100%; color: #0c1d15; border-color: #ead8ad; }
 .hs-vmore { display: grid; gap: 10px; padding: 14px 16px; color: var(--ink); margin-top: -4px; }

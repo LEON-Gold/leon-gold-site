@@ -31,6 +31,8 @@ export const catOf = (it: VItem, cats: VCat[] = VCATS_DEFAULT) => { const k = ca
 export const inGroup = (it: VItem, g: string) => !g || !!it.tags?.includes(g);
 // «نوع کار» (owner, 2026-11-09): the owner's other tags in the ledger; a piece may have several
 export const VTAGS = ["لوکس", "مینیمال"];
+// for search: Arabic ي/ك as Persian, no half-spaces, digits as Latin, lower case
+const norm = (s: string) => latin(String(s || "")).replace(/ي/g, "ی").replace(/ك/g, "ک").replace(/[\u200c\u200d]/g, "").replace(/\s+/g, " ").trim().toLowerCase();
 const numIn = (s: string) => { const v = parseFloat(latin(s).replace(/[٫,]/g, ".").replace(/[^\d.]/g, "")); return isFinite(v) ? v : null; };
 // a wage the buyer types: the pieces at that wage and at the nearest wage below and above it, nearest first
 function nearWage(L: VItem[], x: number) {
@@ -148,7 +150,10 @@ export default function Vitrin({ demo, pub, openId, onlyMine, noMine, kids }: { 
   const [st, setSt] = useState("all");
   const [tag, setTag] = useState("all");
   const [more, setMore] = useState(false);
-  const [r, setR] = useState({ wMin: "", wMax: "", aMin: "", aMax: "", aNear: "" });
+  const [r, setR] = useState({ wMin: "", wMax: "", aMin: "", aMax: "", aNear: "", pMin: "", pMax: "" });
+  // search and price (owner, 2026-11-15): words match a piece's name, code, category and kinds of work; the price is
+  // today's estimate (the same one each tile shows), in million toman
+  const [q, setQ] = useState("");
   const setRv = (k: keyof typeof r) => (e: React.ChangeEvent<HTMLInputElement>) => setR({ ...r, [k]: e.target.value });
   const { feed } = usePrice();
   useEffect(() => {
@@ -159,15 +164,19 @@ export default function Vitrin({ demo, pub, openId, onlyMine, noMine, kids }: { 
   const gNames = useMemo(() => groups.map(g => g.name), [groups]);
   const tags = useMemo(() => [...VTAGS.filter(t => all.some(i => i.tags?.includes(t))), ...new Set(all.flatMap(i => i.tags || []).filter(t => !VTAGS.includes(t) && !gNames.includes(t)))], [all, gNames]);
   // weight and wage: a range, or a wage typed (with its nearest neighbours)
-  const wMin = numIn(r.wMin), wMax = numIn(r.wMax), aMin = numIn(r.aMin), aMax = numIn(r.aMax), aNear = numIn(r.aNear);
-  const inRange = (i: VItem) => (wMin == null || i.weight >= wMin) && (wMax == null || i.weight <= wMax) && (aMin == null || i.ajrat >= aMin) && (aMax == null || i.ajrat <= aMax);
+  const wMin = numIn(r.wMin), wMax = numIn(r.wMax), aMin = numIn(r.aMin), aMax = numIn(r.aMax), aNear = numIn(r.aNear), pMin = numIn(r.pMin), pMax = numIn(r.pMax);
+  const mt = (i: VItem) => feed?.gp ? priceOf(i, feed.gp).total / 1e7 : null;   // rials → million toman
+  const inPrice = (i: VItem) => { if (pMin == null && pMax == null) return true; const m = mt(i); return m == null || ((pMin == null || m >= pMin) && (pMax == null || m <= pMax)); };
+  const words = norm(q).split(" ").filter(Boolean);
+  const okQ = (i: VItem) => !words.length || ((h: string) => words.every(w => h.includes(w)))(norm([i.name, i.code, catOf(i, cats), ...(i.tags || [])].join(" ")));
+  const inRange = (i: VItem) => (wMin == null || i.weight >= wMin) && (wMax == null || i.weight <= wMax) && (aMin == null || i.ajrat >= aMin) && (aMax == null || i.ajrat <= aMax) && inPrice(i) && okQ(i);
   const okSt = (i: VItem) => st === "all" || stockOf(i) === st, okCat = (i: VItem) => cat === "all" || cat === "" || catOf(i, cats) === cat, okTag = (i: VItem) => tag === "all" || !!i.tags?.includes(tag), okG = (i: VItem) => grp === "all" || inGroup(i, grp);
   const nSt = (k: string) => all.filter(i => stockOf(i) === k && okG(i) && okCat(i) && okTag(i) && inRange(i)).length;
   const nTag = (t: string) => all.filter(i => i.tags?.includes(t) && okG(i) && okSt(i) && okCat(i) && inRange(i)).length;
   const pool = all.filter(i => okG(i) && okSt(i) && okCat(i) && okTag(i) && inRange(i));
   const shown = aNear == null ? pool : nearWage(pool, aNear);
-  const nMore = [r.wMin, r.wMax, r.aMin, r.aMax, r.aNear].filter(v => v.trim()).length;
-  const reset = () => { setSt("all"); setTag("all"); setR({ wMin: "", wMax: "", aMin: "", aMax: "", aNear: "" }); };
+  const nMore = [r.wMin, r.wMax, r.aMin, r.aMax, r.aNear, r.pMin, r.pMax].filter(v => v.trim()).length;
+  const reset = () => { setSt("all"); setTag("all"); setQ(""); setR({ wMin: "", wMax: "", aMin: "", aMax: "", aNear: "", pMin: "", pMax: "" }); };
   const show = (it: VItem | null) => { setOpen(it); scrollTo({ top: 0 }); };
 
   if (open) { const P = <Product it={open} gp={feed?.gp || 0} demo={demo} pub={pub} onBack={() => show(null)} />; return isKids && !kids ? <div className="kids kd-in-place">{P}</div> : P; }
@@ -210,6 +219,8 @@ export default function Vitrin({ demo, pub, openId, onlyMine, noMine, kids }: { 
       </div>
       {all.some(okG) && <CatPills items={all.filter(okG)} cats={cats} sel={cat} pub={pub} onPick={goCat} />}
       {all.some(okG) && (<>
+        <label className="hs-vsearch"><span className="hs-sr">جست‌وجو در ویترین</span>
+          <input type="search" value={q} onChange={e => setQ(e.target.value)} placeholder="جست‌وجو: نام، کد یا دسته" enterKeyHint="search" autoComplete="off" /></label>
         <div className="hs-vfilter hs-vfilter4">
           <label className={"hs-vsel" + (st !== "all" ? " on" : "")}><span className="hs-sr">وضعیت</span>
             <select value={st} onChange={e => setSt(e.target.value)} aria-label="وضعیت">
@@ -223,10 +234,13 @@ export default function Vitrin({ demo, pub, openId, onlyMine, noMine, kids }: { 
               {tags.map(t => { const n = nTag(t); return <option key={t} value={t} disabled={!n && tag !== t}>{t} ({faDigits(n)})</option>; })}
             </select>
           </label>
-          <button type="button" className={"hs-vmore-b" + (nMore ? " on" : "")} aria-expanded={more} onClick={() => setMore(!more)}>وزن و اجرت{nMore ? ` (${faDigits(nMore)})` : ""}</button>
+          <button type="button" className={"hs-vmore-b" + (nMore ? " on" : "")} aria-expanded={more} onClick={() => setMore(!more)}>قیمت، وزن و اجرت{nMore ? ` (${faDigits(nMore)})` : ""}</button>
         </div>
         {more && (
           <div className="hs-vmore paper">
+            <div className="hs-vrange"><span>قیمت (میلیون تومان)</span>
+              <input value={r.pMin} onChange={setRv("pMin")} inputMode="decimal" placeholder="از" aria-label="قیمت از، میلیون تومان" />
+              <input value={r.pMax} onChange={setRv("pMax")} inputMode="decimal" placeholder="تا" aria-label="قیمت تا، میلیون تومان" /></div>
             <div className="hs-vrange"><span>وزن (گرم)</span>
               <input value={r.wMin} onChange={setRv("wMin")} inputMode="decimal" placeholder="از" aria-label="وزن از" />
               <input value={r.wMax} onChange={setRv("wMax")} inputMode="decimal" placeholder="تا" aria-label="وزن تا" /></div>
@@ -236,7 +250,7 @@ export default function Vitrin({ demo, pub, openId, onlyMine, noMine, kids }: { 
             <div className="hs-vrange hs-vnear"><span>یا اجرت مورد نظر</span>
               <input value={r.aNear} onChange={setRv("aNear")} inputMode="decimal" placeholder="مثلاً ۱۸" aria-label="اجرت مورد نظر" /></div>
             <p className="hs-vmore-fine">با نوشتن اجرت مورد نظر، کارهای همان اجرت و نزدیک‌ترین اجرت پایین‌تر و بالاتر نشان داده می‌شود.</p>
-            {nMore > 0 && <button type="button" className="hs-link" onClick={() => setR({ wMin: "", wMax: "", aMin: "", aMax: "", aNear: "" })}>پاک کردن وزن و اجرت</button>}
+            {nMore > 0 && <button type="button" className="hs-link" onClick={() => setR({ wMin: "", wMax: "", aMin: "", aMax: "", aNear: "", pMin: "", pMax: "" })}>پاک کردن قیمت، وزن و اجرت</button>}
           </div>
         )}
       </>)}
