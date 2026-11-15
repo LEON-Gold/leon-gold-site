@@ -11,6 +11,12 @@ import "./site.css";
 
 // pull-to-refresh in the installed apps (lib/ptr.js, the same file as in the ledger), read once at build time
 const PTR = readFileSync(path.join(process.cwd(), "lib", "ptr.js"), "utf8");
+// the site's visits (owner, 2026-11-15): one hit per page opened, and per page changed inside the site, to the sync server
+// (leon-gold-server visits.mjs keeps only sums and a daily one-way mark); not from automated browsers
+const HIT = `(function(){if(navigator.webdriver)return;var A=${JSON.stringify(process.env.NEXT_PUBLIC_SYNC_URL || "https://api.leongold.net")},last="";
+var s=function(){var p=location.pathname;if(p===last)return;last=p;try{fetch(A+"/api/public/hit",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({p:p}),keepalive:true}).catch(function(){})}catch(e){}};
+if(document.readyState==="complete")s();else addEventListener("load",s);
+var ps=history.pushState;history.pushState=function(){var r=ps.apply(this,arguments);setTimeout(s,0);return r};addEventListener("popstate",function(){setTimeout(s,0)})})();`;
 
 export const metadata: Metadata = {
   title: "لئون گلد · خرید طلا و جواهرات ۱۸ عیار در تهران",
@@ -45,7 +51,7 @@ r.animate([{left:t.x+"px",top:t.y+"px",width:"0px",height:"0px",opacity:1},{left
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="fa" dir="rtl" suppressHydrationWarning>
-      <head><script dangerouslySetInnerHTML={{ __html: THEME_BOOT }} /><style dangerouslySetInnerHTML={{ __html: LOADER_CSS + MORPH_CSS }} /><script dangerouslySetInnerHTML={{ __html: VT_REVEAL }} /><script dangerouslySetInnerHTML={{ __html: PTR }} /></head>
+      <head><script dangerouslySetInnerHTML={{ __html: THEME_BOOT }} /><style dangerouslySetInnerHTML={{ __html: LOADER_CSS + MORPH_CSS }} /><script dangerouslySetInnerHTML={{ __html: VT_REVEAL }} /><script dangerouslySetInnerHTML={{ __html: PTR }} /><script dangerouslySetInnerHTML={{ __html: HIT }} /></head>
       <body style={GL_VARS as CSSProperties}>{children}</body>
     </html>
   );
