@@ -5,7 +5,8 @@
 // replaced at the same address for new versions.
 import { useEffect, useState } from "react";
 
-const APK = "https://leon-gold.github.io/leon-gold-app/android/leon-gold.apk";
+// from the owner's domain, served by the sync server (leon-gold-server web.mjs, apps/): GitHub is slow from Iran (owner, 2026-11-15)
+const APK = "https://leongold.net/apps/leon-gold.apk";
 
 export default function AndroidApp({ where }: { where: "site" | "hesab" }) {
   const [on, setOn] = useState(false);
