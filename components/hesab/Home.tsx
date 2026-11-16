@@ -8,7 +8,7 @@ import { SHOP } from "@/lib/content";
 import { faDigits, gram, jdate, latin, photoUrl, toman, type Account, type Entry, type Order, type VipStep } from "@/lib/hesab";
 import { daysLeft } from "./Extras";
 
-export type Tab = "home" | "vitrin" | "orders" | "box" | "stmt" | "profile" | "market";
+export type Tab = "home" | "vitrin" | "orders" | "box" | "stmt" | "profile" | "market" | "melt";
 const MONTHS = ["فروردین", "اردیبهشت", "خرداد", "تیر", "مرداد", "شهریور", "مهر", "آبان", "آذر", "دی", "بهمن", "اسفند"];
 const dateOf = (e: { date?: string; ts: string }) => latin(e.date || jdate(e.ts));
 
@@ -33,6 +33,7 @@ export const ICONS: Record<Tab, string> = {
   box: "M4 9h16v11H4zM3 5h18v4H3zM12 5v15",
   stmt: "M6 3h12v18l-3-2-3 2-3-2-3 2zM9 8h6M9 12h6M9 16h3",
   market: "M3 17l5-6 4 3 5-7 4 4M3 21h18",
+  melt: "M4 16l3-7h10l3 7zM3 19h18",
 };
 export function TabBar({ tab, setTab, tabs }: { tab: Tab; setTab: (t: Tab) => void; tabs: [Tab, string, number?][] }) {
   return (

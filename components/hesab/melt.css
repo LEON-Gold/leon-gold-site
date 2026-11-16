@@ -1,0 +1,31 @@
+/* «خرید و فروش آبشده» (owner, 2026-11-16): the Assay Ledger look; buy in emerald, sell in garnet, both with their price */
+.ml { display: grid; gap: 14px; }
+.ml-msg { padding: 14px 16px; border-radius: 18px; border: 1px solid var(--line, rgba(140,111,67,.3)); }
+.ml-msg b { display: block; margin-bottom: 6px; color: var(--gold-ink, #8a6a1e); }
+.ml-msg p { margin: 0; white-space: pre-wrap; line-height: 2; font-size: 14px; }
+.ml-at { margin: 0; font-size: 12.5px; color: var(--mut, #6f6656); }
+.ml-bad { color: #a3392b; font-weight: 700; }
+.ml-grp { display: grid; gap: 8px; }
+.ml-grp h2 { margin: 6px 0 0; font-size: 15px; }
+.ml-row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 8px; padding: 10px; border-radius: 16px; border: 1px solid var(--line, rgba(140,111,67,.3)); }
+.ml-name { grid-column: 1 / -1; font-weight: 800; font-size: 14px; }
+.ml-p { all: unset; box-sizing: border-box; cursor: pointer; display: grid; gap: 2px; justify-items: center; padding: 10px 6px; border-radius: 12px; color: #fff; min-height: 56px; text-align: center; -webkit-tap-highlight-color: transparent; transition: transform .12s cubic-bezier(.23,1,.32,1), filter .2s; }
+.ml-p small { font-size: 11.5px; opacity: .9; } .ml-p b { font-size: clamp(15px, 4.4vw, 19px); }
+.ml-p.buy { background: linear-gradient(160deg, #1f8a5e, #0f6b47); }
+.ml-p.sell { background: linear-gradient(160deg, #b8463a, #8f2f25); }
+.ml-p:active { transform: scale(.97); }
+.ml-p:focus-visible { outline: 2px solid #e2cb94; outline-offset: 2px; }
+.ml-p:disabled { cursor: default; filter: grayscale(.7) brightness(.85); opacity: .6; }
+.ml-form, .ml-wait { display: grid; gap: 10px; justify-items: stretch; padding: 16px; border-radius: 20px; border: 1px solid var(--line, rgba(140,111,67,.3)); }
+.ml-wait { justify-items: center; text-align: center; }
+.ml-what { margin: 0; font-weight: 800; font-size: 15px; }
+.ml-side { display: inline-block; padding: 2px 10px; border-radius: 999px; color: #fff; font-size: 12.5px; }
+.ml-side.buy { background: #0f6b47; } .ml-side.sell { background: #8f2f25; }
+.ml-sum, .ml-total { margin: 0; font-size: 14px; }
+.ml-total b { font-size: 20px; }
+.ml-moved { display: grid; gap: 8px; padding: 12px; border-radius: 14px; background: rgba(163,57,43,.08); border: 1px solid rgba(163,57,43,.45); color: #7a241b; font-size: 14px; line-height: 1.9; width: 100%; box-sizing: border-box; }
+.ml-btns { display: flex; gap: 8px; flex-wrap: wrap; }
+.ml-btns .btn { flex: 1 1 140px; }
+:root[data-theme="dark"] .ml-moved { color: #ffb4a6; background: rgba(255,159,140,.1); }
+:root[data-theme="dark"] .ml-bad { color: #ff9f8c; }
+@media (prefers-reduced-motion: reduce) { .ml-p { transition: none; } }

@@ -10,6 +10,7 @@ import { Onboard, useSigned } from "./Onboard";
 import { setRulesGroup } from "@/lib/content";
 import AuthSwap from "./AuthSwap";
 import Market, { MarketCard } from "./Market";
+import Melt from "./Melt";
 import Studio from "./Studio";
 import { ICONS, Reminders } from "./Home";
 import Loader from "@/components/Loader";
@@ -226,7 +227,7 @@ function SignUp({ ref0 = "", onBack, onIn }: { ref0?: string; onBack: () => void
 function Panel({ data, onOut, onReload }: { data: Me; onOut: () => void; onReload?: () => void }) {
   const [ai, setAi] = useState(0);
   // a tapped notification opens on its section (?t=orders), then the address is cleaned
-  const [tab, setTabS] = useState<Tab>(() => { const t = typeof location === "undefined" ? "" : new URLSearchParams(location.search).get("t") || ""; return (["vitrin", "orders", "box", "stmt", "profile", "market"].includes(t) ? t : "home") as Tab; });
+  const [tab, setTabS] = useState<Tab>(() => { const t = typeof location === "undefined" ? "" : new URLSearchParams(location.search).get("t") || ""; return (["vitrin", "orders", "box", "stmt", "profile", "market", "melt"].includes(t) ? t : "home") as Tab; });
   const [openId] = useState(() => typeof location === "undefined" ? "" : new URLSearchParams(location.search).get("p") || "");
   useEffect(() => { if (location.search) history.replaceState(null, "", location.pathname + location.hash); }, []);
   const [menu, setMenu] = useState(false);
@@ -271,7 +272,7 @@ function Panel({ data, onOut, onReload }: { data: Me; onOut: () => void; onReloa
       <aside className="hs-side" aria-label="بخش‌های حساب من">
         <a className="hs-side-brand" href="../"><img src="/leaf.png" alt="" width={30} height={30} /><span><b className="leaf">لئون گلد</b><small>حساب من</small></span></a>
         <p className="hs-side-g">بخش‌ها</p>
-        {[...tabs, ...(a.market ? [["market", "تحلیل بازار"] as [Tab, string]] : []), ["profile", "پروفایل من"] as [Tab, string]].map(([k, t, n]) => (
+        {[...tabs, ...(a.melt ? [["melt", "خرید و فروش آبشده"] as [Tab, string]] : []), ...(a.market ? [["market", "تحلیل بازار"] as [Tab, string]] : []), ["profile", "پروفایل من"] as [Tab, string]].map(([k, t, n]) => (
           <button key={k} type="button" className="hs-side-it" aria-current={tab === k ? "page" : undefined} onClick={() => setTab(k)}>
             <svg viewBox="0 0 24 24" aria-hidden><path d={ICONS[k]} /></svg><span>{t}</span>{n ? <em>{faDigits(n)}</em> : null}
           </button>
@@ -319,6 +320,7 @@ function Panel({ data, onOut, onReload }: { data: Me; onOut: () => void; onReloa
         {tab === "vitrin" && !(a.upload && !isCustomer) && <Vitrin demo={data.demo} openId={openId} onlyMine={!isCustomer} noMine={a.upload} />}
         {tab === "orders" && blocks}
         {tab === "market" && a.market && <Market />}
+        {tab === "melt" && a.melt && <Melt />}
         {tab === "box" && <><JewelBox a={a} /><Summary ent={a.ent} /></>}
         {tab === "stmt" && <>{isCustomer && <MyReceipts demo={data.demo} />}<Statement a={a} /></>}
       </main>

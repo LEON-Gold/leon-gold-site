@@ -15,7 +15,7 @@ export type Work = { ref: string; date: string; due: string; status: string; sta
 // a VIP gets only { is: true }. VIP itself stays the owner's own mark in the ledger.
 export type VipStep = { k: "settle" | "grams" | "invite"; have: number; need: number; done: boolean };
 export type VipWay = { is: boolean; steps?: VipStep[]; all?: boolean };
-export type Account = { id: string; name: string; shop: string; phone?: string; vip?: boolean; vipWay?: VipWay; market?: boolean; upload?: boolean; kind: "customer" | "supplier" | "both"; biz?: string; group?: "colleague" | "retail" | ""; bal: { g: number; r: number }; ent: Entry[]; orders: Order[]; work: Work[] };
+export type Account = { id: string; name: string; shop: string; phone?: string; vip?: boolean; vipWay?: VipWay; market?: boolean; melt?: boolean; upload?: boolean; kind: "customer" | "supplier" | "both"; biz?: string; group?: "colleague" | "retail" | ""; bal: { g: number; r: number }; ent: Entry[]; orders: Order[]; work: Work[] };
 // what the party wrote about itself (all optional) and its last signature of the rules (leon-gold-server/portal.mjs)
 export type Info = { fullName?: string; nationalId?: string; birth?: string; mobile?: string; phone?: string; shop?: string; address?: string; postal?: string; email?: string; at?: number };
 export type Me = { accounts: Account[]; updated?: string; demo?: boolean; username?: string; photo?: string; terms?: { hash: string; at: number } | null; info?: Info | null; passNew?: boolean };
@@ -207,3 +207,15 @@ export const pushKey = async () => (await api<{ key: string }>("/api/portal/push
 export const pushSub = (s: PushSubscriptionJSON) => api<{ ok: true }>("/api/portal/push/sub", { endpoint: s.endpoint, keys: s.keys });
 export const pushUnsub = (endpoint: string) => api<{ ok: true }>("/api/portal/push/unsub", { endpoint });
 export const pushTest = () => api<{ ok: boolean; sent: number; results: { host: string; status: number; reason: string }[] }>("/api/portal/push/test", {});
+
+// ---------- «خرید و فروش آبشده» (owner, 2026-11-16; server melt.mjs): colleagues only ----------
+export type MeltItem = { k: string; name: string; unit: string; dec: number; grp: string; buy: number | null; sell: number | null };
+export type MeltBoard = { on: boolean; msg?: string; at?: number | null; ok?: boolean; wait?: number; groups?: [string, string][]; items?: MeltItem[] };
+export type MeltOrder = { id: string; item: string; name: string; unitName: string; side: "buy" | "sell"; qm: number; unit: number; total: number;
+  status: "waiting" | "placing" | "done" | "failed" | "unknown" | "rejected" | "cancelled" | "expired"; left: number; created: number;
+  changed?: { unit: number; total: number }; noPrice?: boolean };
+export const meltBoard = () => api<MeltBoard>("/api/portal/melt");
+export const meltOrder = (k: string, side: "buy" | "sell", qty: string, unit: number) => api<{ ok: true; order: MeltOrder }>("/api/portal/melt/order", { k, side, qty, unit });
+export const meltGet = (id: string) => api<{ order: MeltOrder }>("/api/portal/melt/order/" + encodeURIComponent(id));
+export const meltAccept = (id: string, unit: number) => api<{ ok: true; order: MeltOrder }>("/api/portal/melt/order/" + encodeURIComponent(id) + "/accept", { unit });
+export const meltCancel = (id: string) => api<{ ok: true; order: MeltOrder }>("/api/portal/melt/order/" + encodeURIComponent(id) + "/cancel", {});
