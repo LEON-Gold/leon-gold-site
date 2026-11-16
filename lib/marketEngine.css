@@ -75,6 +75,24 @@
 .me-li { position: relative; padding-inline-start: 18px; font-size: 14px; line-height: 1.9; }
 .me-li::before { content: ""; position: absolute; inset-inline-start: 2px; top: .75em; width: 8px; height: 8px; border-radius: 50%; background: var(--me-mut); }
 .me-li-up::before { background: var(--me-up); } .me-li-down::before { background: var(--me-dn); }
+/* the outlook line: a little card of its own inside each reading */
+.me-li.me-fc { padding: 8px 12px 8px 12px; padding-inline-start: 28px; border-radius: 14px; background: var(--me-bb); border: 1px solid var(--me-line); }
+.me-li.me-fc::before { inset-inline-start: 12px; top: 1.15em; }
+/* currencies and coins: one quiet row each, opened to its chart and reading */
+.me-xs { display: grid; gap: 10px; padding: 14px; border-radius: 20px; background: var(--me-card); border: 1px solid var(--me-line); min-width: 0; }
+.me-xs h3 { margin: 0; font-size: 16px; } .me-xhint { margin: -4px 0 0; font-size: 12.5px; color: var(--me-mut); }
+.me-xg, .me-x, .me-xbody { min-width: 0; } .me-xg { display: grid; } .me-xg > *, .me-xbody > * { min-width: 0; } .me-xg h4 { margin: 6px 0 2px; font-size: 12.5px; color: var(--me-mut); font-weight: 700; }
+.me-x { border-top: 1px solid var(--me-grid); } .me-xg h4 + .me-x { border-top: 0; }
+.me-xh { all: unset; box-sizing: border-box; width: 100%; cursor: pointer; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 4px 10px; padding: 11px 2px; align-items: center; -webkit-tap-highlight-color: transparent; }
+.me-xh:focus-visible { outline: 2px solid var(--me-gold); outline-offset: 2px; border-radius: 10px; }
+.me-xn { font-weight: 800; font-size: 14.5px; } .me-xp { text-align: end; font-size: 13px; white-space: nowrap; } .me-xp b { font-size: 15px; }
+.me-xp .up { color: var(--me-up); } .me-xp .dn { color: var(--me-dn); }
+.me-xc { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 6px; }
+.me-xb, .me-xf { font-size: 11.5px; font-weight: 700; padding: 3px 9px; border-radius: 999px; border: 1px solid var(--me-line); color: var(--me-mut); }
+.me-xb.up, .me-xf-up { color: var(--me-up); border-color: currentColor; } .me-xb.dn, .me-xf-down { color: var(--me-dn); border-color: currentColor; }
+.me-xbody { display: grid; gap: 10px; padding: 2px 0 14px; animation: meIn .35s var(--me-ease) both; }
+.me-xbody ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 8px; }
+.me-xbody .me-fig { padding: 10px; }
 .me-note { margin: 0; font-size: 12.5px; color: var(--me-mut); line-height: 1.9; }
 .me-load { display: grid; justify-items: center; gap: 10px; padding: 40px 0; color: var(--me-mut); font-size: 13px; }
 .me-load i { display: none; }

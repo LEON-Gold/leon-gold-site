@@ -8,7 +8,7 @@ import "@/lib/marketEngine.css";
 
 type Row = { d: string; j: string; c: number };
 type Live = { gp: number; time: string; usd: number; usdWhen: string; ounce: number };
-type Hist = { g: Row[]; d: Row[]; o: Row[] };
+type Hist = { g: Row[]; d: Row[]; o: Row[]; x?: Record<string, Row[]> };
 const KEY = "hs-mk";
 const num = (s: unknown) => +String(s ?? "").replace(/[^\d.]/g, "") || 0;
 const fa = (n: number, d = 0) => n.toLocaleString("fa-IR", { maximumFractionDigits: d, minimumFractionDigits: 0 });
@@ -31,7 +31,9 @@ async function loadHist(): Promise<Hist | null> {
     const x = await get(`https://api.tgju.org/v1/market/indicator/summary-table-data/${ind}?length=400&start=0`, 15000);
     return ((x?.data || []) as string[][]).map(r => ({ d: String(r[6] || ""), j: String(r[7] || ""), c: num(r[3]) })).filter(r => r.c > 0 && r.d).reverse();
   };
-  try { const [g, d, o] = await Promise.all([one("geram18"), one("price_dollar_rl"), one("ons")]); return g.length ? { g, d, o } : null; } catch { return null; }
+  // the currencies and coins too (owner, 2026-11-16); one that fails only leaves its row out
+  const xs = Promise.all((ME.XS as { k: string; ind: string }[]).map(x => one(x.ind).then(r => [x.k, r] as const, () => [x.k, []] as const)));
+  try { const [g, d, o, xa] = await Promise.all([one("geram18"), one("price_dollar_rl"), one("ons"), xs]); return g.length ? { g, d, o, x: Object.fromEntries(xa) } : null; } catch { return null; }
 }
 
 type Stats = { last: number; d1: number | null; d7: number | null; d30: number | null; ma7: number; ma30: number; lo: number; hi: number; pos: number; swing: number; rsi: number; trend: "up" | "down" | "flat" };
@@ -75,16 +77,17 @@ export function MarketCard({ onOpen }: { onOpen: () => void }) {
 // the page: the shared engine (lib/marketEngine.js, the same as the ledger's), its tools and range kept here
 export default function Market() {
   const { live, hist } = useMarket();
-  const [st, setSt] = useState(() => ({ range: 90, tools: ME.TOOLS0(), anim: true }));
+  const [st, setSt] = useState(() => ({ range: 90, tools: ME.TOOLS0() as Record<string, Set<string>>, anim: true, open: new Set<string>() }));
   const ref = useRef<HTMLDivElement>(null), prev = useRef<unknown>(null);
   const html = useMemo(() => ME.page(hist, live, st), [hist, live, st]);
   useEffect(() => { const el = ref.current; if (!el) return; ME.bind(el); const now = ME.liveOf(hist, live); ME.flashAll(el, prev.current, now); prev.current = now; }, [html, hist, live]);
   // the lines draw in once (and again on a new range); later refreshes do not redraw them
   useEffect(() => { if (!hist || !st.anim) return; const t = setTimeout(() => setSt(x => ({ ...x, anim: false })), 1600); return () => clearTimeout(t); }, [hist, st.anim]);
   const click = (e: React.MouseEvent) => {
-    const t = e.target as HTMLElement, r = t.closest<HTMLElement>("[data-me-range]"), tool = t.closest<HTMLElement>("[data-me-tool]");
-    if (r) setSt(x => ({ ...x, range: +(r.dataset.meRange || 90), anim: true }));
-    else if (tool) { const k = tool.closest<HTMLElement>(".me-fig")?.dataset.kind as "gold" | "usd" | "oz" | undefined; if (!k) return;
+    const t = e.target as HTMLElement, r = t.closest<HTMLElement>("[data-me-range]"), tool = t.closest<HTMLElement>("[data-me-tool]"), xr = t.closest<HTMLElement>("[data-me-x]");
+    if (xr) { const k = xr.dataset.meX || ""; setSt(x => { const o = new Set(x.open); if (o.has(k)) o.delete(k); else o.add(k); return { ...x, open: o }; }); }
+    else if (r) setSt(x => ({ ...x, range: +(r.dataset.meRange || 90), anim: true }));
+    else if (tool) { const k = tool.closest<HTMLElement>(".me-fig")?.dataset.kind; if (!k) return;
       setSt(x => { const n = new Set(x.tools[k]); const id = tool.dataset.meTool || ""; if (n.has(id)) n.delete(id); else n.add(id); return { ...x, tools: { ...x.tools, [k]: n } }; }); }
   };
   return (
