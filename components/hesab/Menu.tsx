@@ -157,7 +157,9 @@ function Invite({ demo }: { demo?: boolean }) {
   const [d, setD] = useState<{ code: string; joined: number } | null>(demo ? { code: "LG7K2M", joined: 2 } : null);
   const [err, setErr] = useState(false), [copied, setCopied] = useState(false);
   useEffect(() => { if (!demo) invite().then(setD, () => setErr(true)); }, [demo]);
-  const link = d && typeof location !== "undefined" ? location.origin + location.pathname.replace(/[^/]*$/, "") + "?ref=" + d.code : "";
+  // always the shop's own address (owner, 2026-11-16): opened from the GitHub copy or an app, the page's own address
+  // would hand colleagues a GitHub link, which is slow or closed in Iran
+  const link = d ? "https://leongold.net/hesab/?ref=" + d.code : "";
   const text = d ? `در «حساب من» لئون گلد با لینک من حساب بساز؛ کد معرف: ${d.code}` : "";
   const copy = async () => { try { await navigator.clipboard.writeText(link); setCopied(true); setTimeout(() => setCopied(false), 2200); } catch { setCopied(false); } };
   const share = async () => { if (navigator.share) { try { await navigator.share({ title: "لئون گلد", text, url: link }); } catch {} } else copy(); };
