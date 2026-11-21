@@ -32,7 +32,7 @@ async function loadHist(): Promise<Hist | null> {
     return ((x?.data || []) as string[][]).map(r => ({ d: String(r[6] || ""), j: String(r[7] || ""), c: num(r[3]) })).filter(r => r.c > 0 && r.d).reverse();
   };
   // the currencies and coins too (owner, 2026-11-16); one that fails only leaves its row out
-  const xs = Promise.all((ME.XS as { k: string; ind: string }[]).map(x => one(x.ind).then(r => [x.k, r] as const, () => [x.k, []] as const)));
+  const xs = Promise.all((ME.XS as { k: string; ind?: string }[]).filter(x => x.ind).map(x => one(x.ind as string).then(r => [x.k, r] as const, () => [x.k, []] as const)));
   try { const [g, d, o, xa] = await Promise.all([one("geram18"), one("price_dollar_rl"), one("ons"), xs]); return g.length ? { g, d, o, x: Object.fromEntries(xa) } : null; } catch { return null; }
 }
 
