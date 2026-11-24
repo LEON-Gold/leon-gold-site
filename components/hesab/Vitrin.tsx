@@ -120,6 +120,8 @@ export default function Vitrin({ demo, pub, openId, onlyMine, noMine, kids }: { 
   const [err, setErr] = useState(false);
   const [open, setOpen] = useState<VItem | null>(null);
   const [cat, setCat] = useState("all");
+  // a category's sub-categories (owner, 2026-11-24: «شمش» → «شمش طلا عیار ۷۵۰»…), shown once that category is picked
+  const [sub, setSub] = useState("all");
   const [grp, setGrp] = useState(kids ? KIDS0 : onlyMine ? "all" : "");
   const [cats, setCats] = useState<VCat[]>(VCATS_DEFAULT);
   const [groups, setGroups] = useState<VGroup[]>(VGROUPS_DEFAULT);
@@ -136,7 +138,7 @@ export default function Vitrin({ demo, pub, openId, onlyMine, noMine, kids }: { 
     if (kids && g === "") { location.href = "../vitrin/"; return; }
     setGrp(g); setCat("all"); url(g, ""); scrollTo({ top: 0 });
   };
-  const goCat = (c: string) => { setCat(c); url(grp, c === "all" ? "" : c, true); };
+  const goCat = (c: string) => { setCat(c); setSub("all"); url(grp, c === "all" ? "" : c, true); };
   useEffect(() => {
     if (!pub) return;
     // an old link (vitrin/?c=دستبند) opens that category in «همه»
@@ -170,7 +172,7 @@ export default function Vitrin({ demo, pub, openId, onlyMine, noMine, kids }: { 
   const words = norm(q).split(" ").filter(Boolean);
   const okQ = (i: VItem) => !words.length || ((h: string) => words.every(w => h.includes(w)))(norm([i.name, i.code, catOf(i, cats), ...(i.tags || [])].join(" ")));
   const inRange = (i: VItem) => (wMin == null || i.weight >= wMin) && (wMax == null || i.weight <= wMax) && (aMin == null || i.ajrat >= aMin) && (aMax == null || i.ajrat <= aMax) && inPrice(i) && okQ(i);
-  const okSt = (i: VItem) => st === "all" || stockOf(i) === st, okCat = (i: VItem) => cat === "all" || cat === "" || catOf(i, cats) === cat, okTag = (i: VItem) => tag === "all" || !!i.tags?.includes(tag), okG = (i: VItem) => grp === "all" || inGroup(i, grp);
+  const okSt = (i: VItem) => st === "all" || stockOf(i) === st, okCat = (i: VItem) => (cat === "all" || cat === "" || catOf(i, cats) === cat) && (sub === "all" || catKey(i.sub || "") === catKey(sub)), okTag = (i: VItem) => tag === "all" || !!i.tags?.includes(tag), okG = (i: VItem) => grp === "all" || inGroup(i, grp);
   const nSt = (k: string) => all.filter(i => stockOf(i) === k && okG(i) && okCat(i) && okTag(i) && inRange(i)).length;
   const nTag = (t: string) => all.filter(i => i.tags?.includes(t) && okG(i) && okSt(i) && okCat(i) && inRange(i)).length;
   const pool = all.filter(i => okG(i) && okSt(i) && okCat(i) && okTag(i) && inRange(i));
@@ -218,6 +220,12 @@ export default function Vitrin({ demo, pub, openId, onlyMine, noMine, kids }: { 
         <p>کارهای موجود، با قیمت تقریبیِ همین ساعت{feed?.time ? ` (نرخ اتحادیه، ساعت ${faDigits(feed.time)})` : ""}.{pub ? " برای سفارش، روی هر کار بزنید." : ""}</p>
       </div>
       {all.some(okG) && <CatPills items={all.filter(okG)} cats={cats} sel={cat} pub={pub} onPick={goCat} />}
+      {(() => { const subs = cat !== "all" ? ((cats.find(c => c.name === cat) || { subs: [] as string[] }).subs || []) : [], inCat = all.filter(i => okG(i) && catOf(i, cats) === cat);
+        const on = subs.filter(s => inCat.some(i => catKey(i.sub || "") === catKey(s)));
+        return on.length ? <div className="hs-vsubs" role="group" aria-label={"زیردسته‌های " + cat}>
+          <button type="button" aria-pressed={sub === "all"} onClick={() => setSub("all")}>همه</button>
+          {on.map(s => <button key={s} type="button" aria-pressed={sub === s} onClick={() => setSub(s)}>{s}</button>)}
+        </div> : null; })()}
       {all.some(okG) && (<>
         <label className="hs-vsearch"><span className="hs-sr">جست‌وجو در ویترین</span>
           <input type="search" value={q} onChange={e => setQ(e.target.value)} placeholder="جست‌وجو: نام، کد یا دسته" enterKeyHint="search" autoComplete="off" /></label>

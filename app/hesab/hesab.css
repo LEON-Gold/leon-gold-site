@@ -1006,3 +1006,13 @@ html[data-theme="light"] .hs-vmore-b { background:  rgba(250,247,240,.45); color
   html[data-theme="light"] .hs-auth-panel .hs-auth-q { color: var(--gold-lt); }
   html[data-theme="light"] .hs-auth-panel .hs-auth-b { color: var(--gold-lt); }
 }
+
+/* a category's sub-categories under its tiles (owner, 2026-11-24): quiet pills, the picked one filled */
+.hs-vsubs { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; padding: 2px 0 4px; margin: 2px 0 6px; }
+.hs-vsubs::-webkit-scrollbar { display: none; }
+.hs-vsubs button { flex: none; font: 600 13px/1.4 var(--text); padding: 7px 14px; min-height: 36px; border-radius: 999px; cursor: pointer;
+  border: 1px solid rgba(151,117,56,.45); background: var(--paper-2, #fbf8ef); color: var(--emerald); transition: background-color .2s, color .2s; }
+.hs-vsubs button[aria-pressed="true"] { background: #133423; color: #f1e7d2; border-color: #133423; }
+:root[data-theme="dark"] .hs-vsubs button[aria-pressed="true"] { background: #e2cb94; color: #0c1d15; border-color: #e2cb94; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .hs-vsubs button[aria-pressed="true"] { background: #e2cb94; color: #0c1d15; border-color: #e2cb94; } }
+.hs-vsubs button:focus-visible { outline: 2px solid var(--gold, #c59a50); outline-offset: 2px; }

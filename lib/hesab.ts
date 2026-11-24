@@ -110,7 +110,7 @@ export const sendReceipt = (image: string, amount?: number, date?: string) => ap
 // the receipts this party sent, newest first, each pending until Leon records the real document in the ledger
 // ---------- «ویترین»: the pieces on show (the owner puts them in the ledger), their photos and films, and an order ----------
 // mine: a supplier's own piece («محصولات شما در لئون»): no wage, profit, tax or price
-export type VItem = { id: string; code: string; tags?: string[]; mine?: boolean; status?: "pending" | "live" | "hidden"; supAjrat?: number | null; name: string; cat: string; desc: string; weight: number; carat: number; ajrat: number; profit: number; settle: string[]; settleNote?: string; stock: "qty" | "order" | "none"; qty: number; sold: boolean; media: { id: string; type: "image" | "video" }[] };
+export type VItem = { id: string; code: string; sub?: string; tags?: string[]; mine?: boolean; status?: "pending" | "live" | "hidden"; supAjrat?: number | null; name: string; cat: string; desc: string; weight: number; carat: number; ajrat: number; profit: number; settle: string[]; settleNote?: string; stock: "qty" | "order" | "none"; qty: number; sold: boolean; media: { id: string; type: "image" | "video" }[] };
 // a supplier the owner allows sends its own pieces (owner, 2026-11-10): a photo or film first, then the piece
 export const studioMedia = (data: string) => api<{ ok: true; id: string; type: "image" | "video" }>("/api/portal/studio/media", { data });
 export const studioSave = (d: { id?: string; name: string; cat: string; groups: string[]; weight: string; carat: number; supAjrat: string; qty: string; desc: string; media: { id: string; type: string }[] }) => api<{ ok: true; id: string }>("/api/portal/studio/save", d);
@@ -119,7 +119,7 @@ export const studioCat = (name: string) => api<{ ok: true; cat: string; exists?:
 export const studioRemove = (id: string) => api<{ ok: true }>("/api/portal/studio/remove", { id });
 // the showcase's «کتگوری»‌ها and «گروه»‌ها (owner, 2026-11-13) come with the pieces, from the owner's lists in the ledger; a
 // server that does not send them yet gets the defaults (the old fixed categories; لیزری، ریخته، پایه جواهر، بچگانه)
-export type VCat = { k: string; name: string; alias?: string[] };
+export type VCat = { k: string; name: string; alias?: string[]; subs?: string[] };
 export type VGroup = { k: string; name: string };
 export const VCATS_DEFAULT: VCat[] = [["ring", "انگشتر"], ["necklace", "گردنبند"], ["bracelet", "دستبند"], ["earring", "گوشواره"], ["halfset", "نیم‌ست"], ["set", "سرویس"],
   ["medal", "مدال"], ["chain", "زنجیر"], ["anklet", "پابند"], ["bangle", "النگو"], ["pendant", "پلاک و آویز"]].map(([k, name]) => ({ k, name }));
