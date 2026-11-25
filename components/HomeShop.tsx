@@ -83,7 +83,7 @@ export default function HomeShop() {
 
   return (
     <>
-      <section className="sh-banner" aria-label="ویترین لئون گلد">
+      <section className={"sh-banner" + (cur?.banner ? " sh-ban-made" : "")} aria-label="ویترین لئون گلد">
         <div className="sh-ban-pics" aria-hidden>
           {slides.map((it, i) => Math.abs(i - at) > 1 && !(at === slides.length - 1 && i === 0) ? null : it.banner
             ? <picture key={it.id} className={i === at ? "on" : ""}>{it.bannerM && <source media="(max-width: 899px)" srcSet={publicMedia(it.bannerM)} />}<img src={publicMedia(it.banner)} alt="" fetchPriority={i ? "low" : "high"} decoding="async" /></picture>
