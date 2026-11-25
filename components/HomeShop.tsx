@@ -60,12 +60,15 @@ export default function HomeShop() {
   useEffect(() => { publicVitrin().then(setS, () => {}); }, []);
   const all = useMemo(() => firstOfFam((s?.items || []).filter(i => stockOf(i) !== "none")), [s]);
   const cats = s?.cats || VCATS_DEFAULT;
-  // the banner: only «پایه جواهر» pieces (owner, 2026-11-26), the newest with a photo, one per category first, up to five
+  // the banner: only «پایه جواهر» pieces (owner, 2026-11-26), every one in turn. Pieces with a banner photo made for it
+  // (banner: wide, bannerM: phone) come first and only they show once there are any; until then their own photos, five.
   const slides = useMemo(() => {
     const g = (s?.groups || []).find(x => x.k === "jewel" || x.name.replace(/\s/g, "") === "پایهجواهر")?.name || "پایه جواهر";
-    const L = all.filter(i => img(i) && inGroup(i, g)), seen = new Set<string>();
-    const one = L.filter(i => { const c = catOf(i, cats); if (seen.has(c)) return false; seen.add(c); return true; });
-    return [...one, ...L.filter(i => !one.includes(i))].slice(0, 5);
+    const L = all.filter(i => inGroup(i, g)), made = L.filter(i => i.banner);
+    if (made.length) return made;
+    const seen = new Set<string>(), withPic = L.filter(img);
+    const one = withPic.filter(i => { const c = catOf(i, cats); if (seen.has(c)) return false; seen.add(c); return true; });
+    return [...one, ...withPic.filter(i => !one.includes(i))].slice(0, 5);
   }, [all, cats, s]);
   useEffect(() => {
     if (slides.length < 2 || matchMedia("(prefers-reduced-motion: reduce)").matches) return;
@@ -82,7 +85,9 @@ export default function HomeShop() {
     <>
       <section className="sh-banner" aria-label="ویترین لئون گلد">
         <div className="sh-ban-pics" aria-hidden>
-          {slides.map((it, i) => <img key={it.id} src={pic(it)} alt="" className={i === at ? "on" : ""} fetchPriority={i ? "low" : "high"} decoding="async" />)}
+          {slides.map((it, i) => Math.abs(i - at) > 1 && !(at === slides.length - 1 && i === 0) ? null : it.banner
+            ? <picture key={it.id} className={i === at ? "on" : ""}>{it.bannerM && <source media="(max-width: 899px)" srcSet={publicMedia(it.bannerM)} />}<img src={publicMedia(it.banner)} alt="" fetchPriority={i ? "low" : "high"} decoding="async" /></picture>
+            : <img key={it.id} src={pic(it)} alt="" className={i === at ? "on" : ""} fetchPriority={i ? "low" : "high"} decoding="async" />)}
           {!slides.length && <img className="on sh-ban-leaf" src="/leaf-hd.webp" alt="" />}
         </div>
         <div className="sh-ban-in">
@@ -93,7 +98,12 @@ export default function HomeShop() {
             <a className="btn btn-gold" href={cur ? link({ p: cur.id }) : "vitrin/"}>{cur ? "دیدن همین کار" : "ورود به ویترین"}</a>
             <a className="btn btn-line" href="vitrin/">همه‌ی ویترین</a>
           </div>
-          {slides.length > 1 && <p className="sh-ban-dots">{slides.map((it, i) => <button key={it.id} type="button" aria-label={"کار " + faDigits(i + 1)} aria-pressed={i === at} onClick={() => setAt(i)} />)}</p>}
+          {slides.length > 1 && slides.length <= 6 && <p className="sh-ban-dots">{slides.map((it, i) => <button key={it.id} type="button" aria-label={"کار " + faDigits(i + 1)} aria-pressed={i === at} onClick={() => setAt(i)} />)}</p>}
+          {slides.length > 6 && <p className="sh-ban-step">
+            <button type="button" aria-label="کار قبلی" onClick={() => setAt(a => (a - 1 + slides.length) % slides.length)}>→</button>
+            <span className="num">{faDigits(at + 1)} / {faDigits(slides.length)}</span>
+            <button type="button" aria-label="کار بعدی" onClick={() => setAt(a => (a + 1) % slides.length)}>←</button>
+            <i style={{ "--n": slides.length, "--i": at } as React.CSSProperties} aria-hidden /></p>}
         </div>
       </section>
 
