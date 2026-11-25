@@ -159,11 +159,18 @@ export default function Vitrin({ demo, pub, openId, onlyMine, noMine, kids }: { 
   // search and price (owner, 2026-11-15): words match a piece's name, code, category and kinds of work; the price is
   // today's estimate (the same one each tile shows), in million toman
   const [q, setQ] = useState("");
+  // the home page's links (owner, 2026-11-26): ?st=qty (ready to take), ?pmin=&pmax= (a budget, million toman)
+  useEffect(() => {
+    if (!pub) return;
+    const q = new URLSearchParams(location.search), st0 = q.get("st"), a = q.get("pmin") || "", b = q.get("pmax") || "";
+    if (st0 && STOCKS.some(([k]) => k === st0)) setSt(st0);
+    if (a || b) setR(r0 => ({ ...r0, pMin: a, pMax: b }));
+  }, [pub]);
   const setRv = (k: keyof typeof r) => (e: React.ChangeEvent<HTMLInputElement>) => setR({ ...r, [k]: e.target.value });
   const { feed } = usePrice();
   useEffect(() => {
     if (demo) { setItems(SAMPLE_VITRIN); return; }
-    (pub ? publicVitrin() : vitrin()).then(({ items: L, mine: M, cats: C, groups: G }) => { setItems(L); setMine(M); setCats(C); setGroups(G); if (kids) setGrp(kidsNameOf(G) || KIDS0); const o = openId && L.find(x => x.id === openId); if (o) { setOpen(o); setGrp("all"); setCat(catOf(o, C) || "all"); } }, () => setErr(true));
+    (pub ? publicVitrin() : vitrin()).then(({ items: L, mine: M, cats: C, groups: G }) => { setItems(L); setMine(M); setCats(C); setGroups(G); if (kids) setGrp(kidsNameOf(G) || KIDS0); const oid = openId || (pub ? new URLSearchParams(location.search).get("p") : null), o = oid && L.find(x => x.id === oid); if (o) { setOpen(o); setGrp("all"); setCat(catOf(o, C) || "all"); } }, () => setErr(true));
   }, [demo, pub, openId]);
   const all = useMemo(() => items || [], [items]);
   const gNames = useMemo(() => groups.map(g => g.name), [groups]);

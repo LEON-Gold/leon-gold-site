@@ -53,8 +53,10 @@ function start(gsap: G, ScrollTrigger: ST, Lenis: L) {
 
     // the rosette rings (.hero-rose r1/r2) open by CSS now (site.css), not here, so this timeline doesn't fade them
     // in a second time
+    // the home page's vault hero gave way to the shop banner (owner, 2026-11-26): its timelines run only where it still is
+    const hasHero = !!document.querySelector(".hero-track");
     const tl = gsap.timeline({ defaults: { ease: "expo.out" } });
-    tl.from(".hero-cue", { opacity: 0, duration: 1 }, 1.4)
+    if (hasHero) tl.from(".hero-cue", { opacity: 0, duration: 1 }, 1.4)
       .from(".hero .corner", { opacity: 0, scale: 0.6, duration: 1, stagger: 0.06 }, 1.1);
 
     // the molten-gold clip loads and plays only while it is on screen
@@ -69,8 +71,8 @@ function start(gsap: G, ScrollTrigger: ST, Lenis: L) {
     // the jewel waits big in the middle (site.css .hero-jewel, from the first paint); the scroll turns it once while
     // it shrinks into its place above the name, then the names and actions rise
     const words = [".hero-latin", ".hero-name", ".hero-cta .btn"];
-    gsap.set(words, { opacity: 0, y: 30 });
-    const heroTl = gsap.timeline({ defaults: { ease: "none" }, scrollTrigger: { trigger: ".hero-track", start: "top top", end: "bottom bottom", scrub: 1.2, invalidateOnRefresh: true } })
+    if (hasHero) gsap.set(words, { opacity: 0, y: 30 });
+    const heroTl = !hasHero ? null : gsap.timeline({ defaults: { ease: "none" }, scrollTrigger: { trigger: ".hero-track", start: "top top", end: "bottom bottom", scrub: 1.2, invalidateOnRefresh: true } })
       .to(".hero-cue", { opacity: 0, duration: 0.08 }, 0)
       .fromTo(".hero-jewel", { "--jp": 0 }, { "--jp": 1, duration: 0.6, ease: "power1.inOut" }, 0)
       .fromTo(".jw", { rotationY: 0 }, { rotationY: 360, duration: 0.6, ease: "power1.inOut" }, 0)
@@ -83,7 +85,7 @@ function start(gsap: G, ScrollTrigger: ST, Lenis: L) {
     const land = (id: string) => {
       const target = id && id !== "top" && document.getElementById(id);
       if (!target) return;
-      heroTl.progress(1);
+      heroTl?.progress(1);
       target.scrollIntoView({ behavior: "instant", block: "start" });
     };
     land(location.hash.slice(1)); // arrived with a #hash before the pin's spacer existed; the browser's own jump used the old layout
@@ -92,7 +94,7 @@ function start(gsap: G, ScrollTrigger: ST, Lenis: L) {
       const id = a?.getAttribute("href")?.slice(1);
       if (!id || id === "top" || !document.getElementById(id)) return;
       e.preventDefault(); e.stopImmediatePropagation();
-      heroTl.progress(1);
+      heroTl?.progress(1);
       document.getElementById(id)!.scrollIntoView({ behavior: "instant", block: "start" });
       history.pushState(null, "", "#" + id);
     };

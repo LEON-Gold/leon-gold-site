@@ -8,17 +8,16 @@ import HomeVitrin from "@/components/HomeVitrin";
 import Hallmark from "@/components/Hallmark";
 import Exhibits from "@/components/Exhibits";
 import Ruler from "@/components/Ruler";
-import HeroGL from "@/components/HeroGL";
 import Titles from "@/components/Titles";
 import { STORE_LD } from "@/lib/seo";
 import { EXHIBITS, HERO, LEDGER, MELT, SHOP, STEPS, WORKBOX } from "@/lib/content";
 import { fa } from "@/lib/fa";
 import AndroidApp from "@/components/AndroidApp";
+import HomeShop from "@/components/HomeShop";
 
 // the rosettes are files from public/gl/ (see lib/guilloche.ts): the hero's first one is put inline once loaded so it can engrave itself, the rest are images
 const Rosette = ({ className, draw }: { className: string; draw?: boolean }) => draw ? <InlineSvg className={className} src="/gl/rose-draw.svg" />
   : <div className={className} aria-hidden><img src="/gl/rose.svg" alt="" width={400} height={400} loading="lazy" decoding="async" /></div>;
-const DEPTH = [9, 8, 7, 6, 5, 4, 3, 2, 1];
 
 export const metadata = { alternates: { canonical: "./" } };
 
@@ -31,32 +30,9 @@ export default function Home() {
       <Ruler />
       <Titles />
       <main id="top">
-        {/* the vault: rosettes turning behind the jewel, the name struck in gold leaf */}
-        <div className="hero-track">
-        <section className="hero" aria-labelledby="hero-h">
-          <HeroGL />
-          <Rosette className="hero-rose r1" draw />
-          <div className="hero-light" aria-hidden />
-          <Rosette className="hero-rose r2" />
-          <i className="corner c1" aria-hidden /><i className="corner c2" aria-hidden /><i className="corner c3" aria-hidden /><i className="corner c4" aria-hidden />
-          <div className="hero-in">
-            {/* the jewel, struck with a little depth: stacked copies behind it read as gold thickness when it turns */}
-            <div className="hero-jewel"><div className="jw">
-              {DEPTH.map((z) => <img key={z} className="jw-back" src="/leaf-hd.webp" alt="" width={265} height={490} fetchPriority="high" style={{ "--z": z } as React.CSSProperties} />)}
-              <img className="jw-face" src="/leaf-hd.webp" alt="" width={265} height={490} fetchPriority="high" />
-            </div></div>
-            <p className="hero-latin leaf leaf-sweep" lang="en" dir="ltr">LEON GOLD</p>
-            <h1 id="hero-h" className="hero-name leaf leaf-sweep">لئون گلد</h1>
-            <div className="hero-cta">
-              <a className="btn btn-gold" href="#order">ثبت سفارش</a>
-              <a className="btn btn-line" href="#price">قیمت امروز</a>
-            </div>
-          </div>
-          <p className="hero-cue" aria-hidden>پایین بکشید<i>↓</i></p>
-          <Hallmark className="hero-mark" />
-          <Ticker />
-        </section>
-        </div>
+        {/* a shop window first (owner, 2026-11-26): banner, categories, rows of pieces, budgets; the live price runs under the banner */}
+        <HomeShop />
+        <div className="sh-tick"><Ticker /></div>
 
         <section id="price" className="sec-paper" aria-labelledby="price-h">
           <div className="sec-head" data-rise>
