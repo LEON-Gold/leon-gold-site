@@ -4,7 +4,7 @@
 // (newest, ready to take away, lowest wage), and «by budget» tiles. Everything comes from the real showcase (pieces the
 // owner marks «روی سایت» in the ledger) at this hour's union rate; nothing here is written by hand.
 import { useEffect, useMemo, useRef, useState } from "react";
-import { catOf, famOf, priceOf, stockOf } from "@/components/hesab/Vitrin";
+import { catOf, famOf, inGroup, priceOf, stockOf } from "@/components/hesab/Vitrin";
 import { faDigits, gram, publicMedia, publicVitrin, toman, VCATS_DEFAULT, type Showcase, type VItem } from "@/lib/hesab";
 import { usePrice } from "@/lib/price";
 
@@ -60,8 +60,13 @@ export default function HomeShop() {
   useEffect(() => { publicVitrin().then(setS, () => {}); }, []);
   const all = useMemo(() => firstOfFam((s?.items || []).filter(i => stockOf(i) !== "none")), [s]);
   const cats = s?.cats || VCATS_DEFAULT;
-  // the banner: the newest piece with a photo from each of up to four categories
-  const slides = useMemo(() => { const seen = new Set<string>(); return all.filter(i => { const c = catOf(i, cats); if (!img(i) || seen.has(c)) return false; seen.add(c); return true; }).slice(0, 4); }, [all, cats]);
+  // the banner: only «پایه جواهر» pieces (owner, 2026-11-26), the newest with a photo, one per category first, up to five
+  const slides = useMemo(() => {
+    const g = (s?.groups || []).find(x => x.k === "jewel" || x.name.replace(/\s/g, "") === "پایهجواهر")?.name || "پایه جواهر";
+    const L = all.filter(i => img(i) && inGroup(i, g)), seen = new Set<string>();
+    const one = L.filter(i => { const c = catOf(i, cats); if (seen.has(c)) return false; seen.add(c); return true; });
+    return [...one, ...L.filter(i => !one.includes(i))].slice(0, 5);
+  }, [all, cats, s]);
   useEffect(() => {
     if (slides.length < 2 || matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     const t = setInterval(() => setAt(a => (a + 1) % slides.length), 5500);
