@@ -110,7 +110,7 @@ export const sendReceipt = (image: string, amount?: number, date?: string) => ap
 // the receipts this party sent, newest first, each pending until Leon records the real document in the ledger
 // ---------- «ویترین»: the pieces on show (the owner puts them in the ledger), their photos and films, and an order ----------
 // mine: a supplier's own piece («محصولات شما در لئون»): no wage, profit, tax or price
-export type VItem = { id: string; code: string; sub?: string; tags?: string[]; mine?: boolean; status?: "pending" | "live" | "hidden"; supAjrat?: number | null; name: string; cat: string; desc: string; weight: number; carat: number; ajrat: number; profit: number; settle: string[]; settleNote?: string; stock: "qty" | "order" | "none"; qty: number; sold: boolean; media: { id: string; type: "image" | "video" }[] };
+export type VItem = { id: string; code: string; sub?: string; fam?: string; model?: string; tags?: string[]; mine?: boolean; status?: "pending" | "live" | "hidden"; supAjrat?: number | null; name: string; cat: string; desc: string; weight: number; carat: number; ajrat: number; profit: number; settle: string[]; settleNote?: string; stock: "qty" | "order" | "none"; qty: number; sold: boolean; media: { id: string; type: "image" | "video" }[] };
 // a supplier the owner allows sends its own pieces (owner, 2026-11-10): a photo or film first, then the piece
 export const studioMedia = (data: string) => api<{ ok: true; id: string; type: "image" | "video" }>("/api/portal/studio/media", { data });
 export const studioSave = (d: { id?: string; name: string; cat: string; groups: string[]; weight: string; carat: number; supAjrat: string; qty: string; desc: string; media: { id: string; type: string }[] }) => api<{ ok: true; id: string }>("/api/portal/studio/save", d);
@@ -147,7 +147,8 @@ export async function mediaUrl(id: string): Promise<string> {
 }
 // the sample account's showcase: no photos (a gold leaf stands in), made-up pieces
 export const SAMPLE_VITRIN: VItem[] = [
-  { id: "s1", code: "R12", name: "انگشتر سولیتر", cat: "انگشتر", desc: "نمونه: یک نگین درخشان روی رکاب ظریف.", weight: 3.45, carat: 750, ajrat: 18, profit: 7, settle: ["نقدی پای کفه"], stock: "qty", qty: 2, sold: false, media: [] },
+  { id: "s1", code: "R12", model: "نگین سفید", name: "انگشتر سولیتر", cat: "انگشتر", desc: "نمونه: یک نگین درخشان روی رکاب ظریف.", weight: 3.45, carat: 750, ajrat: 18, profit: 7, settle: ["نقدی پای کفه"], stock: "qty", qty: 2, sold: false, media: [] },
+  { id: "s1g", fam: "s1", code: "R13", model: "نگین سبز", name: "انگشتر سولیتر", cat: "انگشتر", desc: "نمونه: همان رکاب با نگین سبز.", weight: 3.9, carat: 750, ajrat: 18, profit: 7, settle: ["نقدی پای کفه"], stock: "order", qty: 0, sold: false, media: [] },
   { id: "s2", code: "N4", name: "گردنبند پلاک گرد", cat: "گردنبند", desc: "نمونه: پلاک گرد با نقش پیچ.", weight: 6.2, carat: 750, ajrat: 15, profit: 7, settle: ["۳ روز", "۱ هفته"], stock: "order", qty: 0, sold: false, media: [] },
   { id: "s3", code: "E7", name: "گوشواره آویز", cat: "گوشواره", desc: "نمونه: قطره‌ی طلا روی زنجیر کوتاه.", weight: 2.8, carat: 750, ajrat: 20, profit: 7, settle: ["نقدی پای کفه"], stock: "none", qty: 0, sold: true, media: [] },
 ];

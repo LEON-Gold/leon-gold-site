@@ -19,6 +19,9 @@ export function priceOf(it: VItem, gp: number) {
 }
 
 // in hand with a count / can be ordered / not available
+// «مدل‌ها» (owner, 2026-11-25): pieces with the same fam are models of one product (a bracelet with a red stone, the same
+// with a green one…); the showcase shows the product once and its page lets the buyer pick the model
+export const famOf = (it: VItem) => it.fam || it.id;
 export const stockOf = (it: VItem) => it.stock || (it.sold ? "none" : "order");
 // the two filters (owner, 2026-11-09): how soon it can be had, and what kind of piece. A category typed «نیم ست» or
 // «پا بند» in the ledger counts as «نیم‌ست» / «پابند».
@@ -177,11 +180,14 @@ export default function Vitrin({ demo, pub, openId, onlyMine, noMine, kids }: { 
   const nTag = (t: string) => all.filter(i => i.tags?.includes(t) && okG(i) && okSt(i) && okCat(i) && inRange(i)).length;
   const pool = all.filter(i => okG(i) && okSt(i) && okCat(i) && okTag(i) && inRange(i));
   const shown = aNear == null ? pool : nearWage(pool, aNear);
+  // one tile per product: the first of its models that passes the filters
+  const tiles = shown.filter((i, n) => shown.findIndex(x => famOf(x) === famOf(i)) === n);
+  const nModels = (i: VItem) => all.filter(x => famOf(x) === famOf(i)).length;
   const nMore = [r.wMin, r.wMax, r.aMin, r.aMax, r.aNear, r.pMin, r.pMax].filter(v => v.trim()).length;
   const reset = () => { setSt("all"); setTag("all"); setQ(""); setR({ wMin: "", wMax: "", aMin: "", aMax: "", aNear: "", pMin: "", pMax: "" }); };
   const show = (it: VItem | null) => { setOpen(it); scrollTo({ top: 0 }); };
 
-  if (open) { const P = <Product it={open} gp={feed?.gp || 0} demo={demo} pub={pub} onBack={() => show(null)} />; return isKids && !kids ? <div className="kids kd-in-place">{P}</div> : P; }
+  if (open) { const P = <Product key={open.id} it={open} models={all.filter(x => famOf(x) === famOf(open))} onModel={setOpen} gp={feed?.gp || 0} demo={demo} pub={pub} onBack={() => show(null)} />; return isKids && !kids ? <div className="kids kd-in-place">{P}</div> : P; }
   return (
     <>
     {!noMine && onlyMine && items && !mine.length && <section className="hs-sec hs-vit hs-mine"><div className="hs-box-head"><h2 className="hs-h">محصولات شما در لئون</h2><p>هنوز کاری از شما در ویترین لئون گلد نیست.</p></div></section>}
@@ -270,11 +276,12 @@ export default function Vitrin({ demo, pub, openId, onlyMine, noMine, kids }: { 
         : !shown.length ? <p className="hs-empty">با این انتخاب کاری نیست. <button type="button" className="hs-link" onClick={reset}>همه را نشان بده</button></p>
         : (
           <ul className="hs-vgrid">
-            {shown.map(it => (
+            {tiles.map(it => (
               <li key={it.id}>
                 <button type="button" className="hs-vcard paper" onClick={() => show(it)}>
                   <span className="hs-vcard-pic"><Cover it={it} className="hs-vimg" pub={pub} />{it.media.some(m => m.type === "video") && <i className="hs-vplay" aria-label="فیلم دارد">▶</i>}{stockOf(it) === "none" ? <em className="hs-vsold">ناموجود</em> : <em className={"hs-vstock " + stockOf(it)}>{stockOf(it) === "qty" ? "آماده‌ی تحویل" : "قابل سفارش"}</em>}</span>
                   <b>{it.name}</b>
+                  {nModels(it) > 1 && <span className="hs-vmodels">{faDigits(nModels(it))} مدل</span>}
                   <span className="num">{gram(it.weight)} گرم · عیار {faDigits(it.carat)} · اجرت {faDigits(it.ajrat)}٪</span>
                   {!!it.tags?.length && <span className="hs-vtags">{it.tags.join(" · ")}</span>}
                   {feed?.gp ? <strong className="num">≈ {toman(priceOf(it, feed.gp).total)} <small>تومان</small></strong> : <strong>قیمت با نرخ روز</strong>}
@@ -288,7 +295,7 @@ export default function Vitrin({ demo, pub, openId, onlyMine, noMine, kids }: { 
   );
 }
 
-function Product({ it, gp, demo, pub, onBack }: { it: VItem; gp: number; demo?: boolean; pub?: boolean; onBack: () => void }) {
+function Product({ it, models, onModel, gp, demo, pub, onBack }: { it: VItem; models?: VItem[]; onModel?: (m: VItem) => void; gp: number; demo?: boolean; pub?: boolean; onBack: () => void }) {
   const [at, setAt] = useState(0);
   const [note, setNote] = useState("");
   const [state, setState] = useState<"" | "busy" | "wait" | "done" | "late" | "err" | "many">("");
@@ -340,7 +347,18 @@ function Product({ it, gp, demo, pub, onBack }: { it: VItem; gp: number; demo?: 
       <header className="hs-prod-h">
         <p className="hs-prod-k">{[it.cat, ...(it.tags || []), it.code && "کد " + faDigits(it.code)].filter(Boolean).join(" · ")}</p>
         <h1>{it.name}</h1>
+        {it.model && <p className="hs-prod-model">مدل: {it.model}</p>}
       </header>
+      {models && models.length > 1 && <section className="hs-prod-models paper" aria-label="مدل‌ها">
+        <h2>مدل‌های این کار <small>{faDigits(models.length)} مدل</small></h2>
+        <ul>{models.map(m => <li key={m.id}><button type="button" aria-pressed={m.id === it.id} onClick={() => { if (m.id !== it.id) onModel?.(m); }}>
+          <Cover it={m} className="hs-pm-img" pub={pub} />
+          <b>{m.model || m.name}</b>
+          <span className="num">{gram(m.weight)} گرم</span>
+          {gp > 0 && !m.mine && <span className="num hs-pm-p">{toman(priceOf(m, gp).total)} <small>تومان</small></span>}
+          {stockOf(m) === "none" && <em>ناموجود</em>}
+        </button></li>)}</ul>
+      </section>}
       {it.mine ? <section className="hs-prod-price paper" aria-label="کار شما"><p className="hs-prod-pk">محصول شما در لئون</p><p className="hs-prod-fine">این کار را شما ساخته‌اید و در ویترین لئون گلد گذاشته شده است.</p></section> : <section className="hs-prod-price paper" aria-label="قیمت تقریبی امروز">
         <p className="hs-prod-pk">قیمت تقریبی با نرخ همین ساعت</p>
         <p className="hs-prod-pv num">{p ? toman(p.total) : "…"} <small>تومان</small></p>
