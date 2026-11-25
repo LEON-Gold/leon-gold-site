@@ -760,3 +760,13 @@ html[data-theme="light"] .door-card input::placeholder { color: #7a5c25; }
 .sh-ban-step i::after { content: ""; position: absolute; inset-block: 0; inset-inline-start: 0; width: calc((var(--i) + 1) / var(--n) * 100%); background: var(--gold); transition: width .6s var(--ease); }
 /* a photo made for the banner is framed for the whole width (the piece on the left, room for the words on the right) */
 @media (min-width: 900px) { .sh-ban-made .sh-ban-pics { width: 100%; -webkit-mask-image: none; mask-image: none; } }
+/* the source photos are small (owner, 2026-11-26: «کیفیت … به خاطر بزرگ نمایی اومده پایین»): a banner photo is shown no
+   bigger than it was made, inside a soft-edged window on the vault, never stretched over the whole banner */
+.sh-ban-made .sh-ban-pics { inset: 84px 11% auto; height: auto; aspect-ratio: 2 / 3; max-height: calc(100% - 330px);
+  -webkit-mask-image: radial-gradient(closest-side, #000 50%, transparent 100%); mask-image: radial-gradient(closest-side, #000 50%, transparent 100%); }
+.sh-ban-made .sh-ban-pics picture img { object-fit: contain; }
+@media (min-width: 900px) {
+  .sh-ban-made .sh-ban-pics { inset: 50% auto auto 3%; translate: 0 -50%; width: min(820px, 56%); max-height: none; aspect-ratio: 16 / 9;
+    -webkit-mask-image: radial-gradient(closest-side, #000 40%, transparent 100%); mask-image: radial-gradient(closest-side, #000 40%, transparent 100%); }
+}
+@media (min-width: 900px) { .sh-ban-made .sh-ban-pics { width: min(900px, 60%); } }
