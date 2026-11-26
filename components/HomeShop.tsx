@@ -72,9 +72,15 @@ export default function HomeShop() {
   }, [all, cats, s]);
   useEffect(() => {
     if (slides.length < 2 || matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    const t = setInterval(() => setAt(a => (a + 1) % slides.length), 5500);
-    return () => clearInterval(t);
-  }, [slides.length]);
+    // the clock starts again after every change, so a swipe or an arrow gets the full time on its piece
+    const t = setTimeout(() => setAt(a => (a + 1) % slides.length), 5500);
+    return () => clearTimeout(t);
+  }, [slides.length, at]);
+  // a swipe on the banner (phone): towards the right, the next piece (the page reads right to left)
+  const sx = useRef<number | null>(null);
+  const swipe = { onTouchStart: (e: React.TouchEvent) => { sx.current = e.touches[0].clientX; },
+    onTouchEnd: (e: React.TouchEvent) => { if (sx.current == null || slides.length < 2) return; const d = e.changedTouches[0].clientX - sx.current; sx.current = null;
+      if (Math.abs(d) > 40) setAt(a => (a + (d > 0 ? 1 : -1) + slides.length) % slides.length); } };
   const catTiles = useMemo(() => cats.map(c => ({ name: c.name, it: all.find(i => catOf(i, cats) === c.name && img(i)), n: all.filter(i => catOf(i, cats) === c.name).length })).filter(c => c.n > 0), [all, cats]);
   const ready = all.filter(i => stockOf(i) === "qty").slice(0, 12);
   const lowWage = [...all].sort((a, b) => a.ajrat - b.ajrat).slice(0, 12);
@@ -83,7 +89,7 @@ export default function HomeShop() {
 
   return (
     <>
-      <section className={"sh-banner" + (cur?.banner ? " sh-ban-made" : "")} aria-label="ویترین لئون گلد">
+      <section className={"sh-banner" + (cur?.banner ? " sh-ban-made" : "")} aria-label="ویترین لئون گلد" {...swipe}>
         <div className="sh-ban-pics" aria-hidden>
           {slides.map((it, i) => Math.abs(i - at) > 1 && !(at === slides.length - 1 && i === 0) ? null : it.banner
             ? <picture key={it.id} className={i === at ? "on" : ""}>{it.bannerM && <source media="(max-width: 899px)" srcSet={publicMedia(it.bannerM)} />}<img src={publicMedia(it.banner)} alt="" fetchPriority={i ? "low" : "high"} decoding="async" /></picture>

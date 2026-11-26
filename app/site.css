@@ -770,3 +770,46 @@ html[data-theme="light"] .door-card input::placeholder { color: #7a5c25; }
     -webkit-mask-image: radial-gradient(closest-side, #000 40%, transparent 100%); mask-image: radial-gradient(closest-side, #000 40%, transparent 100%); }
 }
 @media (min-width: 900px) { .sh-ban-made .sh-ban-pics { width: min(900px, 60%); } }
+
+/* ---------- the home page on a phone (owner, 2026-11-26: «برای گوشی زیاد جذاب نیست»): a short banner with the piece
+   up top and the words right under it, categories as round icons, tighter sections, sliding group tiles ---------- */
+@media (max-width: 899px) {
+  main#top > section:not(.sh-banner):not(.sh-cats):not(.sh-row) { padding-block: 56px; }
+  .sh-banner { display: block; min-height: 0; padding: 70px 0 0; }
+  .sh-ban-made .sh-ban-pics { position: relative; inset: auto; margin: 0 auto; width: min(80%, 340px); max-height: none; aspect-ratio: 10 / 9; }
+  .sh-ban-made .sh-ban-pics picture img { object-fit: cover; object-position: 50% 0; }
+  .sh-banner:not(.sh-ban-made) { min-height: min(620px, 80svh); display: flex; }
+  .sh-ban-in { padding: 6px var(--m) 26px; gap: 4px; }
+  .sh-ban-in h1 { font-size: 46px; }
+  .sh-ban-k { font-size: 10px; }
+  .sh-ban-t { margin-bottom: 10px; font-size: 15px; }
+  .sh-ban-cta .btn { padding-block: 11px; font-size: 15px; }
+  .sh-ban-step { margin-top: 12px; }
+
+  .sh-cats { padding: 18px 0 2px; }
+  .sh-cat-row { gap: 14px; }
+  .sh-cat-row li { flex: 0 0 74px; }
+  .sh-cat-row a { aspect-ratio: auto; overflow: visible; background: none; box-shadow: none; border-radius: 0; display: grid; justify-items: center; gap: 6px; }
+  .sh-cat-row img { width: 70px; height: 70px; border-radius: 50%; box-shadow: 0 0 0 2px var(--vault), 0 0 0 3.5px var(--gold), 0 8px 18px -10px rgba(0,0,0,.8); }
+  .sh-cat-row img.none { padding: 14px; background: var(--paper-2); }
+  .sh-cat-row span { position: static; padding: 0; background: none; text-align: center; }
+  .sh-cat-row b { font: 700 13.5px/1.3 var(--text); color: var(--ink); }
+  .sh-cat-row small { font-size: 11px; color: var(--muted); }
+
+  .sh-row { padding-top: 26px; }
+  .sh-row-h { padding-bottom: 10px; }
+  .sh-row-h h2 { font-size: 27px; }
+  .sh-row-h p { font-size: 12.5px; }
+  .sh-budget a { aspect-ratio: 3 / 2; }
+
+  #vitrin .vc-grid { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; gap: 12px; margin-inline: calc(var(--m) * -1); padding: 4px var(--m) 12px; scrollbar-width: none; }
+  #vitrin .vc-grid::-webkit-scrollbar { display: none; }
+  #vitrin .vc-grid li { flex: 0 0 42vw; scroll-snap-align: start; }
+  #vitrin .vc-card b { font-size: 19px; }
+
+  .pp-plaques { grid-template-columns: 1fr 1fr; gap: 10px; }
+  .plaque { padding: 16px 14px 14px; border-radius: 14px; }
+  .plaque small { font-size: 12.5px; }
+  .plaque b { font-size: 22px; }
+  .plaque span { font-size: 11.5px; }
+}
