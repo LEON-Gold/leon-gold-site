@@ -207,7 +207,9 @@ type Piece = { desc: string; weight: number; carat: number; date: string; photo?
 export function JewelBox({ a }: { a: Account }) {
   const pieces = useMemo(() => {
     const out: Piece[] = [];
-    for (const e of a.ent) if (e.lines?.length && /^فاکتور/.test(e.label) && (e.gross ?? e.d) > 0) for (const l of e.lines) if (!l.ret && !l.own && l.desc) out.push({ desc: l.desc, weight: l.weight, carat: l.carat, date: dateOf(e), photo: l.photo });
+    // every sale document (فاکتور خرده / عمده, not a «سند دریافتی»), whatever was paid in it: a piece sold and paid for on the
+    // spot nets the document to zero, and was missing here (owner, 2026-11-27: «یه کاری رو فروختم ولی … نرفته داخل صندوق»)
+    for (const e of a.ent) if (e.lines?.length && /^فاکتور/.test(e.label)) for (const l of e.lines) if (!l.ret && !l.own && l.desc) out.push({ desc: l.desc, weight: l.weight, carat: l.carat, date: dateOf(e), photo: l.photo });
     return out;
   }, [a.ent]);
   const grams = pieces.reduce((s, p) => s + (p.weight || 0), 0);

@@ -58,7 +58,7 @@ export function PriceCard() {
 }
 
 // ---------- this year's purchases, from the statement's own invoices ----------
-const isSale = (e: Entry) => !!e.lines?.length && /^فاکتور/.test(e.label) && (e.gross ?? e.d) > 0;
+const isSale = (e: Entry) => !!e.lines?.length && /^فاکتور/.test(e.label) && e.lines.some(l => !l.ret && !l.own);
 export function Summary({ ent }: { ent: Entry[] }) {
   const s = useMemo(() => {
     const y = latin(jdate(new Date().toISOString())).slice(0, 4);
