@@ -4,7 +4,7 @@
 
 export const SERVER = process.env.NEXT_PUBLIC_SYNC_URL || "https://api.leongold.net";
 
-export type Line = { desc: string; qty: number; weight: number; carat: number; ret?: boolean; totalG?: number; amount?: number; photo?: string };
+export type Line = { desc: string; qty: number; weight: number; carat: number; ret?: boolean; own?: boolean; totalG?: number; amount?: number; photo?: string };
 // one saved invoice for the ledger's own sheet (leon-gold-server/portal.mjs sheetOf; shown by components/hesab/Invoice.tsx)
 export type Sheet = { kind: "whole" | "retail"; doc: string; no: string; date: string; vals: string[]; rows: number; tax: string; gp: number; rets: number[]; disc2: string[]; rprev: [string, string] | null;
   gold: { type: string; weight: number; purity: string; lab: string; ang: string; note: string }[]; goldDir: string; trade: { type: string; mode: string; w: number; gp: number; amount: number; note: string; cin: number; cout: number } | null; hav: { partyId: string; partyName: string; w: number; dir: string } | null };
