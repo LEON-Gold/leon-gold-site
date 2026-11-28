@@ -505,7 +505,7 @@ function Statement({ a }: { a: Account }) {
   const units = (u === "all" ? ["g", "r"] : [u]) as ("g" | "r")[];
   const makePdf = async (share: boolean) => {
     if (pdf) return; setPdf(share ? "share" : "save"); setPdfMsg("در حال ساخت گزارش…");
-    try { const r = await statementPdf(a, share); setPdfMsg(r === "saved" ? "فایل PDF ذخیره شد." : ""); }
+    try { const r = await statementPdf(a, share); setPdfMsg(r === "saved" ? "فایل PDF ذخیره شد." : r === "opened" ? "PDF در صفحه‌ی تازه باز شد؛ از همان‌جا چاپ یا دانلود کنید." : ""); }
     catch (e) { setPdfMsg((e as Error)?.name === "AbortError" ? "" : "گزارش ساخته نشد. یک بار دیگر بزنید."); }
     finally { setPdf(""); }
   };

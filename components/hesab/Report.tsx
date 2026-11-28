@@ -120,6 +120,10 @@ export async function statementPdf(a: Account, share: boolean) {
     const blob = doc.output("blob"), name = `leon-gold-statement-${a.id.slice(-6).toUpperCase()}-${latin(today).replace(/\//g, "-")}.pdf`, file = new File([blob], name, { type: "application/pdf" });
     const nav = navigator as Navigator & { canShare?: (d: object) => boolean };
     if ((share || /iPhone|iPad|iPod/.test(navigator.userAgent)) && nav.canShare?.({ files: [file] })) { await navigator.share({ files: [file], title: "صورتحساب لئون گلد" }); return "shared"; }
+    // on a computer the statement opens in a new tab, where the browser's own buttons print and download it (owner, 2026-11-28);
+    // if the browser stops the tab, or on a phone without sharing, it downloads as before
+    const phone = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) || (navigator.maxTouchPoints > 1 && /Macintosh/.test(navigator.userAgent));
+    if (!phone) { const pu = URL.createObjectURL(blob); let win: Window | null = null; try { win = window.open(pu, "_blank"); } catch {} setTimeout(() => URL.revokeObjectURL(pu), 600000); if (win) return "opened"; }
     const u = URL.createObjectURL(blob), el = document.createElement("a"); el.href = u; el.download = name; document.body.appendChild(el); el.click(); el.remove(); setTimeout(() => URL.revokeObjectURL(u), 4000);
     return "saved";
   } finally { host.remove(); }
