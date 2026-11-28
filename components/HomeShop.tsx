@@ -4,7 +4,7 @@
 // (newest, ready to take away, lowest wage), and «by budget» tiles. Everything comes from the real showcase (pieces the
 // owner marks «روی سایت» in the ledger) at this hour's union rate; nothing here is written by hand.
 import { useEffect, useMemo, useRef, useState } from "react";
-import { catOf, famOf, inGroup, priceOf, stockOf } from "@/components/hesab/Vitrin";
+import { catOf, famOf, inGroup, kidsNameOf, priceOf, stockOf } from "@/components/hesab/Vitrin";
 import { faDigits, gram, publicMedia, publicVitrin, toman, VCATS_DEFAULT, type Showcase, type VItem } from "@/lib/hesab";
 import { usePrice } from "@/lib/price";
 
@@ -21,7 +21,7 @@ function Card({ it, gp }: { it: VItem; gp: number }) {
   const u = pic(it);
   return (
     <li className="sh-card">
-      <a href={link({ p: it.id })}>
+      <a href={"vitrin/item/?id=" + encodeURIComponent(it.id)}>
         <span className="sh-card-pic">{u ? <img src={u} alt="" loading="lazy" decoding="async" /> : <img className="none" src="/leaf.webp" alt="" />}
           <em className={"sh-card-st " + stockOf(it)}>{stockOf(it) === "qty" ? "آماده‌ی تحویل" : "قابل سفارش"}</em></span>
         <b>{it.name}</b>
@@ -58,7 +58,8 @@ export default function HomeShop() {
   const { feed } = usePrice();
   const gp = feed?.gp || 0;
   useEffect(() => { publicVitrin().then(setS, () => {}); }, []);
-  const all = useMemo(() => firstOfFam((s?.items || []).filter(i => stockOf(i) !== "none")), [s]);
+  // «لئون کیدز» pieces live on their own page (owner, 2026-11-28), not in the home page's rows
+  const all = useMemo(() => { const kn = kidsNameOf(s?.groups || []); return firstOfFam((s?.items || []).filter(i => stockOf(i) !== "none" && !(kn && inGroup(i, kn)))); }, [s]);
   const cats = s?.cats || VCATS_DEFAULT;
   // the banner: only «پایه جواهر» pieces (owner, 2026-11-26), every one in turn. Pieces with a banner photo made for it
   // (banner: wide, bannerM: phone) come first and only they show once there are any; until then their own photos, five.
@@ -101,7 +102,7 @@ export default function HomeShop() {
           <h1 className="leaf">لئون گلد</h1>
           <p className="sh-ban-t">{cur ? <>{catOf(cur, cats)} · <span>{cur.name}</span></> : "طلا و جواهر، با قیمت همین ساعت"}</p>
           <div className="sh-ban-cta">
-            <a className="btn btn-gold" href={cur ? link({ p: cur.id }) : "vitrin/"}>{cur ? "دیدن همین کار" : "ورود به ویترین"}</a>
+            <a className="btn btn-gold" href={cur ? "vitrin/item/?id=" + encodeURIComponent(cur.id) : "vitrin/"}>{cur ? "دیدن همین کار" : "ورود به ویترین"}</a>
             <a className="btn btn-line" href="vitrin/">همه‌ی ویترین</a>
           </div>
           {slides.length > 1 && slides.length <= 6 && <p className="sh-ban-dots">{slides.map((it, i) => <button key={it.id} type="button" aria-label={"کار " + faDigits(i + 1)} aria-pressed={i === at} onClick={() => setAt(i)} />)}</p>}

@@ -2,14 +2,14 @@
 // «ویترین» in «حساب من»: the pieces the owner put on show in the ledger, by category; each opens on its own page with
 // its photos and films, weight, karat, wage, today's estimated price (the union board's rate this hour), how it can be
 // settled and its description, and an order button that lands in the management panel as a new lead.
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { SHOP, TAX, TAX_FA } from "@/lib/content";
 import { openRules } from "./Extras";
 import Jewel from "@/components/Jewel";
 import Loader from "@/components/Loader";
 import { refreshPrice, usePrice } from "@/lib/price";
 import "./kids.css";
-import { faDigits, gram, latin, mediaUrl, orderItem, orderPrice, orderStatus, publicMedia, publicVitrin, SAMPLE_VITRIN, toman, vitrin, ApiError, VCATS_DEFAULT, VGROUPS_DEFAULT, type VCat, type VGroup, type VItem } from "@/lib/hesab";
+import { faDigits, gram, latin, mediaUrl, orderItem, orderPrice, orderStatus, publicMedia, publicVitrin, SAMPLE_VITRIN, toman, vitrin, ApiError, VCATS_DEFAULT, VGROUPS_DEFAULT, type Showcase, type VCat, type VGroup, type VItem } from "@/lib/hesab";
 
 // today's price of a piece, the way the site's own calculator does it: gold at the hour's rate (by its 750-equivalent
 // weight), plus the wage, plus the profit, plus the tax (TAX, 3%) on all of it
@@ -72,12 +72,17 @@ export const catsOf = (all: VItem[], cats: VCat[] = VCATS_DEFAULT) => { const na
 const faceOf = (L: VItem[]) => L.find(it => stockOf(it) !== "none" && it.media.some(m => m.type === "image")) || L.find(it => it.media.some(m => m.type === "image")) || L.find(it => it.media.length);
 // a group's value: "all" for «همه», else its name (pieces carry their groups by name)
 const gval = (g: VGroup) => g.k === "all" ? "all" : g.name;
+// each piece on the site has its own page (owner, 2026-11-28: «روی محصول میزنیم صفحه خود همان محصول باز بشه»)
+export const itemHref = (id: string, kids?: boolean) => (kids ? "../kids/item/" : "../vitrin/item/") + "?id=" + encodeURIComponent(id);
+function Tile({ pub, href, onOpen, children }: { pub?: boolean; href: string; onOpen: () => void; children: React.ReactNode }) {
+  return pub ? <a className="hs-vcard paper" href={href}>{children}</a> : <button type="button" className="hs-vcard paper" onClick={onOpen}>{children}</button>;
+}
 export function GroupGrid({ items, groups = VGROUPS_DEFAULT, pub, href, onPick }: { items: VItem[] | null; groups?: VGroup[]; pub?: boolean; href?: (g: string) => string; onPick?: (g: string) => void }) {
   const all = items || [];
   return (
     <ul className="vc-grid">
       {[{ k: "all", name: "همه" }, ...groups].map((g, i) => {
-        const v = gval(g), L = all.filter(it => v === "all" || inGroup(it, v)), n = L.length, face = faceOf(L);
+        const kn = kidsNameOf(groups), v = gval(g), L = all.filter(it => v === "all" ? !(kn && inGroup(it, kn)) : inGroup(it, v)), n = L.length, face = faceOf(L);
         const inner = <>
           <span className="vc-pic">{face ? <Cover it={face} className="vc-img" pub={pub} /> : <span className="vc-art"><Jewel kind={GART[g.k] || "ring"} id={"vg" + i} /></span>}</span>
           <b>{g.name}</b>
@@ -170,9 +175,10 @@ export default function Vitrin({ demo, pub, openId, onlyMine, noMine, kids }: { 
   const { feed } = usePrice();
   useEffect(() => {
     if (demo) { setItems(SAMPLE_VITRIN); return; }
-    (pub ? publicVitrin() : vitrin()).then(({ items: L, mine: M, cats: C, groups: G }) => { setItems(L); setMine(M); setCats(C); setGroups(G); if (kids) setGrp(kidsNameOf(G) || KIDS0); const oid = openId || (pub ? new URLSearchParams(location.search).get("p") : null), o = oid && L.find(x => x.id === oid); if (o) { setOpen(o); setGrp("all"); setCat(catOf(o, C) || "all"); } }, () => setErr(true));
+    (pub ? publicVitrin() : vitrin()).then(({ items: L, mine: M, cats: C, groups: G }) => { setItems(L); setMine(M); setCats(C); setGroups(G); if (kids) setGrp(kidsNameOf(G) || KIDS0); const pp = pub ? new URLSearchParams(location.search).get("p") : null; if (pp && !openId) { location.replace(itemHref(pp, kids)); return; } const o = openId && L.find(x => x.id === openId); if (o) { setOpen(o); setGrp("all"); setCat(catOf(o, C) || "all"); } }, () => setErr(true));
   }, [demo, pub, openId]);
-  const all = useMemo(() => items || [], [items]);
+  // «لئون کیدز» has its own page and section (owner, 2026-11-28): its pieces stay out of every other group and category
+  const all = useMemo(() => { const L = items || []; return kidsName && !isKids ? L.filter(i => !inGroup(i, kidsName)) : L; }, [items, kidsName, isKids]);
   const gNames = useMemo(() => groups.map(g => g.name), [groups]);
   const tags = useMemo(() => [...VTAGS.filter(t => all.some(i => i.tags?.includes(t))), ...new Set(all.flatMap(i => i.tags || []).filter(t => !VTAGS.includes(t) && !gNames.includes(t)))], [all, gNames]);
   // weight and wage: a range, or a wage typed (with its nearest neighbours)
@@ -285,14 +291,14 @@ export default function Vitrin({ demo, pub, openId, onlyMine, noMine, kids }: { 
           <ul className="hs-vgrid">
             {tiles.map(it => (
               <li key={it.id}>
-                <button type="button" className="hs-vcard paper" onClick={() => show(it)}>
+                <Tile pub={pub && !demo} href={itemHref(it.id, isKids)} onOpen={() => show(it)}>
                   <span className="hs-vcard-pic"><Cover it={it} className="hs-vimg" pub={pub} />{it.media.some(m => m.type === "video") && <i className="hs-vplay" aria-label="فیلم دارد">▶</i>}{stockOf(it) === "none" ? <em className="hs-vsold">ناموجود</em> : <em className={"hs-vstock " + stockOf(it)}>{stockOf(it) === "qty" ? "آماده‌ی تحویل" : "قابل سفارش"}</em>}</span>
                   <b>{it.name}</b>
                   {nModels(it) > 1 && <span className="hs-vmodels">{faDigits(nModels(it))} مدل</span>}
                   <span className="num">{gram(it.weight)} گرم · عیار {faDigits(it.carat)} · اجرت {faDigits(it.ajrat)}٪</span>
                   {!!it.tags?.length && <span className="hs-vtags">{it.tags.join(" · ")}</span>}
                   {feed?.gp ? <strong className="num">≈ {toman(priceOf(it, feed.gp).total)} <small>تومان</small></strong> : <strong>قیمت با نرخ روز</strong>}
-                </button>
+                </Tile>
               </li>
             ))}
           </ul>
@@ -302,8 +308,10 @@ export default function Vitrin({ demo, pub, openId, onlyMine, noMine, kids }: { 
   );
 }
 
-function Product({ it, models, onModel, gp, demo, pub, onBack }: { it: VItem; models?: VItem[]; onModel?: (m: VItem) => void; gp: number; demo?: boolean; pub?: boolean; onBack: () => void }) {
+function Product({ it, models, onModel, gp, demo, pub, onBack, base = "../", kids }: { it: VItem; models?: VItem[]; onModel?: (m: VItem) => void; gp: number; demo?: boolean; pub?: boolean; onBack: () => void; base?: string; kids?: boolean }) {
   const [at, setAt] = useState(0);
+  const [zoom, setZoom] = useState<number | null>(null);
+  const [more, setMore] = useState(false);
   const [note, setNote] = useState("");
   const [state, setState] = useState<"" | "busy" | "wait" | "done" | "late" | "err" | "many">("");
   const p = gp ? priceOf(it, gp) : null;
@@ -339,18 +347,26 @@ function Product({ it, models, onModel, gp, demo, pub, onBack }: { it: VItem; mo
     if (!demo) orderPrice(w.id, gp, total).catch(() => {});
   }, [gp, state, w, it, demo]);
   const media = it.media.length ? it.media : [];
+  const short = (k: string) => k === "qty" ? "آماده‌ی تحویل" : k === "order" ? "قابل سفارش" : "ناموجود";
   return (
     <article className="hs-prod" aria-label={it.name}>
-      <button type="button" className="hs-link hs-prod-back" onClick={onBack}>{it.mine ? "→ محصولات من" : "→ ویترین"}</button>
+      <button type="button" className="hs-link hs-prod-back" onClick={onBack}>{it.mine ? "→ محصولات من" : kids ? "→ لئون کیدز" : "→ ویترین"}</button>
+      <div className="hs-prod-grid">
+      <div className="hs-prod-media">
       <div className="hs-gal paper">
         {media.length ? (
           <div className="hs-gal-track" onScroll={e => { const el = e.currentTarget; setAt(Math.round(Math.abs(el.scrollLeft) / el.clientWidth)); }}>
-            {media.map(m => <div key={m.id} className="hs-gal-it"><Media m={m} className="hs-gal-m" controls={m.type === "video"} pub={pub} /></div>)}
+            {media.map((m, i) => <div key={m.id} className="hs-gal-it">{m.type === "image"
+              ? <button type="button" className="hs-gal-zoom" aria-label="بزرگ‌نمایی عکس" onClick={() => setZoom(i)}><Media m={m} className="hs-gal-m" pub={pub} /><i aria-hidden>⤢</i></button>
+              : <Media m={m} className="hs-gal-m" controls pub={pub} />}</div>)}
           </div>
         ) : <div className="hs-gal-it"><span className="hs-gal-m hs-pic-none" aria-hidden><img src="/leaf.webp" alt="" /></span></div>}
         {media.length > 1 && <p className="hs-gal-dots" aria-hidden>{media.map((m, i) => <i key={m.id} className={i === at ? "on" : ""} />)}</p>}
         {stockOf(it) === "none" && <em className="hs-vsold">ناموجود</em>}
       </div>
+      {media.length > 1 && <ul className="hs-gal-thumbs" aria-label="عکس‌ها">{media.map((m, i) => <li key={m.id}><button type="button" aria-pressed={i === at} onClick={() => { const tr = document.querySelector(".hs-gal-track"); if (tr) tr.scrollTo({ left: -i * tr.clientWidth * (getComputedStyle(tr).direction === "rtl" ? 1 : -1), behavior: "smooth" }); setAt(i); }}><Media m={m} className="hs-gal-th" pub={pub} /></button></li>)}</ul>}
+      </div>
+      <div className="hs-prod-info">
       <header className="hs-prod-h">
         <p className="hs-prod-k">{[it.cat, ...(it.tags || []), it.code && "کد " + faDigits(it.code)].filter(Boolean).join(" · ")}</p>
         <h1>{it.name}</h1>
@@ -369,25 +385,26 @@ function Product({ it, models, onModel, gp, demo, pub, onBack }: { it: VItem; mo
       {it.mine ? <section className="hs-prod-price paper" aria-label="کار شما"><p className="hs-prod-pk">محصول شما در لئون</p><p className="hs-prod-fine">این کار را شما ساخته‌اید و در ویترین لئون گلد گذاشته شده است.</p></section> : <section className="hs-prod-price paper" aria-label="قیمت تقریبی امروز">
         <p className="hs-prod-pk">قیمت تقریبی با نرخ همین ساعت</p>
         <p className="hs-prod-pv num">{p ? toman(p.total) : "…"} <small>تومان</small></p>
-        {p && <dl className="hs-prod-break">
-          <div><dt>طلا ({gram(it.weight)} گرم، عیار {faDigits(it.carat)})</dt><dd className="num">{toman(p.gold)}</dd></div>
-          <div><dt>اجرت ({faDigits(it.ajrat)}٪)</dt><dd className="num">{toman(p.ajr)}</dd></div>
-          <div><dt>سود ({faDigits(it.profit)}٪)</dt><dd className="num">{toman(p.prof)}</dd></div>
-          <div><dt>مالیات بر ارزش افزوده ({TAX_FA} کل)</dt><dd className="num">{toman(p.tax)}</dd></div>
-        </dl>}
+        {/* the parts of the price in four big boxes (owner, 2026-11-28: «اجرت و سود مالیات خیلی ریز هستن») */}
+        {p && <div className="hs-prod-boxes">
+          <div><span>طلا</span><b className="num">{toman(p.gold)}</b><small className="num">{gram(it.weight)} گرم · عیار {faDigits(it.carat)}</small></div>
+          <div><span>اجرت</span><b className="num">{faDigits(it.ajrat)}٪</b><small className="num">{toman(p.ajr)} تومان</small></div>
+          <div><span>سود</span><b className="num">{faDigits(it.profit)}٪</b><small className="num">{toman(p.prof)} تومان</small></div>
+          <div><span>مالیات</span><b className="num">{TAX_FA}</b><small className="num">{toman(p.tax)} تومان</small></div>
+        </div>}
         <p className="hs-prod-fine">قیمت نهایی با نرخ لحظه‌ی خرید حساب می‌شود.</p>
       </section>}
+      {/* the details as short boxes (owner, 2026-11-28) */}
       <section className="hs-prod-spec paper" aria-label="مشخصات">
-        <dl>
-          <div><dt>وزن</dt><dd className="num">{gram(it.weight)} گرم</dd></div>
-          <div><dt>عیار</dt><dd className="num">{faDigits(it.carat)}</dd></div>
-          {!it.mine && <div><dt>اجرت</dt><dd className="num">{faDigits(it.ajrat)}٪</dd></div>}
-          <div><dt>موجودی</dt><dd>{stockText(it)}</dd></div>
-        </dl>
-        {!it.mine && ((it.settle || []).length > 0 || it.settleNote) && <div className="hs-prod-settle"><h2>مدت تسویه</h2>
-          {it.settle.length > 0 && <p className="hs-chips">{it.settle.map(s => <span key={s}>{s}</span>)}</p>}
-          {it.settleNote && <p>{it.settleNote}</p>}</div>}
-        {it.desc && <div className="hs-prod-desc"><h2>توضیحات</h2><p>{it.desc}</p></div>}
+        <div className="hs-prod-facts">
+          <div><span>وزن</span><b className="num">{gram(it.weight)} گرم</b></div>
+          <div><span>عیار</span><b className="num">{faDigits(it.carat)}</b></div>
+          {!it.mine && <div><span>اجرت</span><b className="num">{faDigits(it.ajrat)}٪</b></div>}
+          <div><span>موجودی</span><b>{stockOf(it) === "qty" && it.qty > 0 ? faDigits(it.qty) + " عدد" : short(stockOf(it))}</b></div>
+          {!it.mine && (it.settle || []).length > 0 && <div className="wide"><span>تسویه</span><b>{it.settle.join("، ")}</b></div>}
+        </div>
+        {!it.mine && it.settleNote && <p className="hs-prod-note">{it.settleNote}</p>}
+        {it.desc && <div className={"hs-prod-desc" + (more ? " open" : "")}><h2>توضیحات</h2><p>{it.desc}</p>{it.desc.length > 140 && <button type="button" className="hs-link" onClick={() => setMore(!more)}>{more ? "کمتر" : "بیشتر"}</button>}</div>}
       </section>
       {!it.mine && <section className="hs-prod-order paper" aria-label="سفارش">
         {stockOf(it) === "none" ? <>
@@ -397,7 +414,7 @@ function Product({ it, models, onModel, gp, demo, pub, onBack }: { it: VItem; mo
         </> : pub ? <>
           <h2>{stockOf(it) === "qty" ? "خرید این کار" : "سفارش این کار"}</h2>
           <p className="hs-prod-fine">برای ثبت سفارش وارد «حساب من» شوید؛ اگر حساب ندارید، همان‌جا در یک دقیقه بسازید. سفارش شما با همین کار ثبت می‌شود.</p>
-          <a className="btn btn-gold" href={`../hesab/?t=vitrin&p=${encodeURIComponent(it.id)}`}>ثبت سفارش</a>
+          <a className="btn btn-gold" href={`${base}hesab/?t=vitrin&p=${encodeURIComponent(it.id)}`}>ثبت سفارش</a>
           <a className="hs-link" href={SHOP.telegram} target="_blank" rel="noopener">یا در تلگرام بپرسید</a>
         </> : state === "wait" && w ? (
           <div className="hs-wait-box" role="status" aria-live="polite">
@@ -432,6 +449,80 @@ function Product({ it, models, onModel, gp, demo, pub, onBack }: { it: VItem; mo
           <a className="hs-link" href={SHOP.telegram} target="_blank" rel="noopener">یا در تلگرام بپرسید</a>
         </>}
       </section>}
+      </div>
+      </div>
+      {zoom != null && <Zoom list={media} start={zoom} pub={pub} onClose={() => setZoom(null)} />}
     </article>
   );
+}
+
+// the photo, big, on its own (owner, 2026-11-28: «عکس قابلیت بزرگ نمایی و زوم داشته باشه»): two fingers or the wheel to
+// zoom, a double tap to zoom in or out where it is tapped, a drag to move about, a swipe (not zoomed) for the next photo
+function Zoom({ list, start, pub, onClose }: { list: { id: string; type: "image" | "video" }[]; start: number; pub?: boolean; onClose: () => void }) {
+  const imgs = list.filter(m => m.type === "image");
+  const [i, setI] = useState(() => Math.max(0, imgs.findIndex(m => m.id === list[start]?.id)));
+  const [z, setZ] = useState({ s: 1, x: 0, y: 0 });
+  const zr = useRef(z); zr.current = z;
+  const pts = useRef(new Map<number, { x: number; y: number }>());
+  const pinch = useRef<{ d: number; s: number; mx: number; my: number; x: number; y: number } | null>(null);
+  const tap = useRef(0), sx = useRef<number | null>(null);
+  const go = (d: number) => { setI(v => (v + d + imgs.length) % imgs.length); setZ({ s: 1, x: 0, y: 0 }); };
+  useEffect(() => {
+    const k = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); else if (e.key === "ArrowLeft") go(1); else if (e.key === "ArrowRight") go(-1); };
+    addEventListener("keydown", k); const o = document.documentElement.style.overflow; document.documentElement.style.overflow = "hidden";
+    return () => { removeEventListener("keydown", k); document.documentElement.style.overflow = o; };
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  const clampS = (v: number) => Math.min(5, Math.max(1, v));
+  // keep the point under the finger in place: t' = p − c − (p − c − t)·s'/s
+  const at = (s2: number, px: number, py: number, cur = zr.current) => { s2 = clampS(s2); if (s2 === 1) return { s: 1, x: 0, y: 0 }; const cx = innerWidth / 2, cy = innerHeight / 2, k = s2 / cur.s; return { s: s2, x: px - cx - (px - cx - cur.x) * k, y: py - cy - (py - cy - cur.y) * k }; };
+  const down = (e: React.PointerEvent) => {
+    (e.currentTarget as Element).setPointerCapture?.(e.pointerId); pts.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    if (pts.current.size === 1) { sx.current = e.clientX; const now = Date.now(); if (now - tap.current < 300) { setZ(zr.current.s > 1 ? { s: 1, x: 0, y: 0 } : at(2.5, e.clientX, e.clientY)); tap.current = 0; } else tap.current = now; }
+    if (pts.current.size === 2) { const [a, b] = [...pts.current.values()]; pinch.current = { d: Math.hypot(a.x - b.x, a.y - b.y) || 1, s: zr.current.s, mx: (a.x + b.x) / 2, my: (a.y + b.y) / 2, x: zr.current.x, y: zr.current.y }; sx.current = null; }
+  };
+  const move = (e: React.PointerEvent) => {
+    const prev = pts.current.get(e.pointerId); if (!prev) return; pts.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    const g = pinch.current;
+    if (pts.current.size === 2 && g) { const [a, b] = [...pts.current.values()], s2 = clampS(g.s * Math.hypot(a.x - b.x, a.y - b.y) / g.d), mx = (a.x + b.x) / 2, my = (a.y + b.y) / 2, cx = innerWidth / 2, cy = innerHeight / 2, k = s2 / g.s;
+      setZ(s2 === 1 ? { s: 1, x: 0, y: 0 } : { s: s2, x: mx - cx - (g.mx - cx - g.x) * k, y: my - cy - (g.my - cy - g.y) * k }); return; }
+    if (zr.current.s > 1) setZ(c => ({ ...c, x: c.x + e.clientX - prev.x, y: c.y + e.clientY - prev.y }));
+  };
+  const up = (e: React.PointerEvent) => {
+    pts.current.delete(e.pointerId); if (pts.current.size < 2) pinch.current = null;
+    if (!pts.current.size && sx.current != null && zr.current.s === 1 && imgs.length > 1) { const d = e.clientX - sx.current; if (Math.abs(d) > 50) go(d > 0 ? 1 : -1); }
+    if (!pts.current.size) sx.current = null;
+  };
+  const m = imgs[i];
+  return (
+    <div className="hs-zoom" role="dialog" aria-modal="true" aria-label="بزرگ‌نمایی عکس" onWheel={e => setZ(at(zr.current.s * (e.deltaY < 0 ? 1.15 : 1 / 1.15), e.clientX, e.clientY))}>
+      <div className="hs-zoom-stage" onPointerDown={down} onPointerMove={move} onPointerUp={up} onPointerCancel={up}>
+        {m && <div className="hs-zoom-img" style={{ transform: `translate(${z.x}px, ${z.y}px) scale(${z.s})` }}><Media key={m.id} m={m} className="hs-zoom-m" pub={pub} /></div>}
+      </div>
+      <button type="button" className="hs-zoom-x" aria-label="بستن" onClick={onClose}>✕</button>
+      <div className="hs-zoom-bar">
+        {imgs.length > 1 && <button type="button" aria-label="عکس قبلی" onClick={() => go(-1)}>→</button>}
+        <button type="button" aria-label="کوچک‌تر" onClick={() => setZ(at(zr.current.s / 1.5, innerWidth / 2, innerHeight / 2))}>−</button>
+        <span className="num">{imgs.length > 1 ? `${faDigits(i + 1)} / ${faDigits(imgs.length)}` : z.s > 1 ? faDigits(Math.round(z.s * 10) / 10) + "×" : "زوم"}</span>
+        <button type="button" aria-label="بزرگ‌تر" onClick={() => setZ(at(zr.current.s * 1.5, innerWidth / 2, innerHeight / 2))}>+</button>
+        {imgs.length > 1 && <button type="button" aria-label="عکس بعدی" onClick={() => go(1)}>←</button>}
+      </div>
+      <p className="hs-zoom-hint">دو بار بزنید یا با دو انگشت بزرگ کنید</p>
+    </div>
+  );
+}
+
+// a piece's own page on the site (vitrin/item/?id=…, kids/item/?id=…; owner, 2026-11-28)
+export function ProductPage({ kids }: { kids?: boolean }) {
+  const [s, setS] = useState<Showcase | null>(null);
+  const [id, setId] = useState<string | null>(null);
+  const [err, setErr] = useState(false);
+  const { feed } = usePrice();
+  useEffect(() => { setId(new URLSearchParams(location.search).get("id")); publicVitrin().then(setS, () => setErr(true)); }, []);
+  const it = s && id ? s.items.find(x => x.id === id) || null : null;
+  useEffect(() => { if (it) document.title = it.name + " · " + (kids ? "لئون کیدز" : "لئون گلد"); }, [it, kids]);
+  const back = () => { let same = false; try { same = !!document.referrer && new URL(document.referrer).origin === location.origin; } catch {} if (same && history.length > 1) history.back(); else location.href = "../"; };
+  if (err) return <p className="hs-empty">ویترین باز نشد. اینترنت را بررسی کنید و دوباره سر بزنید.</p>;
+  if (!s) return <Loader label="در حال آوردن این کار" />;
+  if (!it) return <p className="hs-empty">این کار دیگر در ویترین نیست. <a className="hs-link" href="../">دیدن بقیه‌ی کارها</a></p>;
+  return <Product key={it.id} it={it} models={s.items.filter(x => famOf(x) === famOf(it))} onModel={m => { history.replaceState(null, "", "?id=" + encodeURIComponent(m.id)); setId(m.id); scrollTo({ top: 0 }); }} gp={feed?.gp || 0} pub base="../../" kids={kids} onBack={back} />;
 }

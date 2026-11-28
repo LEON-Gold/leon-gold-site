@@ -12,7 +12,7 @@ export const metadata = {
 
 export default function Page() {
   return (
-    <KidsDoor fine="قیمت‌ها تقریبی است و با نرخ لحظه‌ی خرید قطعی می‌شود.">
+    <KidsDoor shop fine="قیمت‌ها تقریبی است و با نرخ لحظه‌ی خرید قطعی می‌شود.">
       <NameOrder />
       <Vitrin pub kids />
     </KidsDoor>
