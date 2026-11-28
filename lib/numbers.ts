@@ -66,8 +66,8 @@ export function period(k: Kind, off: number): Period {
   return p;
 }
 
-type Item = { desc?: string; weight?: number; carat?: number; ajrat?: number; ajratG?: number; w750?: number; costAj?: number; pid?: string; ret?: boolean; amount?: number; gold?: number };
-type Inv = { kind?: string; doc?: string; date?: string; ts?: string; items?: Item[]; gold?: { g750?: number }[]; goldDir?: string; trade?: { cin?: number; cout?: number } | null };
+type Item = { dir?: string; desc?: string; weight?: number; carat?: number; ajrat?: number; ajratG?: number; w750?: number; costAj?: number; pid?: string; ret?: boolean; amount?: number; gold?: number };
+type Inv = { kind?: string; doc?: string; date?: string; ts?: string; items?: Item[]; gold?: { g750?: number; dir?: string }[]; goldDir?: string; trade?: { cin?: number; cout?: number } | null };
 type Exp = { date?: string; ts?: string; cat?: string; r?: number; w?: number; lab?: number; g?: number };
 type Set = { dir?: string; unit?: string; amount?: number; date?: string; ts?: string; note?: string };
 
@@ -88,8 +88,8 @@ export function figures(st: Store, s: number, e: number): Figures {
       for (const it of i.items || []) { const a = +(it.amount || 0), g = +(it.gold || 0); F.saleR += a; F.profR += a - g - Math.round((g * +(it.ajrat || 0)) / 100); }
       continue;
     }
-    const out = i.doc !== "rc";
     for (const it of i.items || []) {
+      const out = it.dir ? it.dir === "pd" : i.doc !== "rc";   // a line's own direction (2026-11-28), else the document's
       const p = pureOf(it), c = costOf(it), m = c == null ? null : (p * (+(it.ajrat || 0) - c)) / 100;
       if (out && !it.ret) { F.sale += p; F.wage += +(it.ajratG || 0); if (m == null) F.noCost++; else if (m >= 0) F.gain += m; else F.loss -= m; }
       else if (!out && it.ret) { F.ret += p; if (m != null) F.retM += m; }
@@ -97,8 +97,8 @@ export function figures(st: Store, s: number, e: number): Figures {
       else F.retSup += p;
     }
     // gold handed over on the invoice (آبشده etc.), in 750 grams, and cash written on it
-    const g = (i.gold || []).reduce((a, x) => a + +(x.g750 || 0), 0);
-    if (i.goldDir === "dr") F.goldOut += g; else F.goldIn += g;
+    // each row received or paid on its own (2026-11-28; older invoices: the document's goldDir)
+    for (const x of i.gold || []) { const g = +(x.g750 || 0); if ((x.dir || i.goldDir) === "dr") F.goldOut += g; else F.goldIn += g; }
     F.cashIn += +(i.trade?.cin || 0); F.cashOut += +(i.trade?.cout || 0);
   }
   for (const x of Object.values(st.settlements) as Set[]) {
