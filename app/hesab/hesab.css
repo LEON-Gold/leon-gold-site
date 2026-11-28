@@ -1040,10 +1040,10 @@ html[data-theme="light"] .hs-vmore-b { background:  rgba(250,247,240,.45); color
    باید روی خود محصول ها تمرکز داشته باشه»): no card around the page, bigger tiles, a piece's own page that is mostly the
    piece, the price's parts in big boxes, and the photos zoomable ---------- */
 .door-shop-in { min-height: auto; display: block; padding: 64px 0 calc(24px + env(safe-area-inset-bottom)); overflow: visible; }
-html:root .door-card.door-shop { width: 100%; max-width: 1440px; margin: 0 auto; padding: 12px 10px 24px; background: none; box-shadow: none; border: 0; border-radius: 0; animation: none; text-align: right; }
+html:root .door-card.door-shop { width: 100%; max-width: 1600px; margin: 0 auto; padding: 12px 10px 24px; background: none !important; box-shadow: none !important; border: 0; border-radius: 0; animation: none; text-align: right; }
 .door-shop-page .door-fine { margin: 4px 16px 18px; text-align: center; }
 @media (max-width: 640px) { .door-shop-page .door-bar-t { display: none; } .door-shop-page .door-back2 + .door-back { display: none; } }
-@media (min-width: 900px) { html:root .door-card.door-shop { padding: 22px 36px 36px; } }
+@media (min-width: 900px) { html:root .door-card.door-shop { padding: 18px 24px 32px; } }
 html:root:root .kids .kd-card.kd-shop { padding: 10px 10px 24px; background: none; border: 0; box-shadow: none; }
 .kd-shop-page .kd-main { padding-top: 6px; }
 @media (min-width: 900px) { html:root:root .kids .kd-card.kd-shop { padding: 20px 36px 36px; } }
