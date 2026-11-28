@@ -41,3 +41,7 @@
 - Order and work lines show the product's own photo, fetched with the party's token (`/api/portal/photo/:id`), never a public URL. Customers can send a card-to-card receipt photo (shrunk on the phone, amount in toman sent as rial ×10); it stays PENDING and moves no balance. The panel's «امروز» lists pending receipts read-only.
 - The panel is opened from inside the ledger (owner only), never linked from the site: the ledger gets a one-time code (`POST /api/handoff`, 60 s) and opens `panel/#h=<code>`; the panel wipes the hash at once and redeems it (`POST /api/handoff/redeem`) for its own session. Its own sign-in form stays as a fallback.
 - No owner tools on public pages (owner, 2026-10-31): invite links, signing a party out and closing receipts live only in the ledger's owner-only «کاربران». The old `hesab/#owner` page is gone. «حساب من» and /panel read only the ledger's synced data (the panel's own `crm_*` notes aside).
+
+## Static export: defer the scripts (2026-11-28)
+
+After every static export (preview or leongold.net), run `node scripts/defer-scripts.mjs <out dir>`: it turns Next's `async` script tags into `defer`. With `async`, React sometimes started hydrating before the browser had read the whole page and threw error #418 (and re-rendered everything). `scripts/preview.sh` and `../leon-gold-hosting/build.sh` already run it; a hand-made build for `../leon-gold-server/web` must too.
